@@ -1,11 +1,30 @@
 {
   "version": 3,
   "targets": {
-    "net9.0": {}
+    "net9.0": {
+      "FlashCardTool.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "compile": {
+          "bin/placeholder/FlashCardTool.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/FlashCardTool.Domain.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "FlashCardTool.Domain/1.0.0": {
+      "type": "project",
+      "path": "../FlashCardTool.Domian/FlashCardTool.Domain.csproj",
+      "msbuildProject": "../FlashCardTool.Domian/FlashCardTool.Domain.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    "net9.0": []
+    "net9.0": [
+      "FlashCardTool.Domain >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "/Users/toluabbass/.nuget/packages/": {}
@@ -32,7 +51,11 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.Domian/FlashCardTool.Domain.csproj": {
+              "projectPath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.Domian/FlashCardTool.Domain.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

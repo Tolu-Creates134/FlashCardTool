@@ -13,9 +13,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.Domian/FlashCardTool.Domian.csproj",
-      "projectName": "FlashCardTool.Domian",
-      "projectPath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.Domian/FlashCardTool.Domian.csproj",
+      "projectUniqueName": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.Domian/FlashCardTool.Domain.csproj",
+      "projectName": "FlashCardTool.Domain",
+      "projectPath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.Domian/FlashCardTool.Domain.csproj",
       "packagesPath": "/Users/toluabbass/.nuget/packages/",
       "outputPath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.Domian/obj/",
       "projectStyle": "PackageReference",

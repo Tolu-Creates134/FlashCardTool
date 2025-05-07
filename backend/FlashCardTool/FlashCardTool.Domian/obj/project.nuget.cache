@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "qQ37t2z1IEo=",
+  "dgSpecHash": "CURfLlCku0A=",
   "success": true,
-  "projectFilePath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.Domian/FlashCardTool.Domian.csproj",
+  "projectFilePath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.Domian/FlashCardTool.Domain.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

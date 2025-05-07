@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashCardTool.API", "FlashC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashCardTool.Application", "FlashCardTool.Application\FlashCardTool.Application.csproj", "{5245C6FF-0DB4-4FBF-8EBF-3E3D452AC7C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashCardTool.Domian", "FlashCardTool.Domian\FlashCardTool.Domian.csproj", "{3EEEDFB3-49A9-44B3-A99B-2C98B37B128E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashCardTool.Domain", "FlashCardTool.Domian\FlashCardTool.Domain.csproj", "{3EEEDFB3-49A9-44B3-A99B-2C98B37B128E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashCardTool.Infrastructure", "FlashCardTool.Infrastructure\FlashCardTool.Infrastructure.csproj", "{4FEEE9CE-61C1-4E72-93E4-EFA3812C14D6}"
 EndProject

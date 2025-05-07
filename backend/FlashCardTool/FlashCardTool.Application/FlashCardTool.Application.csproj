@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../FlashCardTool.Domian/FlashCardTool.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
