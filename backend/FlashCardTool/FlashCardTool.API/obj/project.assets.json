@@ -228,13 +228,13 @@
     },
     "FlashCardTool.Application/1.0.0": {
       "type": "project",
-      "path": "FlashCardTool.Application/FlashCardTool.Application.csproj",
-      "msbuildProject": "FlashCardTool.Application/FlashCardTool.Application.csproj"
+      "path": "../FlashCardTool.Application/FlashCardTool.Application.csproj",
+      "msbuildProject": "../FlashCardTool.Application/FlashCardTool.Application.csproj"
     },
     "FlashCardTool.Domain/1.0.0": {
       "type": "project",
-      "path": "FlashCardTool.Domian/FlashCardTool.Domain.csproj",
-      "msbuildProject": "FlashCardTool.Domian/FlashCardTool.Domain.csproj"
+      "path": "../FlashCardTool.Domian/FlashCardTool.Domain.csproj",
+      "msbuildProject": "../FlashCardTool.Domian/FlashCardTool.Domain.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -251,11 +251,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API.csproj",
+      "projectUniqueName": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API/FlashCardTool.API.csproj",
       "projectName": "FlashCardTool.API",
-      "projectPath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API.csproj",
+      "projectPath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API/FlashCardTool.API.csproj",
       "packagesPath": "/Users/toluabbass/.nuget/packages/",
-      "outputPath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/obj/",
+      "outputPath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/toluabbass/.nuget/NuGet/NuGet.Config"

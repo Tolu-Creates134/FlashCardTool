@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API.csproj": {}
+    "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API/FlashCardTool.API.csproj": {}
   },
   "projects": {
-    "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API.csproj": {
+    "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API/FlashCardTool.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API.csproj",
+        "projectUniqueName": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API/FlashCardTool.API.csproj",
         "projectName": "FlashCardTool.API",
-        "projectPath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API.csproj",
+        "projectPath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API/FlashCardTool.API.csproj",
         "packagesPath": "/Users/toluabbass/.nuget/packages/",
-        "outputPath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/obj/",
+        "outputPath": "/Users/toluabbass/FlashCardProj/FlashCardTool/backend/FlashCardTool/FlashCardTool.API/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/toluabbass/.nuget/NuGet/NuGet.Config"

@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="FlashCardTool.Application/FlashCardTool.Application.csproj" />
+    <ProjectReference Include="../FlashCardTool.Application/FlashCardTool.Application.csproj" />
   </ItemGroup>
 
 </Project>
