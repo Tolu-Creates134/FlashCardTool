@@ -1,5 +1,7 @@
 using System;
+using FlashCardTool.Domain.Interfaces;
 using FlashCardTool.Infrastructure.Persistence;
+using FlashCardTool.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +19,7 @@ public class InfrastructureConfig
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IDeckRepository, DeckRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<IFlashcardRepository, FlashcardRepository>();
+        services.AddScoped<IFlashCardRepository, FlashCardRepository>();
 
         return services;
     }
