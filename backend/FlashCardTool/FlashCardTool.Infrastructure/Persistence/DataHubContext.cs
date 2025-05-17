@@ -28,6 +28,7 @@ public class DataHubContext(DbContextOptions<DataHubContext> options) : DbContex
             .WithOne(f => f.Deck)
             .HasForeignKey(f => f.DeckId)
             .OnDelete(DeleteBehavior.Cascade);
+        
     }
 
 }

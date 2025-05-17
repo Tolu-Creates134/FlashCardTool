@@ -1,51 +1,70 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using FlashCardTool.Domain.Core;
 using FlashCardTool.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlashCardTool.Infrastructure.Persistence.Repositories;
 
 public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 {
     protected readonly DataHubContext context;
+    protected readonly DbSet<T> dbSet;
 
     public GenericRepository(DataHubContext context)
     {
         this.context = context;
+        dbSet = context.Set<T>(); // Returns the table for the entity type T
     }
 
-    public Task AddAsync(T entity)
+    public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var entry = await
+            dbSet
+            .AddAsync(entity, cancellationToken);
+        
+        return entry.Entity;
     }
 
-    public Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+    public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var entry = await
+            dbSet
+            .Where(predicate)
+            .ToListAsync(cancellationToken);
+
+        return entry;
     }
 
-    public Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+    public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
-    public Task<IEnumerable<T>> GetAllAsync()
+    public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await dbSet.ToListAsync(cancellationToken);
     }
 
-    public Task<T?> GetByIdAsync(int id)
+    public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var record = await
+            dbSet
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+
+        return record;
     }
 
     public void Remove(T entity)
     {
-        throw new NotImplementedException();
+        dbSet.Remove(entity);
     }
 
-    public void Update(T entity)
+    public Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var entry = dbSet.Update(entity);
+
+        return Task.FromResult(entry.Entity);
     }
 }
