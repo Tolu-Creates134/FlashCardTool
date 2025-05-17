@@ -1,8 +1,9 @@
 using System;
+using FlashCardTool.Domain.Core;
 
 namespace FlashCardTool.Domain.Entities;
 
-public class FlashCard
+public class FlashCard : BaseEntity
 {
     public Guid Id { get; set; } // Primary Key
     public string Question { get; set; } = string.Empty;

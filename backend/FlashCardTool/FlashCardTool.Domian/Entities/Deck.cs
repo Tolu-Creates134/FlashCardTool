@@ -1,8 +1,9 @@
 using System;
+using FlashCardTool.Domain.Core;
 
 namespace FlashCardTool.Domain.Entities;
 
-public class Deck
+public class Deck : BaseEntity
 {
     public Guid Id { get; set; } // Primary key 
     public required string Name { get; set; }
