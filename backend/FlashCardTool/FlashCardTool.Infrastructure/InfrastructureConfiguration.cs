@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FlashCardTool.Infrastructure;
 
-public class InfrastructureConfig
+public static class InfrastructureConfiguration
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
@@ -17,11 +17,11 @@ public class InfrastructureConfig
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IDeckRepository, DeckRepository>();
-        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        _ = services.AddScoped<IDeckRepository, DeckRepository>();
+        _ = services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IFlashCardRepository, FlashCardRepository>();
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
         return services;
     }
-
 }

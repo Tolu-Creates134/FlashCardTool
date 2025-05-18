@@ -1,0 +1,9 @@
+using System;
+using FlashCardTool.Domain.Interfaces;
+
+namespace FlashCardTool.Infrastructure.Persistence.Repositories;
+
+public class CategoryRepository : ICategoryRepository
+{
+
+}
