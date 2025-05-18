@@ -1,4 +1,3 @@
-using System;
 using FlashCardTool.Domain.Core;
 
 namespace FlashCardTool.Domain.Entities;

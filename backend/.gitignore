@@ -1,0 +1,18 @@
+# Ignore compiled files
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.log
+*.user
+*.suo
+*.cache
+*.editorconfig
+*.targets
+
+# Ignore Visual Studio for Mac config files
+.vs/
+.vscode/
+
+# Ignore JetBrains Rider config files

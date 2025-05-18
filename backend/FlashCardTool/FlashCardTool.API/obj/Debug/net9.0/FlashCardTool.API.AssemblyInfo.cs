@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FlashCardTool.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a60f69ad11cf36609a0eb21f08e66a6f3068c229")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+50ed65345128034c81c1b9c6ffc72968cd32ab93")]
 [assembly: System.Reflection.AssemblyProductAttribute("FlashCardTool.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FlashCardTool.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
