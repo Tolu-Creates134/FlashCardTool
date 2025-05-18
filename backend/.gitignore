@@ -1,18 +1,34 @@
-# Ignore compiled files
+# Build output
 bin/
 obj/
-*.exe
 *.dll
+*.exe
 *.pdb
+*.cache
 *.log
+
+# User-specific files
 *.user
 *.suo
-*.cache
-*.editorconfig
-*.targets
+*.userosscache
+*.sln.docstates
 
-# Ignore Visual Studio for Mac config files
-.vs/
+# EF Core migrations temp files
+**/Migrations/*.Designer.cs
+**/Migrations/*.csproj.EntityFrameworkCore.*
+
+# ASP.NET secrets and settings
+secrets.json
+
+# VS Code settings
 .vscode/
 
-# Ignore JetBrains Rider config files
+# JetBrains Rider settings
+.idea/
+*.sln.iml
+
+# macOS system files
+.DS_Store
+
+# VS for Mac
+.vs/
