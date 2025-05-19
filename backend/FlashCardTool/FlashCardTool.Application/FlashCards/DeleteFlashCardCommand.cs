@@ -1,6 +1,6 @@
 using System;
 
-namespace FlashCardTool.Application.FlashCard;
+namespace FlashCardTool.Application.FlashCards;
 
 public class DeleteFlashCardCommand
 {

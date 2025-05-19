@@ -1,6 +1,6 @@
 using System;
 
-namespace FlashCardTool.Application.Deck;
+namespace FlashCardTool.Application.Decks;
 
 public class GetStudyStatsForDeckQuery
 {

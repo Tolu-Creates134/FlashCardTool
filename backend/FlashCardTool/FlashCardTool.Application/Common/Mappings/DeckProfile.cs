@@ -1,0 +1,22 @@
+using AutoMapper;
+using FlashCardTool.Application.Models;
+using FlashCardTool.Domain.Entities;
+
+namespace FlashCardTool.Application.Common.Mappings;
+
+public class DeckProfile : Profile
+{
+    public DeckProfile()
+    {
+        CreateMap<DeckDto, Deck>()
+        .ForMember(dest => dest.Id, opt => opt.Ignore()) // we generate it manually
+        .ForMember(dest => dest.Flashcards, opt => opt.MapFrom(src => src.FlashCards));
+
+        CreateMap<Deck, DeckDto>()
+        .ForMember(dest => dest.FlashCards, opt => opt.MapFrom(src => src.Flashcards));
+
+        CreateMap<FlashCardDto, FlashCard>();
+
+        CreateMap<FlashCard, FlashCardDto>();
+    }
+}
