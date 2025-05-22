@@ -1,6 +1,6 @@
 using System;
 
-namespace FlashCardTool.Application.Category;
+namespace FlashCardTool.Application.Categories;
 
 public class GetAllCategoriesQuery
 {
