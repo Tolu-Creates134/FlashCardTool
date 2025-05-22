@@ -8,7 +8,7 @@ namespace FlashCardTool.Application.Decks;
 
 public record CreateDeckCommand(DeckDto Deck) : IRequest<CreateDeckResponse>;
 
-public record CreateDeckResponse(DeckDto Deck);
+public record CreateDeckResponse(DeckDto Deck, Guid Id);
 
 public class CreateDeckCommandHandler: IRequestHandler<CreateDeckCommand, CreateDeckResponse>
 {
@@ -25,13 +25,18 @@ public class CreateDeckCommandHandler: IRequestHandler<CreateDeckCommand, Create
     {
         var deck = mapper.Map<Deck>(request.Deck);
 
-        deck.Id = Guid.NewGuid();
+        if (deck.Flashcards is not null)
+        {
+            foreach (var flashCard in deck.Flashcards)
+            {
+                flashCard.DeckId = deck.Id;
+            }
+        }
 
         var created = await unitOfWork.Repository<Deck>().AddAsync(deck, cancellationToken);
-
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new CreateDeckResponse(mapper.Map<DeckDto>(created));    
+        return new CreateDeckResponse(mapper.Map<DeckDto>(created), created.Id);    
     }
 }
 

@@ -4,5 +4,5 @@ namespace FlashCardTool.Domain.Core;
 
 public abstract class BaseEntity
 {
-    public Guid Id {get; set;}
+    public Guid Id { get; init; } = Guid.NewGuid();
 }

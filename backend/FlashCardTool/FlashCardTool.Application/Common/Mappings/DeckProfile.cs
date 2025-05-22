@@ -9,7 +9,6 @@ public class DeckProfile : Profile
     public DeckProfile()
     {
         CreateMap<DeckDto, Deck>()
-        .ForMember(dest => dest.Id, opt => opt.Ignore()) // we generate it manually
         .ForMember(dest => dest.Flashcards, opt => opt.MapFrom(src => src.FlashCards));
 
         CreateMap<Deck, DeckDto>()
