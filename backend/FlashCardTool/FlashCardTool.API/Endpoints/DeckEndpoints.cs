@@ -15,6 +15,8 @@ public static class DeckEndpoints
         .WithTags("Decks");
 
         CreateDeck(decks);
+        GetAllDecks(decks);
+        DeleteDeck(decks);
     }
 
     private static void CreateDeck(RouteGroupBuilder group)
@@ -32,6 +34,38 @@ public static class DeckEndpoints
         .WithDescription("Creates a new deck with optional flashcards")
         .Produces<CreateDeckResponse>(StatusCodes.Status201Created)
         .ProducesProblem(StatusCodes.Status400BadRequest);
+    }
+
+    private static void GetAllDecks(RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (
+            IMediator mediator,
+            CancellationToken cancellationToken
+        ) =>
+        {
+            var result = await mediator.Send(new GetAllDecksQuery(), cancellationToken);
+            return Results.Ok(result);
+        })
+        .WithName("GetAllDecks")
+        .WithDescription("Returns all decks")
+        .Produces<GetAllDecksResponse>(StatusCodes.Status200OK);
+    }
+
+    private static void DeleteDeck(RouteGroupBuilder group)
+    {
+        group.MapDelete("/{id:guid}", async (
+            Guid id,
+            IMediator mediator,
+            CancellationToken cancellationToken
+        ) =>
+        {
+            await mediator.Send(new DeleteDeckCommand(id), cancellationToken);
+            return Results.NoContent();
+        })
+        .WithName("DeleteDeck")
+        .WithDescription("Deletes a deck by ID")
+        .Produces(StatusCodes.Status204NoContent)
+        .Produces(StatusCodes.Status404NotFound);
     }
 
 }
