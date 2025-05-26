@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using FlashCardTool.Domain.Core;
 using FlashCardTool.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace FlashCardTool.Infrastructure.Persistence.Repositories;
 
@@ -40,6 +41,19 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
     {
         return await dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
+    }
+
+    public async Task<T?> FirstOrDefaultAsync(
+        Expression<Func<T, bool>> predicate,
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include,
+        CancellationToken cancellationToken = default
+    )
+    {
+        IQueryable<T> query = dbSet;
+
+        query = include(query);
+
+        return await query.FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
     public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)

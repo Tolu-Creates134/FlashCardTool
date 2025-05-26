@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using FlashCardTool.Domain.Core;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace FlashCardTool.Domain.Interfaces;
 
@@ -12,6 +13,12 @@ public interface IGenericRepository<T> where T : BaseEntity
 
     Task<T?> FirstOrDefaultAsync(
         Expression<Func<T, bool>> predicate,
+        CancellationToken cancellationToken = default
+    );
+
+    Task<T?> FirstOrDefaultAsync(
+        Expression<Func<T, bool>> predicate,
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include,
         CancellationToken cancellationToken = default
     );
 

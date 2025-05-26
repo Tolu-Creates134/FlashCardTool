@@ -24,7 +24,7 @@ public class DeleteDeckCommandHandler : IRequestHandler<DeleteDeckCommand>
 
         if (deck is null)
         {
-            throw new EntityNotFoundException(nameof(Deck), request.Id);
+            throw new EntityNotFoundException(nameof(Deck), request.Id.ToString());
         }
 
         repo.Remove(deck);
