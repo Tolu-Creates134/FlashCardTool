@@ -1,4 +1,5 @@
 using FlashCardTool.Application.Models;
+using FlashCardTool.Infrastructure.Auth;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,8 +29,8 @@ public static class AuthenticationEndpoints
             {
                 var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
 
-                var accessToken = JwtHelper.GenerateJwtToken(payload.Email, config, expiresMinutes: 15);
-                var refreshToken = JwtHelper.GenerateJwtToken(payload.Email, config, expiresMinutes: 43200);
+                var accessToken = JwtHelper.GenerateJwtToken(payload.Email, config, 15);
+                var refreshToken = JwtHelper.GenerateJwtToken(payload.Email, config, 43200);
 
                 return Results.Ok(new
                 {

@@ -8,29 +8,31 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleSuccess = async (credentialResponse) => {
-    console.log(credentialResponse);
-    console.log(jwtDecode(credentialResponse.credential));
-
     const googleIdToken = credentialResponse.credential;
 
-    // Send ID token to backend
-    const response = await axios.post('/api/auth/google-login', {
-      idToken: googleIdToken,
-    });
+    try {
+      // Send ID token to backend
+      const response = await axios.post('/api/auth/google-login', {
+        idToken: googleIdToken,
+      });
 
-    // Save access/refresh tokens locally
-    localStorage.setItem('accessToken', response.data.accessToken);
-    localStorage.setItem('refreshtoke', response.data.refreshToken);
+      // Save access/refresh tokens locally
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+
+      navigate('/home');
+    } catch (error) {
+      console.error('Login failed', error);
+    }
+
+    console.log(credentialResponse);
+    console.log(jwtDecode(credentialResponse.credential));
   };
 
   return (
     <div>
       <GoogleLogin
-        onSuccess={(response) => {
-          console.log(response);
-          console.log(jwtDecode(response.credential));
-          navigate('/home');
-        }}
+        onSuccess={handleSuccess}
         onError={(error) => console.log(error)}
         auto_select={true}
       />
