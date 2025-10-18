@@ -9,15 +9,6 @@ public static class AuthenticationEndpoints
 {
     private const string RoutePrefix = "api/auth";
 
-    public static void DefineEndpoints(WebApplication app)
-    {
-        var authGroup = app
-        .MapGroup(RoutePrefix)
-        .WithTags("Auth");
-
-        GoogleLogin(authGroup);
-    }
-
     private static void GoogleLogin(RouteGroupBuilder group)
     {
         group.MapPost("/google-login", async (
@@ -39,8 +30,10 @@ public static class AuthenticationEndpoints
                     email = payload.Email
                 });
             }
-            catch
+            catch(Exception ex)
             {
+                Console.WriteLine($"❌ Google login failed: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
                 return Results.Unauthorized();
             }
         })
@@ -48,5 +41,14 @@ public static class AuthenticationEndpoints
         .WithDescription("Handles Google login and issues access/refresh tokens")
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+    }
+    public static void DefineEndpoints(WebApplication app)
+    {
+        var authGroup = app
+        .MapGroup(RoutePrefix)
+        .AllowAnonymous()
+        .WithTags("Auth");
+
+        GoogleLogin(authGroup);
     }
 }

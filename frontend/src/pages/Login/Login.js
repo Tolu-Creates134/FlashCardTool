@@ -10,9 +10,13 @@ const Login = () => {
   const handleSuccess = async (credentialResponse) => {
     const googleIdToken = credentialResponse.credential;
 
+    const api_base_url = `${process.env.REACT_APP_API_BASE_URL}/api/auth/google-login`
+
+    console.log(googleIdToken)
+
     try {
       // Send ID token to backend
-      const response = await axios.post('/api/auth/google-login', {
+      const response = await axios.post(api_base_url, {
         idToken: googleIdToken,
       });
 
@@ -27,6 +31,7 @@ const Login = () => {
 
     console.log(credentialResponse);
     console.log(jwtDecode(credentialResponse.credential));
+    console.log(api_base_url)
   };
 
   return (

@@ -1,6 +1,5 @@
 using FlashCardTool.Infrastructure;
 using FlashCardTool.Application.Common.Configuration;
-using FlashCardTool.API.Endpoints;
 using FlashCardTool.API.Configuration;
 
 
@@ -20,9 +19,30 @@ builder.Services.AddApplication();
 // Infrastructure
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// Authentication
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
+
 var app = builder.Build();
 
+app.UseCors("AllowFrontend");
+
 app.RegisterAllEndpoints();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

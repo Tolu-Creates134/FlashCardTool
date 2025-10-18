@@ -11,9 +11,11 @@ public class JwtHelper
 {
     public static string GenerateJwtToken(string email, IConfiguration config, int expiryMinutes)
     {
-        var secret = config["Jwt:Secret"];
+        var secret = config["Jwt:Key"];;
         var issuer = config["Jwt:Issuer"];
         var audience = config["Jwt:Audience"];
+        
+
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
