@@ -11,4 +11,6 @@ public class User : BaseEntity
     public string? Name { get; init; }
 
     public string? PictureUrl { get; init; }
+
+    public DateTime _Timestamp { get; init; }
 }
