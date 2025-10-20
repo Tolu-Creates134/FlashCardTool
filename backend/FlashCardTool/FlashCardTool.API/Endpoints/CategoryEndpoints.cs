@@ -7,15 +7,6 @@ public static class CategoryEndpoints
 {
     private const string RoutePrefix = "categories";
 
-    public static void DefineEndpoints(WebApplication app)
-    {
-        var categories = app
-        .MapGroup(RoutePrefix)
-        .WithTags("Categories");
-
-        CreateCategory(categories);
-    }
-
     public static void CreateCategory(this RouteGroupBuilder group)
     {
         group.MapPost("/", async (
@@ -31,5 +22,14 @@ public static class CategoryEndpoints
         .WithDescription("Creates a new category")
         .Produces<CreateCategoryResponse>(StatusCodes.Status201Created)
         .ProducesProblem(StatusCodes.Status400BadRequest);
+    }
+
+    public static void DefineEndpoints(WebApplication app)
+    {
+        var categories = app
+        .MapGroup(RoutePrefix)
+        .WithTags("Categories");
+
+        CreateCategory(categories);
     }
 }

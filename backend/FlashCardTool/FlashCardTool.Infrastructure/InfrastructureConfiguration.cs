@@ -17,9 +17,10 @@ public static class InfrastructureConfiguration
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        _ = services.AddScoped<IDeckRepository, DeckRepository>();
-        _ = services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IDeckRepository, DeckRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IFlashCardRepository, FlashCardRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
         return services;

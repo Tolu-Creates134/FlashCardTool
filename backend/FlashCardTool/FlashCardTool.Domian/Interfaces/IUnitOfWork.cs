@@ -11,5 +11,7 @@ public interface IUnitOfWork
 {
     IGenericRepository<T> Repository<T>() where T : BaseEntity;
 
+    IUserRepository UserRepository();
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

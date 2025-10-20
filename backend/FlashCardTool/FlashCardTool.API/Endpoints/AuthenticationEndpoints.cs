@@ -1,6 +1,8 @@
 using FlashCardTool.Application.Models;
+using FlashCardTool.Application.Users;
 using FlashCardTool.Infrastructure.Auth;
 using Google.Apis.Auth;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlashCardTool.API.Endpoints;
@@ -13,7 +15,8 @@ public static class AuthenticationEndpoints
     {
         group.MapPost("/google-login", async (
             [FromBody] GoogleLoginRequest request,
-            IConfiguration config
+            IConfiguration config,
+            IMediator mediator
         ) =>
         {
             try
@@ -22,6 +25,12 @@ public static class AuthenticationEndpoints
 
                 var accessToken = JwtHelper.GenerateJwtToken(payload.Email, config, 15);
                 var refreshToken = JwtHelper.GenerateJwtToken(payload.Email, config, 43200);
+
+                var userId = await mediator.Send(new SaveUserCommand(
+                    payload.Name,
+                    payload.Email,
+                    payload.Picture
+                ));
 
                 return Results.Ok(new
                 {
@@ -32,7 +41,7 @@ public static class AuthenticationEndpoints
             }
             catch(Exception ex)
             {
-                Console.WriteLine($"❌ Google login failed: {ex.Message}");
+                Console.WriteLine($"Google login failed: {ex.Message}");
                 Console.WriteLine(ex.StackTrace);
                 return Results.Unauthorized();
             }

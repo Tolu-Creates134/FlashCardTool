@@ -13,22 +13,22 @@ public record CreateCategoryResponse(CategoryDto Category, Guid Id);
 
 public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, CreateCategoryResponse>
 {
-    private readonly IUnitOfWork unitOfWork;
-    private readonly IMapper mapper;
+    private readonly IUnitOfWork UnitOfWork;
+    private readonly IMapper Mapper;
 
-    public CreateCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateCategoryCommandHandler(IUnitOfWork UnitOfWork, IMapper Mapper)
     {
-        this.unitOfWork = unitOfWork;
-        this.mapper = mapper;
+        this.UnitOfWork = UnitOfWork;
+        this.Mapper = Mapper;
     }
 
     public async Task<CreateCategoryResponse> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        var category = mapper.Map<Category>(request.Category);
+        var category = Mapper.Map<Category>(request.Category);
 
-        var created = await unitOfWork.Repository<Category>().AddAsync(category, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        var created = await UnitOfWork.Repository<Category>().AddAsync(category, cancellationToken);
+        await UnitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new CreateCategoryResponse(mapper.Map<CategoryDto>(created), created.Id);
+        return new CreateCategoryResponse(Mapper.Map<CategoryDto>(created), created.Id);
     }
 }
