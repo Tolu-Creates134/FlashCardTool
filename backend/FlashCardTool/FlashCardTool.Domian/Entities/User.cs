@@ -12,5 +12,5 @@ public class User : BaseEntity
 
     public string? PictureUrl { get; init; }
 
-    public DateTime _Timestamp { get; init; }
+    public DateTime _Timestamp { get; init; } = DateTime.UtcNow;
 }

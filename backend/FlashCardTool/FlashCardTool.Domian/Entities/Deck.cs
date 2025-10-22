@@ -7,7 +7,7 @@ public class Deck : BaseEntity
 {
     public required string Name { get; set; }
     public required string Description { get; set; }
-    public DateTime _Timestamp { get; init; }
+    public DateTime _Timestamp { get; init; } = DateTime.UtcNow;
     public ICollection<FlashCard> Flashcards { get; set; } = [];
     // Foreign key to Category
     public Guid CategoryId { get; set; }
