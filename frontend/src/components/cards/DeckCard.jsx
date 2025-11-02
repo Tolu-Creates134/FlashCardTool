@@ -1,6 +1,11 @@
 import React from 'react'
 import { BookOpenIcon } from "lucide-react";
 
+/**
+ * Handles rendering a single deck (name, description, category)
+ * @param {*} param0 
+ * @returns 
+ */
 const DeckCard = ({ deck, categoryName, onSelect }) => {
   return (
     <div
