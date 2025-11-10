@@ -4,55 +4,64 @@ import axios from 'axios';
  * Create axios instance
  */
 const api = axios.create({
-    api_base_url: `${process.env.REACT_APP_API_BASE_URL}/api`
+  baseURL: `${process.env.REACT_APP_API_BASE_URL}/api`,
 });
 
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem('accessToken');
 
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    };
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
-    return config;
+  return config;
 });
 
 /**
+ * Login with details
+ * @param {*} idToken
+ * @returns
+ */
+export const loginWithGoogle = async (idToken) => {
+  const res = await api.post("/auth/google-login", { idToken: idToken });
+  return res.data; // contains accessToken, refreshToken, email
+};
+
+/**
  * Fetches all categories.
- * @returns 
+ * @returns
  */
 export const fetchCategories = async () => {
-  const res = await api.get("/categories");
+  const res = await api.get('/categories');
   return res.data;
 };
 
 /**
  * Fetches all decks.
- * @returns 
+ * @returns
  */
 export const fetchDecks = async () => {
-  const res = await api.get("/decks");
+  const res = await api.get('/decks');
   return res.data;
 };
 
 /**
  * Creates deck and stores in database
- * @param {*} deckData 
- * @returns 
+ * @param {*} deckData
+ * @returns
  */
 export const createDeck = async (deckData) => {
-  const res = await api.post("/decks", deckData);
+  const res = await api.post('/decks', deckData);
   return res.data;
 };
 
 /**
  * Fetches logged in user details
- * @returns 
+ * @returns
  */
 export const fetchCurrentUser = async () => {
-  const res = await api.get("/users/me");
+  const res = await api.get('/users/me');
   return res.data;
 };
 
 export default api;
-
