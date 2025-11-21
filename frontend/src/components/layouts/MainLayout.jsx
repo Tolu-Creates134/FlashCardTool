@@ -8,8 +8,9 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../context/Authcontext";
+import { Outlet } from "react-router-dom";
 
-const MainLayout = ({ children }) => {
+const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useContext(AuthContext);
@@ -30,7 +31,7 @@ const MainLayout = ({ children }) => {
             onClick={() => navigate("/home")}
           >
             <BookOpenIcon size={24} />
-            <h1 className="text-xl font-bold">FlashLearn5</h1>
+            <h1 className="text-xl font-bold">FlashLearn</h1>
           </div>
 
           <nav className="flex items-center space-x-4">
@@ -71,7 +72,7 @@ const MainLayout = ({ children }) => {
 
       {/* MAIN CONTENT */}
       <main className="flex-grow container mx-auto p-4 md:p-6">
-        {children}
+        <Outlet/>
       </main>
 
       {/* FOOTER */}

@@ -5,7 +5,7 @@ import { BookOpenIcon, PlusIcon } from "lucide-react";
  * Empty state component for when no decks exist
  * @returns 
  */
-const EmptyState = ({ onCreateDeck}) => {
+const EmptyState = ({ onCreateDeck }) => {
   return (
     <div className="flex flex-col items-center justify-center py-12">
         <BookOpenIcon size={64} className="text-indigo-300 mb-4" />

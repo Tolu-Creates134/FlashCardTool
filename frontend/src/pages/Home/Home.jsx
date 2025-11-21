@@ -3,12 +3,19 @@ import EmptyState from '../../components/EmptyState';
 import CategorySection from './CategorySection';
 import DeckGrid from './DeckGrid';
 import { createDeck, fetchCategories, fetchDecks } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
 
+/**
+ * Displays the home page content after user logs
+ * @returns 
+ */
 const Home = () => {
   const [categories, setCategories] = useState([]);
   const [decks, setDecks] = useState([]);
   const [activeTab, setActiveTab] = useState('categories');
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     const loadData = async () => {
@@ -30,13 +37,8 @@ const Home = () => {
   }, []);
 
   // Create new deck
-  const handleCreateDeck = async (deckData) => {
-    try {
-      const newDeck = await createDeck(deckData);
-      setDecks((prev) => [...prev, newDeck]);
-    } catch (err) {
-      console.error(`Faield to create deck: ${err}`);
-    }
+  const handleCreateDeck =  () => {
+    navigate('/create-deck')
   };
 
   const handleSelectDeck = async (deckId) => {
@@ -53,8 +55,9 @@ const Home = () => {
       );
     }
 
-    if (decks.length === 0)
+    if (decks.length === 0) {
       return <EmptyState onCreateDeck={handleCreateDeck} />;
+    }
 
     if (activeTab === 'categories') {
       return categories.map((category) => {
@@ -85,6 +88,7 @@ const Home = () => {
         <h1 className='text-2xl font-bold text-gray-800'>
           Your Study Materials
         </h1>
+
         <div className='flex space-x-2'>
           <button
             className={`px-4 py-2 rounded-md ${
@@ -92,10 +96,13 @@ const Home = () => {
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-200 text-gray-700'
             }`}
-            onClick={() => setActiveTab('categories')}
+            onClick={() => {
+              setActiveTab('categories')
+            }}
           >
             By Category
           </button>
+
           <button
             className={`px-4 py-2 rounded-md ${
               activeTab === 'all-decks'
