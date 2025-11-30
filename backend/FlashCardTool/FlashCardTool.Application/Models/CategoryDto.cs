@@ -2,4 +2,7 @@ using System;
 
 namespace FlashCardTool.Application.Models;
 
-public record CategoryDto (string Name);
+public record CategoryDto(
+    Guid Id,
+    string Name
+);

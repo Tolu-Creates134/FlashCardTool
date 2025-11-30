@@ -9,7 +9,7 @@ namespace FlashCardTool.Application.Categories;
 
 public record CreateCategoryCommand(CategoryDto Category) : IRequest<CreateCategoryResponse>;
 
-public record CreateCategoryResponse(CategoryDto Category, Guid Id);
+public record CreateCategoryResponse(CategoryDto Category);
 
 public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, CreateCategoryResponse>
 {
@@ -29,6 +29,6 @@ public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComman
         var created = await UnitOfWork.Repository<Category>().AddAsync(category, cancellationToken);
         await UnitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new CreateCategoryResponse(Mapper.Map<CategoryDto>(created), created.Id);
+        return new CreateCategoryResponse(Mapper.Map<CategoryDto>(created));
     }
 }

@@ -1,4 +1,5 @@
 using FlashCardTool.Application.Categories;
+using FlashCardTool.Application.Models;
 using MediatR;
 
 namespace FlashCardTool.API.Endpoints;
@@ -16,12 +17,27 @@ public static class CategoryEndpoints
         ) =>
         {
             var result = await mediator.Send(command, cancellationToken);
-            return Results.Created($"/api/categories/{result.Id}", result);
+            return Results.Created($"/api/categories/{result.Category.Id}", result);
         })
         .WithName("CreateCategory")
         .WithDescription("Creates a new category")
         .Produces<CreateCategoryResponse>(StatusCodes.Status201Created)
         .ProducesProblem(StatusCodes.Status400BadRequest);
+    }
+
+    public static void ListCategories(this RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (
+            IMediator mediator,
+            CancellationToken cancellationToken
+        ) =>
+        {
+            var result = await mediator.Send(new ListAllCategoriesQuery(), cancellationToken);
+            return Results.Ok(result);
+        })
+        .WithName("ListCategories")
+        .WithDescription("Returns all categories")
+        .Produces<List<CategoryDto>>(StatusCodes.Status200OK);
     }
 
     public static void DefineEndpoints(WebApplication app)
@@ -31,5 +47,6 @@ public static class CategoryEndpoints
         .WithTags("Categories");
 
         CreateCategory(categories);
+        ListCategories(categories);
     }
 }

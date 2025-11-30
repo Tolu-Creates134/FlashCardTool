@@ -31,10 +31,10 @@ public class DataHubContext(DbContextOptions<DataHubContext> options) : DbContex
         .HasForeignKey(f => f.DeckId)
         .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Category>().HasData(
-            new Category { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), Name = "Math" },
-            new Category { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Name = "Science" },
-            new Category { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Name = "History" }
-        );
+        modelBuilder.Entity<User>()
+        .HasMany(u => u.Categories)
+        .WithOne(c => c.User)
+        .HasForeignKey(c => c.UserId)
+        .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -4,8 +4,6 @@ namespace FlashCardTool.Domain.Entities;
 
 public class User : BaseEntity
 {
-    public required Guid UserKey { get; init; } = Guid.NewGuid();
-
     public required string Email { get; init; }
 
     public string? Name { get; init; }
@@ -13,4 +11,6 @@ public class User : BaseEntity
     public string? PictureUrl { get; init; }
 
     public DateTime _Timestamp { get; init; } = DateTime.UtcNow;
+
+    public ICollection<Category> Categories { get; set; } = new List<Category>();
 }

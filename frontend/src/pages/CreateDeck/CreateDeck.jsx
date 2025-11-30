@@ -1,6 +1,7 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import { PlusIcon, XIcon, UploadIcon, BookOpenIcon } from "lucide-react";
 import { generateUniqueId } from '../../utils/helpers';
+import { fetchCategories } from '../../services/api';
 
 /**
  * 
@@ -8,18 +9,21 @@ import { generateUniqueId } from '../../utils/helpers';
  */
 const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onCreateCategory = () => {}}) => {
 
-    const categories = initialCategories;
+    const [categories, setCategories] = useState([])
+    const [loadingCategories, setLoadingCategories] = useState(true)
 
     const [deckName, setDeckName] = useState("");
     const [deckDescription, setDeckDescription] = useState("");
-    const [selectedCategoryId, setSelectedCategoryId] = useState(
-        categories.length > 0 ? categories[0].id : ""
-    );
+    const [selectedCategoryId, setSelectedCategoryId] = useState("");
+
     const [newCategoryName, setNewCategoryName] = useState("");
     const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+
     const [flashcards, setFlashcards] = useState([]);
     const [currentQuestion, setCurrentQuestion] = useState("");
     const [currentAnswer, setCurrentAnswer] = useState("");
+
+    // Implement AI functionality later
     const [contentForAI, setContentForAI] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
 
@@ -60,6 +64,25 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
         setCurrentQuestion("");
         setCurrentAnswer("");
     }
+
+    const loadCategories = async () => {
+        try {
+            const data = await fetchCategories();
+            setCategories(data);
+
+            if(data.length > 0) {
+                setSelectedCategoryId(data[0].id);
+            }
+        } catch (error) {
+            console.error('Failed to fetch categories', error);
+        } finally {
+            setLoadingCategories(false);
+        }
+    };
+
+    useEffect(() => {
+        loadCategories();
+    }, [])
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -209,4 +232,4 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
   )
 }
 
-export default CreateDeck
+export default CreateDeck;

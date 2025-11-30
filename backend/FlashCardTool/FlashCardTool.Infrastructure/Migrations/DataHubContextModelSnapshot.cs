@@ -28,36 +28,21 @@ namespace FlashCardTool.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("_Timestamp")
-                        .HasColumnType("datetime2");
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.HasIndex("UserId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Name = "Math",
-                            _Timestamp = new DateTime(2025, 10, 22, 20, 22, 43, 617, DateTimeKind.Local).AddTicks(5940)
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Name = "Science",
-                            _Timestamp = new DateTime(2025, 10, 22, 20, 22, 43, 626, DateTimeKind.Local).AddTicks(5770)
-                        },
-                        new
-                        {
-                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            Name = "History",
-                            _Timestamp = new DateTime(2025, 10, 22, 20, 22, 43, 626, DateTimeKind.Local).AddTicks(5800)
-                        });
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("FlashCardTool.Domain.Entities.Deck", b =>
@@ -130,15 +115,22 @@ namespace FlashCardTool.Infrastructure.Migrations
                     b.Property<string>("PictureUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserKey")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("_Timestamp")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("FlashCardTool.Domain.Entities.Category", b =>
+                {
+                    b.HasOne("FlashCardTool.Domain.Entities.User", "User")
+                        .WithMany("Categories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("FlashCardTool.Domain.Entities.Deck", b =>
@@ -171,6 +163,11 @@ namespace FlashCardTool.Infrastructure.Migrations
             modelBuilder.Entity("FlashCardTool.Domain.Entities.Deck", b =>
                 {
                     b.Navigation("Flashcards");
+                });
+
+            modelBuilder.Entity("FlashCardTool.Domain.Entities.User", b =>
+                {
+                    b.Navigation("Categories");
                 });
 #pragma warning restore 612, 618
         }
