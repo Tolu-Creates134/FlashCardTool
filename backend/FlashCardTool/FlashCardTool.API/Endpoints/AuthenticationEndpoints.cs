@@ -23,14 +23,31 @@ public static class AuthenticationEndpoints
             {
                 var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
 
-                var accessToken = JwtHelper.GenerateJwtToken(payload.Email, config, 15);
-                var refreshToken = JwtHelper.GenerateJwtToken(payload.Email, config, 43200);
-
-                var userId = await mediator.Send(new SaveUserCommand(
+                var saveUserResult = await mediator.Send(new SaveUserCommand(
                     payload.Name,
                     payload.Email,
                     payload.Picture
                 ));
+
+                var userId = saveUserResult.Id;
+
+                var accessToken = JwtHelper.GenerateJwtToken(
+                    userId,
+                    payload.Email,
+                    payload.Name,
+                    payload.Picture,
+                    config,
+                    15 // minutes
+                );
+
+                var refreshToken = JwtHelper.GenerateJwtToken(
+                    userId,
+                    payload.Email,
+                    payload.Name,
+                    payload.Picture,
+                    config,
+                    43200 // 30 days
+                );
 
                 return Results.Ok(new
                 {
