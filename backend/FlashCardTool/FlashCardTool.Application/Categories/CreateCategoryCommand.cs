@@ -13,22 +13,30 @@ public record CreateCategoryResponse(CategoryDto Category);
 
 public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, CreateCategoryResponse>
 {
-    private readonly IUnitOfWork UnitOfWork;
-    private readonly IMapper Mapper;
+    private readonly IUnitOfWork unitOfWork;
+    private readonly IMapper mapper;
+    private readonly ICurrentUserService currentUserService;
 
-    public CreateCategoryCommandHandler(IUnitOfWork UnitOfWork, IMapper Mapper)
+    public CreateCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
     {
-        this.UnitOfWork = UnitOfWork;
-        this.Mapper = Mapper;
+        ArgumentNullException.ThrowIfNull(mapper);
+        ArgumentNullException.ThrowIfNull(currentUserService);
+        ArgumentNullException.ThrowIfNull(unitOfWork);
+
+        this.unitOfWork = unitOfWork;
+        this.mapper = mapper;
+        this.currentUserService = currentUserService;
     }
 
     public async Task<CreateCategoryResponse> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        var category = Mapper.Map<Category>(request.Category);
+        var category = mapper.Map<Category>(request.Category);
 
-        var created = await UnitOfWork.Repository<Category>().AddAsync(category, cancellationToken);
-        await UnitOfWork.SaveChangesAsync(cancellationToken);
+        category.UserId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required.");
 
-        return new CreateCategoryResponse(Mapper.Map<CategoryDto>(created));
+        var created = await unitOfWork.Repository<Category>().AddAsync(category, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return new CreateCategoryResponse(mapper.Map<CategoryDto>(created));
     }
 }

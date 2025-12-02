@@ -6,7 +6,7 @@ namespace FlashCardTool.API.Endpoints;
 
 public static class CategoryEndpoints
 {
-    private const string RoutePrefix = "categories";
+    private const string RoutePrefix = "api/categories";
 
     public static void CreateCategory(this RouteGroupBuilder group)
     {
@@ -44,7 +44,8 @@ public static class CategoryEndpoints
     {
         var categories = app
         .MapGroup(RoutePrefix)
-        .WithTags("Categories");
+        .WithTags("Categories")
+        .RequireAuthorization();
 
         CreateCategory(categories);
         ListCategories(categories);

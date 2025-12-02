@@ -1,5 +1,5 @@
-using System;
 using FlashCardTool.Domain.Interfaces;
+using FlashCardTool.Infrastructure.Auth;
 using FlashCardTool.Infrastructure.Persistence;
 using FlashCardTool.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +21,8 @@ public static class InfrastructureConfiguration
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IFlashCardRepository, FlashCardRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
         return services;

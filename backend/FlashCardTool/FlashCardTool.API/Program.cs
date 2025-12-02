@@ -1,6 +1,9 @@
 using FlashCardTool.Infrastructure;
 using FlashCardTool.Application.Common.Configuration;
 using FlashCardTool.API.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +23,28 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // Authentication
-builder.Services.AddAuthentication();
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("JWT Key is not configured.");
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>
@@ -38,11 +62,10 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors("AllowFrontend");
-
-app.RegisterAllEndpoints();
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.RegisterAllEndpoints();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

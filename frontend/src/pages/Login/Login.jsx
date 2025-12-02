@@ -13,12 +13,12 @@ const Login = () => {
 
     try {
       // Send ID token to backend
-      const { accessToken, refreshtoken, email } = await loginWithGoogle(googleIdToken)
+      const { accessToken, refreshToken, email } = await loginWithGoogle(googleIdToken)
       console.log(`${process.env.REACT_APP_API_BASE_URL}/api`)
 
       // Save access/refresh tokens locally
       localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshtoken);
+      localStorage.setItem('refreshToken', refreshToken);
 
       const user = {email}
       login(user, accessToken)

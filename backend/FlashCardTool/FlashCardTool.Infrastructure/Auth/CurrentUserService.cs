@@ -1,17 +1,20 @@
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using FlashCardTool.Domain.Interfaces;
 
 namespace FlashCardTool.Infrastructure.Auth;
 
 public class CurrentUserService : ICurrentUserService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpContextAccessor httpContextAccessor;
 
     public CurrentUserService(IHttpContextAccessor httpContextAccessor)
     {
-        _httpContextAccessor = httpContextAccessor;
+        this.httpContextAccessor = httpContextAccessor;
     }
 
     private ClaimsPrincipal? User =>
-        _httpContextAccessor.HttpContext?.User;
+        this.httpContextAccessor.HttpContext?.User;
 
     public Guid? UserId
     {

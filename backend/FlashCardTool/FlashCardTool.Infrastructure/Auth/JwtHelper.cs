@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
+
 namespace FlashCardTool.Infrastructure.Auth;
 
 public class JwtHelper
@@ -39,12 +40,12 @@ public class JwtHelper
 
         if (!string.IsNullOrWhiteSpace(name))
         {
-            claims.Add(new Claim("name", name));
+            claims.Append(new Claim("name", name));
         }
 
         if (!string.IsNullOrWhiteSpace(pictureUrl))
         {
-            claims.Add(new Claim("picture", pictureUrl));
+            claims.Append(new Claim("picture", pictureUrl));
         }
 
         var token = new JwtSecurityToken(
@@ -57,5 +58,4 @@ public class JwtHelper
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-
 }
