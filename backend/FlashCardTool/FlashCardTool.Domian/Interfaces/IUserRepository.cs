@@ -5,5 +5,7 @@ namespace FlashCardTool.Domain.Interfaces;
 
 public interface IUserRepository
 {
-    public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken);
+    Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken);
+
+    Task<User?> GetByRefreshTokenAsync(string refreshToken);
 };

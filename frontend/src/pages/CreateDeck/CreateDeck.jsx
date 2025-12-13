@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import { PlusIcon, XIcon, UploadIcon, BookOpenIcon } from "lucide-react";
 import { generateUniqueId } from '../../utils/helpers';
-import { fetchCategories } from '../../services/api';
+import { createCategory, fetchCategories } from '../../services/api';
 
 /**
  * 
@@ -11,6 +11,8 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
 
     const [categories, setCategories] = useState([])
     const [loadingCategories, setLoadingCategories] = useState(true)
+    const [creatingCategory, setCreatingCategory] = useState(false);
+    const [categoryError, setCategoryError] = useState("");
 
     const [deckName, setDeckName] = useState("");
     const [deckDescription, setDeckDescription] = useState("");
@@ -27,15 +29,25 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
     const [contentForAI, setContentForAI] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
 
-    const handleCreateCategory = () => {
+    const handleCreateCategory = async () => {
         const name = newCategoryName.trim();
         if(!name) return;
 
-        const newCategory = { id: generateUniqueId(), name };
-        onCreateCategory(newCategory);
-        setSelectedCategoryId(newCategory.id);
-        setNewCategoryName("");
-        setShowNewCategoryInput(false);
+        try {
+            setCategoryError("");
+            setCreatingCategory(true);
+            const createdCategory = await createCategory({ name });
+            setCategories((prev) => [createdCategory, ...prev]);
+            setSelectedCategoryId(createdCategory.id);
+            setNewCategoryName("");
+            setShowNewCategoryInput(false);
+            onCreateCategory(createdCategory);
+        } catch (error) {
+            console.error('Failed to create category', error);
+            setCategoryError("Unable to create category. Please try again.");
+        } finally {
+            setCreatingCategory(false);
+        }
     };
 
     const handleSaveDeck = () => {
@@ -129,28 +141,34 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
                 </label>
 
                 {showNewCategoryInput ? (
-                <div className="flex space-x-2">
-                    <input
-                        type="text"
-                        value={newCategoryName}
-                        onChange={(e) => setNewCategoryName(e.target.value)}
-                        className="flex-grow p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="New Category Name"
-                    />
-                    <button
-                        onClick={handleCreateCategory}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-                    >
-                        Add
-                    </button>
-                    <button
-                        onClick={() => setShowNewCategoryInput(false)}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-                    >
-                        Cancel
-                    </button>
-                </div>
-            ) : (
+                    <div className="flex space-x-2">
+                        <input
+                            type="text"
+                            value={newCategoryName}
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                            className="flex-grow p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="New Category Name"
+                        />
+                        <button
+                            onClick={handleCreateCategory}
+                            disabled={creatingCategory}
+                            className={`px-4 py-2 rounded-md text-white ${creatingCategory ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"}`}
+                        >
+                            {creatingCategory ? "Adding..." : "Add"}
+                        </button>
+                        <button
+                            onClick={() => setShowNewCategoryInput(false)}
+                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                    // {categoryError && (
+                    //     <div className="text-sm text-red-600 mt-2">
+                    //         {categoryError}
+                    //     </div>
+                    // )}
+                ) : (
                 <div className="flex space-x-2">
                     <select
                         value={selectedCategoryId}

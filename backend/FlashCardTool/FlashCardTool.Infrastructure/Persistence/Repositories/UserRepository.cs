@@ -17,4 +17,9 @@ public class UserRepository : IUserRepository
     {
         return await context.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
+
+    public async Task<User?> GetByRefreshTokenAsync(string refreshToken)
+    {
+        return await context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+    }
 }

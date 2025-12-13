@@ -2,7 +2,9 @@ using System;
 using AutoMapper;
 using FlashCardTool.Domain.Entities;
 using FlashCardTool.Domain.Interfaces;
+using FlashCardTool.Infrastructure.Auth;
 using MediatR;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace FlashCardTool.Application.Users;
 
@@ -13,7 +15,7 @@ public record SaveUserCommand
     string PicturUrl
 ) : IRequest<SaveUserCommandResponse>;
 
-public record SaveUserCommandResponse (Guid Id);
+public record SaveUserCommandResponse (Guid Id, string refreshToken);
 
 public class SaveUserCommandHandler : IRequestHandler<SaveUserCommand, SaveUserCommandResponse>
 {
@@ -41,19 +43,25 @@ public class SaveUserCommandHandler : IRequestHandler<SaveUserCommand, SaveUserC
 
         if (existingUser != null)
         {
-            return new SaveUserCommandResponse(existingUser.Id);
+            existingUser.RefreshToken = JwtHelper.GenerateRefreshToken();
+            existingUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(30);
+
+            await UnitOfWork.Repository<User>().UpdateAsync(existingUser, cancellationToken);
+            await UnitOfWork.SaveChangesAsync(cancellationToken);
+
+            return new SaveUserCommandResponse(existingUser.Id, existingUser.RefreshToken);
         }
 
         var newUser = Mapper.Map<User>(request);
+        newUser.RefreshToken = JwtHelper.GenerateRefreshToken();
+        newUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(30);
 
-        await UnitOfWork.Repository<User>().AddAsync(newUser);
-
+        await UnitOfWork.Repository<User>().AddAsync(newUser, cancellationToken);
         await UnitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new SaveUserCommandResponse(newUser.Id);
+        return new SaveUserCommandResponse(newUser.Id, newUser.RefreshToken);
     }
 }
-
 
 
 

@@ -12,5 +12,9 @@ public class User : BaseEntity
 
     public DateTime _Timestamp { get; init; } = DateTime.UtcNow;
 
+    public required string RefreshToken { get; set; }
+    
+    public DateTime RefreshTokenExpiry { get; set; }
+
     public ICollection<Category> Categories { get; set; } = new List<Category>();
 }

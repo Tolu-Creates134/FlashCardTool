@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../FlashCardTool.Domian/FlashCardTool.Domain.csproj" />
+    <ProjectReference Include="../FlashCardTool.Infrastructure/FlashCardTool.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

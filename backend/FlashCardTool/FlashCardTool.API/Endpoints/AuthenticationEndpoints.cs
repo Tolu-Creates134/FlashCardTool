@@ -4,6 +4,10 @@ using FlashCardTool.Infrastructure.Auth;
 using Google.Apis.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace FlashCardTool.API.Endpoints;
 
@@ -31,6 +35,8 @@ public static class AuthenticationEndpoints
 
                 var userId = saveUserResult.Id;
 
+                var refreshToken = saveUserResult.refreshToken;
+
                 var accessToken = JwtHelper.GenerateJwtToken(
                     userId,
                     payload.Email,
@@ -38,15 +44,6 @@ public static class AuthenticationEndpoints
                     payload.Picture,
                     config,
                     15 // minutes
-                );
-
-                var refreshToken = JwtHelper.GenerateJwtToken(
-                    userId,
-                    payload.Email,
-                    payload.Name,
-                    payload.Picture,
-                    config,
-                    43200 // 30 days
                 );
 
                 return Results.Ok(new
@@ -68,6 +65,26 @@ public static class AuthenticationEndpoints
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
     }
+
+    private static void RefreshToken(RouteGroupBuilder group)
+    {
+        group.MapPost("/refresh",  async(
+            [FromBody] RefreshTokenRequest request,
+            IConfiguration config,
+            IMediator mediator
+        ) =>
+        {
+            var result = await mediator.Send(new RefreshTokenCommand(request.RefreshToken));
+
+            return Results.Ok(result);
+        })
+        .WithName("RefreshToken")
+        .WithDescription("Issues a new access/refresh token pair for a valid refresh token")
+        .Produces(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized);
+    }
+
     public static void DefineEndpoints(WebApplication app)
     {
         var authGroup = app
@@ -76,5 +93,6 @@ public static class AuthenticationEndpoints
         .WithTags("Auth");
 
         GoogleLogin(authGroup);
+        RefreshToken(authGroup);
     }
 }

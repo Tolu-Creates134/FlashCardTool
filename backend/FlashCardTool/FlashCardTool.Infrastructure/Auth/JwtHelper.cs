@@ -1,6 +1,7 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -57,5 +58,18 @@ public class JwtHelper
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public static string GenerateRefreshToken()
+    {
+        var bytes = GenerateRandomNumber(64);
+        return Convert.ToBase64String(bytes);
+    }
+
+    private static byte[] GenerateRandomNumber(int size)
+    {
+        var bytes = new byte[size];
+        RandomNumberGenerator.Fill(bytes);
+        return bytes;
     }
 }

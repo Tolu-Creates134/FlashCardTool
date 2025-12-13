@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { triggerLogout } from '../utils/logoutManager';
 
 /**
  * Create axios instance
@@ -6,6 +7,19 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: `${process.env.REACT_APP_API_BASE_URL}/api`,
 });
+
+let refreshRequest = null;
+
+const refreshAccessToken = async () => {
+  const refreshToken = localStorage.getItem('refreshToken');
+
+  if (!refreshToken) {
+    throw new Error('Missing refresh token');
+  }
+
+  const { data } = await api.post('/auth/refresh', { refreshToken });
+  return data;
+};
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
@@ -16,6 +30,53 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config || {};
+    const status = error.response?.status;
+    const isAuthRoute = originalRequest.url?.includes('/auth/');
+
+    if (status === 401 && !originalRequest._retry && !isAuthRoute) {
+      originalRequest._retry = true;
+
+      try {
+        if (!refreshRequest) {
+          refreshRequest = refreshAccessToken()
+            .then(({ accessToken, refreshToken }) => {
+              localStorage.setItem('accessToken', accessToken);
+              if (refreshToken) {
+                localStorage.setItem('refreshToken', refreshToken);
+              }
+              api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+              return accessToken;
+            })
+            .finally(() => {
+              refreshRequest = null;
+            });
+        }
+
+        const newAccessToken = await refreshRequest;
+        originalRequest.headers = {
+          ...originalRequest.headers,
+          Authorization: `Bearer ${newAccessToken}`,
+        };
+        return api(originalRequest);
+      } catch (refreshError) {
+        refreshRequest = null;
+        const refreshStatus = refreshError.response?.status;
+        const missingRefreshToken = refreshError.message === 'Missing refresh token';
+        if (refreshStatus === 401 || refreshStatus === 403 || missingRefreshToken) {
+          triggerLogout();
+        }
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 /**
  * Login with details
@@ -33,7 +94,17 @@ export const loginWithGoogle = async (idToken) => {
  */
 export const fetchCategories = async () => {
   const res = await api.get('/categories');
-  return res.data;
+  return res.data.categories;
+};
+
+/**
+ * Creates a category
+ * @param {*} categoryData
+ * @returns
+ */
+export const createCategory = async (categoryData) => {
+  const res = await api.post('/categories', { category: categoryData });
+  return res.data.category;
 };
 
 /**
