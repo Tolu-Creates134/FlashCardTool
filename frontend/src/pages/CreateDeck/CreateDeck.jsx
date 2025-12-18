@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react'
 import { PlusIcon, XIcon, UploadIcon, BookOpenIcon } from "lucide-react";
 import { generateUniqueId } from '../../utils/helpers';
-import { createCategory, fetchCategories } from '../../services/api';
+import { createCategory, fetchCategories, createDeck } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 
@@ -24,6 +25,11 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
     const [flashcards, setFlashcards] = useState([]);
     const [currentQuestion, setCurrentQuestion] = useState("");
     const [currentAnswer, setCurrentAnswer] = useState("");
+    const [flashcardError, setFlashcardError] = useState("");
+    const [saveError, setSaveError] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
+
+    const navigate = useNavigate();
 
     // Implement AI functionality later
     const [contentForAI, setContentForAI] = useState("");
@@ -50,24 +56,45 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
         }
     };
 
-    const handleSaveDeck = () => {
-        if (!deckName.trim() || flashcards.length === 0) return;
+    const handleSaveDeck = async () => {
+        if (!deckName.trim() || flashcards.length === 0) {
+            setSaveError("Please provide a deck name and add at least one flashcard.");
+            return;
+        }
 
-        const deckToSave = {
-            id: generateUniqueId(),
-            name: deckName,
-            description: deckDescription,
-            categoryId: selectedCategoryId || null,
-            flashcards,
+        const payload = {
+            name: deckName.trim(),
+            description: deckDescription.trim(),
+            categoryId: selectedCategoryId,
+            flashCards: flashcards.map(({ question, answer }) => ({
+                question,
+                answer,
+            })),
         };
 
-        onSave(deckToSave);
+        setIsSaving(true);
+        setSaveError("");
+
+        try {
+            const createdDeck = await createDeck(payload);
+            onSave(createdDeck);
+            navigate("/home");
+        } catch (error) {
+            console.error("Failed to create deck", error);
+            const message = error.response?.data?.message || "Unable to save deck. Please try again.";
+            setSaveError(message);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleAddFlashcard = () => {
         const q = currentQuestion.trim();
         const a = currentAnswer.trim();
-        if (!q || !a) return;
+        if (!q || !a) {
+            setFlashcardError("Please enter both a question and an answer.");
+            return;
+        }
 
         setFlashcards((prev) => [
         ...prev,
@@ -75,7 +102,12 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
         ]);
         setCurrentQuestion("");
         setCurrentAnswer("");
+        setFlashcardError("");
     }
+
+    const handleRemoveFlashcard = (id) => {
+        setFlashcards((prev) => prev.filter((card) => card.id !== id));
+    };
 
     const loadCategories = async () => {
         try {
@@ -227,25 +259,62 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
                 <PlusIcon size={16} className="mr-2 inline" />
                 Add Flashcard
                 </button>
+            {flashcardError && (
+                <p className="text-sm text-red-600 mt-2">{flashcardError}</p>
+            )}
+
+            {flashcards.length > 0 && (
+                <div className="mt-6 space-y-4">
+                    {flashcards.map((card, index) => (
+                        <div key={card.id} className="border rounded-md p-4 relative">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-700">
+                                        Question {index + 1}
+                                    </p>
+                                    <p className="text-gray-800">{card.question}</p>
+
+                                    <p className="text-sm font-semibold text-gray-700 mt-2">
+                                        Answer
+                                    </p>
+                                    <p className="text-gray-800">{card.answer}</p>
+                                </div>
+                                <button
+                                    className="text-sm text-red-500 hover:text-red-600"
+                                    onClick={() => handleRemoveFlashcard(card.id)}
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
 
         {/* Save Deck */}
         <div className="flex justify-end space-x-4">
-            <button className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+            <button
+                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                onClick={() => navigate("/home")}
+            >
                 Cancel
             </button>
             <button
                 onClick={handleSaveDeck}
-                disabled={!deckName.trim() || flashcards.length === 0}
+                disabled={!deckName.trim() || flashcards.length === 0 || isSaving}
                 className={`px-6 py-2 rounded-md ${
-                    !deckName.trim() || flashcards.length === 0
+                    !deckName.trim() || flashcards.length === 0 || isSaving
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-indigo-600 text-white hover:bg-indigo-700"
                 }`}
             >
-                Save Deck
+                {isSaving ? "Saving..." : "Save Deck"}
             </button>
         </div>
+        {saveError && (
+            <p className="text-sm text-red-600 text-right mt-2">{saveError}</p>
+        )}
     </div>
   )
 }

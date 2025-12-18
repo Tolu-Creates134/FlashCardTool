@@ -122,7 +122,8 @@ export const fetchDecks = async () => {
  * @returns
  */
 export const createDeck = async (deckData) => {
-  const res = await api.post('/decks', deckData);
+  const payload = { deck: deckData };
+  const res = await api.post('/decks', payload);
   return res.data;
 };
 

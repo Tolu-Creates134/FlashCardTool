@@ -7,19 +7,7 @@ namespace FlashCardTool.API.Endpoints;
 
 public static class DeckEndpoints
 {
-    private const string RoutePrefix = "decks";
-
-    public static void DefineEndpoints(WebApplication app)
-    {
-        var decks = app
-        .MapGroup(RoutePrefix)
-        .WithTags("Decks");
-
-        CreateDeck(decks);
-        GetAllDecks(decks);
-        DeleteDeck(decks);
-        UpdateDeck(decks);
-    }
+    private const string RoutePrefix = "api/decks";
 
     private static void CreateDeck(RouteGroupBuilder group)
     {
@@ -90,4 +78,16 @@ public static class DeckEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
+    public static void DefineEndpoints(WebApplication app)
+    {
+        var decks = app
+        .MapGroup(RoutePrefix)
+        .WithTags("Decks")
+        .RequireAuthorization();
+
+        CreateDeck(decks);
+        GetAllDecks(decks);
+        DeleteDeck(decks);
+        UpdateDeck(decks);
+    }
 }

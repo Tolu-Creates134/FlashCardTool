@@ -10,7 +10,7 @@ public class User : BaseEntity
 
     public string? PictureUrl { get; init; }
 
-    public DateTime _Timestamp { get; init; } = DateTime.UtcNow;
+    public DateTime _Timestamp { get; set; } = DateTime.UtcNow;
 
     public required string RefreshToken { get; set; }
     

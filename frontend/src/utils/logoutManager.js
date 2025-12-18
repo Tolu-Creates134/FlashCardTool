@@ -4,13 +4,23 @@ export const registerLogoutHandler = (handler) => {
   logoutHandler = handler;
 };
 
-export const triggerLogout = () => {
-  if (logoutHandler) {
-    logoutHandler();
-    return;
-  }
-
+const hardRedirectToLogin = () => {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
-  window.location.replace('/');
+
+  if (window.location.pathname !== '/') {
+    window.location.replace('/');
+  }
+};
+
+export const triggerLogout = () => {
+  if (logoutHandler) {
+    try {
+      logoutHandler();
+    } catch (error) {
+      console.error('Logout handler failed, falling back to hard redirect.', error);
+    }
+  }
+
+  hardRedirectToLogin();
 };
