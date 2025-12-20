@@ -26,6 +26,8 @@ const Home = () => {
         ]);
         setCategories(catData);
         setDecks(deckData);
+        console.log('Fetched decks response:', deckData);
+        console.log('Fetched categories response:', catData);
       } catch (err) {
         console.error('Failed to load data:', err);
       } finally {
@@ -35,6 +37,12 @@ const Home = () => {
 
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (decks.length > 0) {
+      console.log('Deck state updated:', decks);
+    }
+  }, [decks]); 
 
   // Create new deck
   const handleCreateDeck =  () => {
@@ -60,16 +68,16 @@ const Home = () => {
     }
 
     if (activeTab === 'categories') {
-      return categories.map((category) => {
+      return categories.map((category) => (
         <CategorySection
           key={category.id}
           category={category}
-          decks={decks}
+          decks={decks.decks}
           categories={categories}
           onSelectDeck={handleSelectDeck}
           onCreateDeck={handleCreateDeck}
-        />;
-      });
+        />
+      ));
     }
 
     return (

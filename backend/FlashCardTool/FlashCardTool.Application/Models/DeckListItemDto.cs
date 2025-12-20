@@ -5,5 +5,6 @@ public record class DeckListItemDto
     Guid Id,
     string Name,
     string Description,
-    string Category
+    string CategoryName,
+    string CategoryId
 );

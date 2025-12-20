@@ -26,19 +26,19 @@ public static class DeckEndpoints
         .ProducesProblem(StatusCodes.Status400BadRequest);
     }
 
-    private static void GetAllDecks(RouteGroupBuilder group)
+    private static void ListAllDecks(RouteGroupBuilder group)
     {
         group.MapGet("/", async (
             IMediator mediator,
             CancellationToken cancellationToken
         ) =>
         {
-            var result = await mediator.Send(new GetAllDecksQuery(), cancellationToken);
+            var result = await mediator.Send(new ListAllDecksQuery(), cancellationToken);
             return Results.Ok(result);
         })
-        .WithName("GetAllDecks")
-        .WithDescription("Returns all decks")
-        .Produces<GetAllDecksResponse>(StatusCodes.Status200OK);
+        .WithName("ListAllDecks")
+        .WithDescription("Returns all decks for the current user")
+        .Produces<ListAllDecksResponse>(StatusCodes.Status200OK);
     }
 
     private static void DeleteDeck(RouteGroupBuilder group)
@@ -86,7 +86,7 @@ public static class DeckEndpoints
         .RequireAuthorization();
 
         CreateDeck(decks);
-        GetAllDecks(decks);
+        ListAllDecks(decks);
         DeleteDeck(decks);
         UpdateDeck(decks);
     }

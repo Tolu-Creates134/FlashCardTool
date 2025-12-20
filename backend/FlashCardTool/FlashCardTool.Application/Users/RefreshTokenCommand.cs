@@ -28,9 +28,12 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
 
     public async Task<RefreshTokenCommandResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var userRepository = unitOfWork.UserRepository();
+        ArgumentNullException.ThrowIfNull(request);
 
-        var user = await userRepository.GetByRefreshTokenAsync(request.RefreshToken);
+        var userRepository = unitOfWork.UserRepository();
+        ArgumentNullException.ThrowIfNull(userRepository);
+
+        var user = await userRepository.GetByRefreshTokenAsync(request.RefreshToken, cancellationToken);
 
         if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
         {
@@ -51,8 +54,10 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
 
         user.RefreshToken = newRefreshToken;
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(30);
+        user._Timestamp = DateTime.UtcNow;
 
-        await unitOfWork.Repository<User>().UpdateAsync(user);
+        await unitOfWork.Repository<User>().UpdateAsync(user, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new RefreshTokenCommandResponse(newAccessToken, newRefreshToken);
     }

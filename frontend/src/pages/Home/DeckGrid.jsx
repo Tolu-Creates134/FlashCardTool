@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { PlusIcon } from "lucide-react";
 import DeckCard from '../../components/cards/DeckCard';
 
@@ -8,6 +8,11 @@ import DeckCard from '../../components/cards/DeckCard';
  * @returns 
  */
 const DeckGrid = ({decks, categories, onSelectDeck, onCreateDeck }) => {
+
+    // useEffect(() => {
+    //     console.log('Loggign from DeckGrid Component', decks, categories)
+    // })
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {decks.map((deck) => {

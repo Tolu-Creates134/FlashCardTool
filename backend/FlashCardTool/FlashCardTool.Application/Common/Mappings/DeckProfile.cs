@@ -17,5 +17,15 @@ public class DeckProfile : Profile
         CreateMap<FlashCardDto, FlashCard>();
 
         CreateMap<FlashCard, FlashCardDto>();
+
+        CreateMap<Deck, DeckListItemDto>()
+        .ForCtorParam(
+            "CategoryName",
+            opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty)
+        )
+        .ForCtorParam(
+            "CategoryId",
+            opt => opt.MapFrom(src => src.CategoryId.ToString())
+        );
     }
 }
