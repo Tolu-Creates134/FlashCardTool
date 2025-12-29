@@ -4,6 +4,7 @@ import Home from './pages/Home/Home';
 import { Route, Routes } from 'react-router-dom';
 import MainLayout from './components/layouts/MainLayout';
 import CreateDeck from './pages/CreateDeck/CreateDeck';
+import FlashCards from './pages/FlashCards/FlashCards';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Route element={<MainLayout/>}>
         <Route path='/home' element={<Home/>} />
         <Route path='/create-deck' element={<CreateDeck/>} />
+        <Route path='/decks/:deckId' element={<FlashCards/>} />
       </Route>
     </Routes>
   );

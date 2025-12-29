@@ -128,6 +128,25 @@ export const createDeck = async (deckData) => {
 };
 
 /**
+ * Fetch individual deck by id
+ * @param {string} deckId
+ */
+export const fetchDeckById = async (deckId) => {
+  const res = await api.get(`/decks/${deckId}`);
+  return res.data;
+};
+
+/**
+ * Fetch flashcards for a specific deck
+ * @param {string} deckId
+ * @returns
+ */
+export const fetchFlashcardsByDeckId = async (deckId) => {
+  const res = await api.get(`/flashcards/${deckId}`);
+  return res.data;
+};
+
+/**
  * Fetches logged in user details
  * @returns
  */

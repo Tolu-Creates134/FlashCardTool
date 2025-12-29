@@ -10,6 +10,7 @@ public static class ConfigurationServices
         DeckEndpoints.DefineEndpoints(app);
         CategoryEndpoints.DefineEndpoints(app);
         AuthenticationEndpoints.DefineEndpoints(app);
+        FlashCardEndpoints.DefineEndpoints(app);
         // Add other feature endpoints here
     }
 }

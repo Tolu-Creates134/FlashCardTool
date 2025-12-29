@@ -78,6 +78,23 @@ public static class DeckEndpoints
         .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
+    private static void GetDeckById(RouteGroupBuilder group)
+    {
+        group.MapGet("/{deckId:guid}", async (
+            Guid deckId,
+            IMediator mediator,
+            CancellationToken cancellationToken
+        ) =>
+        {
+            var result = await mediator.Send(new GetDeckByIdQuery(deckId), cancellationToken);
+            return Results.Ok(result);
+        })
+        .WithName("GetDeckById")
+        .WithDescription("Returns a deck and its flashcards by ID")
+        .Produces<GetDeckByIdResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound);
+    }
+
     public static void DefineEndpoints(WebApplication app)
     {
         var decks = app
@@ -87,6 +104,7 @@ public static class DeckEndpoints
 
         CreateDeck(decks);
         ListAllDecks(decks);
+        GetDeckById(decks);
         DeleteDeck(decks);
         UpdateDeck(decks);
     }

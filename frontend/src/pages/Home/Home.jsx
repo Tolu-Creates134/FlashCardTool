@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import EmptyState from '../../components/EmptyState';
 import CategorySection from './CategorySection';
 import DeckGrid from './DeckGrid';
-import { createDeck, fetchCategories, fetchDecks } from '../../services/api';
+import { fetchCategories, fetchDecks } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
 /**
@@ -26,8 +26,8 @@ const Home = () => {
         ]);
         setCategories(catData);
         setDecks(deckData);
-        console.log('Fetched decks response:', deckData);
-        console.log('Fetched categories response:', catData);
+        // console.log('Fetched decks response:', deckData);
+        // console.log('Fetched categories response:', catData);
       } catch (err) {
         console.error('Failed to load data:', err);
       } finally {
@@ -50,8 +50,7 @@ const Home = () => {
   };
 
   const handleSelectDeck = async (deckId) => {
-    console.log('deck selected:', deckId);
-    // Future: navigate (/decks/deckId)
+    navigate(`/decks/${deckId}`);
   };
 
   const renderContent = () => {
