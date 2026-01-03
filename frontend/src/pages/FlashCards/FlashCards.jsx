@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchDeckById, fetchFlashcardsByDeckId } from '../../services/api';
+import { PlayIcon } from 'lucide-react';
 
+/**
+ * Component for viewing the flashcards within a deck
+ * @returns 
+ */
 const FlashCards = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
@@ -75,7 +80,18 @@ const FlashCards = () => {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-lg font-semibold mb-4">Flashcards ({flashcards.length})</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Flashcards ({flashcards.length})</h2>
+          <button
+            className="px-4 py-2 border border-indigo-600 bg-indigo-600 text-white rounded hover:bg-indigo-700 flex items-center"
+            onClick={() => navigate(`/decks/${deckId}/practise`)}
+          >
+            <PlayIcon size={16} className="mr-2" />
+            Practise Deck
+          </button>
+        </div>
+
+
         {flashcards.length === 0 ? (
           <p className="text-gray-500">No flashcards have been added to this deck yet.</p>
         ) : (
