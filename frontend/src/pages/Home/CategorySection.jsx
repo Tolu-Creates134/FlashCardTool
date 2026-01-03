@@ -12,7 +12,7 @@ const CategorySection = ({ category, decks, categories, onCreateDeck, onSelectDe
   useEffect(() => {
     console.log('Logging from Category Section component the decks:', decks)
     console.log('Logging from Category Section component the categpories:', categories)
-  })
+  }, [])
 
   return (
     <div key={category.id} className="mb-8">
