@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchDeckById, fetchFlashcardsByDeckId } from '../../services/api';
-import { PlayIcon } from 'lucide-react';
+import { PlayIcon, SquarePen, Trash } from 'lucide-react';
+import FlashCard from '../../components/cards/FlashCard';
 
 /**
  * Component for viewing the flashcards within a deck
  * @returns 
  */
-const FlashCards = () => {
+const ViewDeck = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
   const [deck, setDeck] = useState(null);
@@ -74,9 +75,24 @@ const FlashCards = () => {
         Back to Decks
       </button>
 
-      <div className="p-6 mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">{deck.name}</h1>
-        <p className="text-gray-600">{deck.description}</p>
+      {/* Deck details */}
+      <div className="p-6 mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">{deck.name}</h1>
+          <p className="text-gray-600">{deck.description}</p>
+        </div>
+
+        {/*Edit or delete deck*/}
+        <div className="flex items-center gap-4">
+          <button
+            type='button'
+            onClick={() => navigate(`/decks/${deckId}/edit`)}
+          >
+            <SquarePen />
+          </button>
+
+          <Trash className="text-red-600" />
+        </div>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md">
@@ -97,16 +113,7 @@ const FlashCards = () => {
         ) : (
           <div className="space-y-4">
             {flashcards.map((card, index) => (
-              <div key={card.id || index} className="border rounded-md p-4">
-                <p className="text-sm font-semibold text-gray-700 mb-1">
-                  Question {index + 1}
-                </p>
-                <p className="text-gray-800 mb-3">{card.question}</p>
-                <p className="text-sm font-semibold text-gray-700 mb-1">
-                  Answer
-                </p>
-                <p className="text-gray-800">{card.answer}</p>
-              </div>
+              <FlashCard key={card.id} flashcard={card} index={index}/>
             ))}
           </div>
         )}
@@ -115,4 +122,4 @@ const FlashCards = () => {
   );
 };
 
-export default FlashCards;
+export default ViewDeck;

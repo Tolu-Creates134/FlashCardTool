@@ -49,6 +49,7 @@ const Home = () => {
     navigate('/create-deck')
   };
 
+  // View Flashcards within deck
   const handleSelectDeck = async (deckId) => {
     navigate(`/decks/${deckId}`);
   };
