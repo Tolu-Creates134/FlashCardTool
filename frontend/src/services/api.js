@@ -136,6 +136,14 @@ export const fetchDeckById = async (deckId) => {
   return res.data;
 };
 
+export const updateDeck = async (deckId, deckData) => {
+  const res = await api.put(
+    `/decks/${deckId}`,
+    { deck: deckData}
+  )
+  return res.data
+}
+
 /**
  * Fetch flashcards for a specific deck
  * @param {string} deckId
