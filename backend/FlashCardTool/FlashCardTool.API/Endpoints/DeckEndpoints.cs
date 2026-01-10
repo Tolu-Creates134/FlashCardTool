@@ -58,26 +58,6 @@ public static class DeckEndpoints
         .Produces(StatusCodes.Status404NotFound);
     }
 
-    private static void UpdateDeck(RouteGroupBuilder group)
-    {
-        group.MapPut("/{deckId:guid}", async (
-            Guid deckId,
-            DeckDto deckDto,
-            IMediator mediator,
-            CancellationToken cancellationToken
-        ) =>
-        {
-            var command = new UpdateDeckCommand(deckId, deckDto);
-            await mediator.Send(command, cancellationToken);
-            return Results.NoContent();
-        })
-        .WithName("UpdateDeck")
-        .WithDescription("Updates an existing deck and its associated flashcards.")
-        .Produces(StatusCodes.Status204NoContent)
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .ProducesProblem(StatusCodes.Status404NotFound);
-    }
-
     private static void GetDeckById(RouteGroupBuilder group)
     {
         group.MapGet("/{deckId:guid}", async (
@@ -95,6 +75,25 @@ public static class DeckEndpoints
         .Produces(StatusCodes.Status404NotFound);
     }
 
+    private static void UpdateDeckByDeckId(RouteGroupBuilder group)
+    {
+        group.MapPut("/{deckId:guid}", async (
+            Guid deckId,
+            DeckDto deckData,
+            IMediator mediator,
+            CancellationToken cancellationToken
+        ) =>
+        {
+            await mediator.Send(new UpdateDeckByDeckIdCommand(deckId, deckData), cancellationToken);
+            return Results.NoContent();
+        })
+        .WithName("UpdateDeckByDeckId")
+        .WithDescription("Updates a deck and its corresponding flashcards")
+        .Produces(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status500InternalServerError);
+    }
+
+
     public static void DefineEndpoints(WebApplication app)
     {
         var decks = app
@@ -106,6 +105,6 @@ public static class DeckEndpoints
         ListAllDecks(decks);
         GetDeckById(decks);
         DeleteDeck(decks);
-        UpdateDeck(decks);
+        UpdateDeckByDeckId(decks);
     }
 }

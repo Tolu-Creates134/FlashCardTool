@@ -86,7 +86,7 @@ const EditDeck = () => {
 
     const handleSave = async () => {
         if (!canSave) return;
-        setIsSaving(true);                                                                 
+        setIsSaving(true);
         setError('');
 
         const payload = {
