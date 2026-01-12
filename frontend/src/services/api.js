@@ -139,7 +139,7 @@ export const fetchDeckById = async (deckId) => {
 export const updateDeck = async (deckId, deckData) => {
   const res = await api.put(
     `/decks/${deckId}`,
-    { deck: deckData}
+    deckData
   )
   return res.data
 }

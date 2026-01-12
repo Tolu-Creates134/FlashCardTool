@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchCategories, fetchDeckById, fetchFlashcardsByDeckId, updateDeck } from '../../services/api';
 import { PlusIcon, Trash2, SquarePen } from 'lucide-react';
+import ErrorToastr from '../../components/ErrorToastr';
 
 const EditDeck = () => {
     const { deckId } = useParams();
@@ -15,6 +16,7 @@ const EditDeck = () => {
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState('');
+    const [errorToast, setErrorToast] = useState(null)
     const [flashcardError, setFlashcardError] = useState('');
     const [newQuestion, setNewQuestion] = useState('');
     const [newAnswer, setNewAnswer] = useState('');
@@ -32,7 +34,6 @@ const EditDeck = () => {
                 fetchCategories(),
                 ]);
                 const deck = deckRes.deck;
-                console.log(flashRes);
                 setDeckName(deck.name);
                 setDeckDescription(deck.description);
                 setSelectedCategoryId(deck.categoryId || categoriesRes?.[0]?.id || '');
@@ -106,8 +107,11 @@ const EditDeck = () => {
         } catch (err) {
             console.error('Failed to update deck', err);
             const message = 
-            err.response?.data?.message || 'Unable to save deck. Please try again.';
+            err.message || 'Unable to save deck. Please try again.';
+            console.log(message, 'CHECKING ERROR MESSAGE')
+            console.log(err)
             setError(message);
+            setErrorToast({id: Date.now(), message: message})
         } finally {
             setIsSaving(false);
         }
@@ -123,15 +127,11 @@ const EditDeck = () => {
 
     if (error) {
         return (
-            <div className="max-w-3xl mx-auto bg-white p-6 rounded shadow">
-                <p className="text-red-600 mb-4">{error}</p>
-                <button
-                    className="px-4 py-2 bg-indigo-600 text-white rounded"
-                    onClick={() => navigate('/home')}
-                >
-                    Back to Home
-                </button>
-            </div>
+            <ErrorToastr
+                key={errorToast.id}
+                message={errorToast.message}
+                onClose={() => setErrorToast(null)}
+            />
         );
     }
 
