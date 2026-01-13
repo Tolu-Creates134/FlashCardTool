@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchCategories, fetchDeckById, fetchFlashcardsByDeckId, updateDeck } from '../../services/api';
 import { PlusIcon, Trash2, SquarePen } from 'lucide-react';
-import ErrorToastr from '../../components/ErrorToastr';
 
 const EditDeck = () => {
     const { deckId } = useParams();
@@ -15,8 +14,6 @@ const EditDeck = () => {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
-    const [error, setError] = useState('');
-    const [errorToast, setErrorToast] = useState(null)
     const [flashcardError, setFlashcardError] = useState('');
     const [newQuestion, setNewQuestion] = useState('');
     const [newAnswer, setNewAnswer] = useState('');
@@ -108,10 +105,7 @@ const EditDeck = () => {
             console.error('Failed to update deck', err);
             const message = 
             err.message || 'Unable to save deck. Please try again.';
-            console.log(message, 'CHECKING ERROR MESSAGE')
-            console.log(err)
             setError(message);
-            setErrorToast({id: Date.now(), message: message})
         } finally {
             setIsSaving(false);
         }
@@ -124,17 +118,6 @@ const EditDeck = () => {
             </div>
         );
     }
-
-    if (error) {
-        return (
-            <ErrorToastr
-                key={errorToast.id}
-                message={errorToast.message}
-                onClose={() => setErrorToast(null)}
-            />
-        );
-    }
-
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -293,9 +276,6 @@ const EditDeck = () => {
                 {isSaving ? 'Saving...' : 'Save Changes'}
             </button>
         </div>
-        {error && (
-            <p className="text-sm text-red-600 text-right mt-2">{error}</p>
-        )}
     </div>
   )
 };

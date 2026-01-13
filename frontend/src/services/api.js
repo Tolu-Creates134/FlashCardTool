@@ -21,6 +21,20 @@ const refreshAccessToken = async () => {
   return data;
 };
 
+const emitApiError = (error) => {
+  if (typeof window === 'undefined') return;
+
+  const message =
+  error?.response?.data?.message ||
+  error?.response?.data?.error ||
+  error?.message ||
+  'Request failed';
+
+  const status = error?.response?.status;
+
+  window.dispatchEvent(new CustomEvent('api-error', {detail: {message, status}}));
+};
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
 
@@ -34,6 +48,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    emitApiError(error)
+
     const originalRequest = error.config || {};
     const status = error.response?.status;
     const isAuthRoute = originalRequest.url?.includes('/auth/');
@@ -64,6 +80,7 @@ api.interceptors.response.use(
         };
         return api(originalRequest);
       } catch (refreshError) {
+        emitApiError(refreshError);
         refreshRequest = null;
         const refreshStatus = refreshError.response?.status;
         const missingRefreshToken = refreshError.message === 'Missing refresh token';
