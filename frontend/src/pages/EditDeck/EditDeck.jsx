@@ -17,6 +17,7 @@ const EditDeck = () => {
     const [flashcardError, setFlashcardError] = useState('');
     const [newQuestion, setNewQuestion] = useState('');
     const [newAnswer, setNewAnswer] = useState('');
+    const [error, setError] = useState('')
 
     // stable local ids for rendering new cards without server ids
   const withLocalIds = (cards) => 
@@ -123,13 +124,15 @@ const EditDeck = () => {
     <div className="max-w-4xl mx-auto">
         <button
             className="mt-4 flex items-center text-indigo-600 font-medium hover:text-indigo-700"
-            onClick={() => navigate('/home')}
+            onClick={() => navigate(`/decks/${deckId}`)}
         >
             <span className="mr-2">{'←'}</span>
-            Back to Decks
+            Back to Deck
         </button>
 
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Edit Deck</h1>
+        <div className="p-6 mb-6">
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">Edit Deck</h1>
+        </div>
 
         {/* Deck Info */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">

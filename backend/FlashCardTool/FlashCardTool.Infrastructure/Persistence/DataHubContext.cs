@@ -15,6 +15,8 @@ public class DataHubContext(DbContextOptions<DataHubContext> options) : DbContex
     
     public DbSet <User> Users{ get; init; }
 
+    public DbSet <PractiseSession> PractiseSessions { get; init;}
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -36,5 +38,11 @@ public class DataHubContext(DbContextOptions<DataHubContext> options) : DbContex
         .WithOne(c => c.User)
         .HasForeignKey(c => c.UserId)
         .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PractiseSession>()
+        .HasOne(p => p.Deck)
+        .WithMany()
+        .HasForeignKey(p => p.DeckId)
+        .OnDelete(DeleteBehavior.Cascade);
     }
 }
