@@ -1,6 +1,7 @@
 using System;
 using FlashCardTool.Application.Decks;
 using FlashCardTool.Application.Models;
+using FlashCardTool.Application.PractiseSessions;
 using MediatR;
 
 namespace FlashCardTool.API.Endpoints;
@@ -93,6 +94,54 @@ public static class DeckEndpoints
         .Produces(StatusCodes.Status500InternalServerError);
     }
 
+    private static void CreatePraciseSession(RouteGroupBuilder group)
+    {
+        group.MapPost("/{deckId:guid}/practise-sessions", async (
+            Guid deckId,
+            CreatePractiseSessionRequest request,
+            IMediator mediator,
+            CancellationToken cancellationToken
+        ) =>
+        {
+            var command = new CreatePractiseSessionCommand(
+                deckId,
+                request.CorrectCount,
+                request.TotalCount,
+                request.ResponseJson
+            );
+
+            var result = mediator.Send(command);
+
+            return Results.Created($"/api/decks/{deckId}/practice-sessions/{result.Id}", result);
+        })
+        .WithName("CreatePractiseSession")
+        .WithDescription("Creates a practise session for the current user")
+        .Produces<PractiseSessionDto>(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound);
+    }
+
+    private static void ListPractiseSessions(RouteGroupBuilder group)
+    {
+        group.MapGet("/{deckId:guid}/practise-sessions", async (
+            Guid deckId,
+            int? pageNumber,
+            int? pageSize,
+            IMediator mediator,
+            CancellationToken cancellationToken
+        ) =>
+        {
+            var query = new ListPractiseSessionsByDeckIdQuery(deckId, pageNumber, pageSize);
+            var result = await mediator.Send(query, cancellationToken);
+
+            return Results.Ok(result);     
+        })
+        .WithName("ListPractiseSession")
+        .WithDescription("Returns practise session history for the current user")
+        .Produces<ListPractiseSessionsByDeckIdQueryResponse>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound);
+    }
+
 
     public static void DefineEndpoints(WebApplication app)
     {
@@ -106,5 +155,7 @@ public static class DeckEndpoints
         GetDeckById(decks);
         DeleteDeck(decks);
         UpdateDeckByDeckId(decks);
+        CreatePraciseSession(decks);
+        ListPractiseSessions(decks);
     }
 }

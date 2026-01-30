@@ -14,7 +14,7 @@ public class CurrentUserService : ICurrentUserService
     }
 
     private ClaimsPrincipal? User =>
-        this.httpContextAccessor.HttpContext?.User;
+        httpContextAccessor.HttpContext?.User;
 
     public Guid? UserId
     {

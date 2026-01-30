@@ -81,4 +81,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 
         return Task.FromResult(entry.Entity);
     }
+
+    public IQueryable<T> Query()
+    {
+        return dbSet;
+    }
 }

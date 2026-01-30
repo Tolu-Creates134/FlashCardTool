@@ -44,4 +44,6 @@ public interface IGenericRepository<T> where T : BaseEntity
     void Remove(
         T entity
     );
+
+    IQueryable<T> Query();
 }

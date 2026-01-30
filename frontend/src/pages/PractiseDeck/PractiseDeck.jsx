@@ -85,6 +85,7 @@ const PractiseDeck = () => {
         setIsFinished(true);
         persistPracticeSession(updated);
       }
+      
       return updated;
     });
   };
