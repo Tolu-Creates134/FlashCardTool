@@ -153,6 +153,12 @@ export const fetchDeckById = async (deckId) => {
   return res.data;
 };
 
+/**
+ * Update deck by id
+ * @param {*} deckId 
+ * @param {*} deckData 
+ * @returns 
+ */
 export const updateDeck = async (deckId, deckData) => {
   const res = await api.put(
     `/decks/${deckId}`,
@@ -160,6 +166,8 @@ export const updateDeck = async (deckId, deckData) => {
   )
   return res.data
 }
+
+export const   
 
 /**
  * Fetch flashcards for a specific deck

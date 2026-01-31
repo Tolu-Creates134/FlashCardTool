@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchDeckById, fetchFlashcardsByDeckId } from '../../services/api';
-import { PlayIcon, SquarePen, Trash } from 'lucide-react';
+import { PlayIcon, SquarePen, Trash, ChartColumn } from 'lucide-react';
 import FlashCard from '../../components/cards/FlashCard';
 
 /**
@@ -98,13 +98,23 @@ const ViewDeck = () => {
       <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Flashcards ({flashcards.length})</h2>
-          <button
-            className="px-4 py-2 border border-indigo-600 bg-indigo-600 text-white rounded hover:bg-indigo-700 flex items-center"
-            onClick={() => navigate(`/decks/${deckId}/practise`)}
-          >
-            <PlayIcon size={16} className="mr-2" />
-            Practise Deck
-          </button>
+
+          <div className="flex justify-between gap-4 bg-red">
+            <button 
+              className='px-4 py-2 border rounded text-gray-700 text-lg text-gray hover:bg-gray-200 bg-gray-100 border-gray-300 flex items-center font bold'
+              onClick={() => navigate(`/decks/${deckId}/scores`)}
+            >
+              <ChartColumn size={18} className='mr-2'/>
+              Scores
+            </button>
+            <button
+              className="px-4 py-2 border text-lg border-indigo-600 bg-indigo-600 text-white rounded hover:bg-indigo-700 flex items-center"
+              onClick={() => navigate(`/decks/${deckId}/practise`)}
+            >
+              <PlayIcon size={16} className="mr-2" />
+              Practise Deck
+            </button>
+          </div>
         </div>
 
 

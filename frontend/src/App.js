@@ -7,6 +7,7 @@ import CreateDeck from './pages/CreateDeck/CreateDeck';
 import ViewDeck from './pages/ViewDeck/ViewDeck';
 import PractiseDeck from './pages/PractiseDeck/PractiseDeck';
 import EditDeck from './pages/EditDeck/EditDeck';
+import Scores from './pages/Scores/Scores';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path='/decks/:deckId' element={<ViewDeck/>} />
         <Route path='/decks/:deckId/practise' element={<PractiseDeck/>} />
         <Route path='/decks/:deckId/edit' element={<EditDeck/>}/>
+        <Route path='/decks/:deckId/scores' element={<Scores/>}/> 
       </Route>
     </Routes>
   );
