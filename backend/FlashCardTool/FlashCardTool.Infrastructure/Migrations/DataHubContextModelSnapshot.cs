@@ -99,6 +99,43 @@ namespace FlashCardTool.Infrastructure.Migrations
                     b.ToTable("FlashCards");
                 });
 
+            modelBuilder.Entity("FlashCardTool.Domain.Entities.PractiseSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Accuracy")
+                        .HasColumnType("float");
+
+                    b.Property<int>("CompletionTime")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CorrectCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("DeckId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ResponseJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TotalCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeckId");
+
+                    b.ToTable("PractiseSessions");
+                });
+
             modelBuilder.Entity("FlashCardTool.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -155,6 +192,17 @@ namespace FlashCardTool.Infrastructure.Migrations
                 {
                     b.HasOne("FlashCardTool.Domain.Entities.Deck", "Deck")
                         .WithMany("Flashcards")
+                        .HasForeignKey("DeckId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Deck");
+                });
+
+            modelBuilder.Entity("FlashCardTool.Domain.Entities.PractiseSession", b =>
+                {
+                    b.HasOne("FlashCardTool.Domain.Entities.Deck", "Deck")
+                        .WithMany()
                         .HasForeignKey("DeckId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
