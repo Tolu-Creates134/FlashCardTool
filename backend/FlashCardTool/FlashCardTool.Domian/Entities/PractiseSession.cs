@@ -10,6 +10,7 @@ public class PractiseSession : BaseEntity
     public int CorrectCount { get; set; }
     public int TotalCount { get; set; }
     public double Accuracy { get; set; }
+    public int CompletionTime { get; set; }
     public string? ResponseJson { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public Deck Deck { get; set; } = null!;

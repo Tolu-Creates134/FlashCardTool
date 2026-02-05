@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FlashCardTool.Application.PractiseSessions;
 
-public record CreatePractiseSessionCommand (Guid DeckId, int CorrectCount, int TotalCount, string? ResponseJson)
+public record CreatePractiseSessionCommand (Guid DeckId, int CorrectCount, int TotalCount, int CompletionTime, string? ResponseJson)
 : IRequest<CreatePractiseSessionResponse>;
 
 public record CreatePractiseSessionResponse (PractiseSessionDto session);
@@ -66,16 +66,15 @@ public class CreatePractiseSessionCommandHandler : IRequestHandler<CreatePractis
             throw new InvalidOperationException($"Cannot create practise session, deck does not belong to current user");
         }
 
-        var totalCount = request.TotalCount;
-        var correctCount = request.CorrectCount;
-        var accuracy = totalCount == 0 ? 0d : (double)correctCount / totalCount;
+        var accuracy = request.TotalCount == 0 ? 0d : (double)request.CorrectCount / request.TotalCount;
 
         var session = new PractiseSession
         {
             UserId = userId,
             DeckId = deck.Id,
-            CorrectCount = correctCount,
-            TotalCount = totalCount,
+            CorrectCount =  request.CorrectCount,
+            TotalCount = request.TotalCount,
+            CompletionTime = request.CompletionTime,
             Accuracy = accuracy,
             ResponseJson = request.ResponseJson,
         };
@@ -84,6 +83,8 @@ public class CreatePractiseSessionCommandHandler : IRequestHandler<CreatePractis
         
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return mapper.Map<CreatePractiseSessionResponse>(created);
+        var dto = mapper.Map<PractiseSessionDto>(created);
+
+        return new CreatePractiseSessionResponse(dto);
     }
 }

@@ -4,7 +4,7 @@ import { triggerLogout } from '../utils/logoutManager';
 /**
  * Create axios instance
  */
-const api = axios.create({
+export const api = axios.create({
   baseURL: `${process.env.REACT_APP_API_BASE_URL}/api`,
 });
 
@@ -167,7 +167,22 @@ export const updateDeck = async (deckId, deckData) => {
   return res.data
 }
 
-export const   
+/**
+ * Persists practise sessions scores to db
+ * @param {*} deckId 
+ * @param {*} sessionsData 
+ */
+export const createPractiseSession = async (deckId, sessionsData) => {
+  const res = await api.post(
+    `/decks/${deckId}/practise-sessions`,
+    sessionsData
+  )
+}
+
+export const fetchPractiseSessions = async (deckId) => {
+  const res = await api.get(`/decks/${deckId}/practise-sessions`);
+  return res.data;
+}
 
 /**
  * Fetch flashcards for a specific deck

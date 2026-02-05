@@ -69,6 +69,8 @@ public class ListPractiseSessionsByDeckIdQueryHandler : IRequestHandler<ListPrac
 
         var sessions = await sessionsQuery.ToListAsync(cancellationToken);
 
-        return mapper.Map<ListPractiseSessionsByDeckIdQueryResponse>(sessions);
+        var dto = mapper.Map<PractiseSessionDto[]>(sessions);
+
+        return new ListPractiseSessionsByDeckIdQueryResponse(dto);
     }
 }

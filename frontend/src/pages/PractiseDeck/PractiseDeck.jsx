@@ -1,10 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchDeckById, fetchFlashcardsByDeckId } from '../../services/api';
+import { fetchDeckById, fetchFlashcardsByDeckId, createPractiseSession } from '../../services/api';
 
 const PractiseDeck = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
+
+  const sessionStartRef = useRef(null);
+  const hasSavedSessionRef = useRef(false);
+  const [savingSession, setSavingSession] = useState(false);
 
   const [deck, setDeck] = useState(null);
   const [flashcards, setFlashcards] = useState([]);
@@ -28,6 +32,9 @@ const PractiseDeck = () => {
         console.log(flashcardData)
         setDeck(deckData.deck ?? deckData);
         setFlashcards(flashcardData?.flashCards || flashcardData || []);
+        if (!sessionStartRef.current) {
+          sessionStartRef.current = Date.now();
+        }
       } catch (err) {
         console.error(`Failed to load practice deck ${deckId}`, err);
         setError('Unable to load deck for practice. Please try again.');
@@ -54,19 +61,29 @@ const PractiseDeck = () => {
 
   const totalCards = flashcards.length;
 
-  const persistPracticeSession = (sessionResponses) => {
-    const historyRaw = localStorage.getItem('practiceHistory');
-    const history = historyRaw ? JSON.parse(historyRaw) : {};
-    const deckHistory = history[deckId] ?? [];
-    const entry = {
-      deckId,
-      timestamp: new Date().toISOString(),
-      correct: sessionResponses.filter((response) => response.correct).length,
-      total: totalCards,
-      responses: sessionResponses,
+  const persistPracticeSession = async (sessionResponses) => {
+    if (hasSavedSessionRef.current) return;
+    hasSavedSessionRef.current = true;
+
+    const completionMs = sessionStartRef.current
+      ? Date.now() - sessionStartRef.current
+      : 0;
+
+    const payload = {
+      CorrectCount: sessionResponses.filter((response) => response.correct).length,
+      TotalCount: totalCards,
+      CompletionTime: Math.round(completionMs / 1000),
+      ResponseJson: JSON.stringify(sessionResponses),
     };
-    history[deckId] = [entry, ...deckHistory];
-    localStorage.setItem('practiceHistory', JSON.stringify(history));
+
+    try {
+      setSavingSession(true);
+      await createPractiseSession(deckId, payload);
+    } catch (err) {
+      console.error('Failed to save practise session', err);
+    } finally {
+      setSavingSession(false);
+    }
   };
 
   const handleReveal = () => {
@@ -95,6 +112,8 @@ const PractiseDeck = () => {
     setShowAnswer(false);
     setResponses([]);
     setIsFinished(false);
+    sessionStartRef.current = Date.now();
+    hasSavedSessionRef.current = false;
   };
 
   const handleNext = () => {

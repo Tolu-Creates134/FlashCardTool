@@ -107,12 +107,13 @@ public static class DeckEndpoints
                 deckId,
                 request.CorrectCount,
                 request.TotalCount,
+                request.CompletionTime,
                 request.ResponseJson
             );
 
-            var result = mediator.Send(command);
+            var result = await mediator.Send(command);
 
-            return Results.Created($"/api/decks/{deckId}/practice-sessions/{result.Id}", result);
+            return Results.Ok(result);
         })
         .WithName("CreatePractiseSession")
         .WithDescription("Creates a practise session for the current user")
