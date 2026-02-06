@@ -12,7 +12,8 @@ public class DeckProfile : Profile
         .ForMember(dest => dest.Flashcards, opt => opt.MapFrom(src => src.FlashCards));
 
         CreateMap<Deck, DeckDto>()
-        .ForMember(dest => dest.FlashCards, opt => opt.MapFrom(src => src.Flashcards));
+        .ForMember(dest => dest.FlashCards, opt => opt.MapFrom(src => src.Flashcards))
+        .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name));
 
         CreateMap<FlashCardDto, FlashCard>();
 

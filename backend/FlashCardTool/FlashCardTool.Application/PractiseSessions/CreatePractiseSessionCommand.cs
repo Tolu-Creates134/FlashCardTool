@@ -66,7 +66,7 @@ public class CreatePractiseSessionCommandHandler : IRequestHandler<CreatePractis
             throw new InvalidOperationException($"Cannot create practise session, deck does not belong to current user");
         }
 
-        var accuracy = request.TotalCount == 0 ? 0d : (double)request.CorrectCount / request.TotalCount;
+        var accuracy = request.TotalCount == 0 ? 0 : (double)request.CorrectCount / request.TotalCount;
 
         var session = new PractiseSession
         {

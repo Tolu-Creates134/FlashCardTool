@@ -95,7 +95,7 @@ const EditDeck = () => {
             flashCards: flashcards.map(({id, question, answer}) => ({
                 id,
                 question: question.trim(),
-                answer: answer.trim
+                answer: answer.trim()
             }))
         };
 

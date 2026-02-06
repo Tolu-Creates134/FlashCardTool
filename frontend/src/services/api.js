@@ -168,7 +168,7 @@ export const updateDeck = async (deckId, deckData) => {
 }
 
 /**
- * Persists practise sessions scores to db
+ * Persists practise sessions scores
  * @param {*} deckId 
  * @param {*} sessionsData 
  */
@@ -177,8 +177,15 @@ export const createPractiseSession = async (deckId, sessionsData) => {
     `/decks/${deckId}/practise-sessions`,
     sessionsData
   )
+
+  return res.data
 }
 
+/**
+ * Fetches practises session scores
+ * @param {*} deckId 
+ * @returns 
+ */
 export const fetchPractiseSessions = async (deckId) => {
   const res = await api.get(`/decks/${deckId}/practise-sessions`);
   return res.data;

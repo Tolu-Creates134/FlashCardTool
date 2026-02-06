@@ -10,5 +10,6 @@ public record PractiseSessionDto
     int TotalCount,
     double Accuracy,
     string? ResponseJson,
+    int CompletionTime,
     DateTime CreatedAt
 );

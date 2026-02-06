@@ -58,7 +58,7 @@ public class ListPractiseSessionsByDeckIdQueryHandler : IRequestHandler<ListPrac
         IQueryable<PractiseSession> sessionsQuery = unitOfWork
         .Repository<PractiseSession>()
         .Query()
-        .Where(s => s.Id == request.DeckId && s.UserId == userId)
+        .Where(s => s.DeckId == request.DeckId && s.UserId == userId)
         .OrderByDescending(s => s.CreatedAt);
 
         if (request.PageNumber.HasValue && request.PageSize.HasValue)

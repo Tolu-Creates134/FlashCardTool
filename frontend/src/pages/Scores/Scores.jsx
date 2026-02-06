@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchDeckById, fetchPractiseSessions } from '../../services/api';
+import { Trophy } from 'lucide-react';
 
 const Scores = () => {
   const navigate = useNavigate();
@@ -19,9 +20,9 @@ const Scores = () => {
           fetchDeckById(deckId)
         ]);
 
-        console.log(sessionData)
+        console.log(deckData)
 
-        setPractiseSessions(sessionData || []);
+        setPractiseSessions(sessionData.sessions || []);
         setDeck(deckData?.deck || null)
       } catch (error) {
         console.log(error)
@@ -31,21 +32,21 @@ const Scores = () => {
     }
 
     loadData();
+
+    console.log(practiseSessions)
   }, [deckId]);
 
   const rows = useMemo(() => {
     return practiseSessions.map((session) => ({
       id: session.id,
       date: session.createdAt ? new Date(session.createdAt).toLocaleDateString() : '—',
-      score: session.score ? `${session.score}%` : '—',
+      score: session.accuracy ? `${Math.round(session.accuracy*100)}%` : '—',
       correctTotal:
-        session.correctCount !== undefined && session.totalCount !== undefined
-          ? `${session.correctCount}/${session.totalCount}`
-          : '—',
-      time: session.durationSeconds
-        ? `${Math.floor(session.durationSeconds / 60)
+        session.correctCount !== undefined && session.totalCount !== undefined ? `${session.correctCount}/${session.totalCount}` : '—',
+      time: session.completionTime
+        ? `${Math.floor(session.completionTime / 60)
             .toString()
-            .padStart(2, '0')}:${(session.durationSeconds % 60)
+            .padStart(2, '0')}:${(session.completionTime % 60)
             .toString()
             .padStart(2, '0')}`
         : '—'
@@ -64,11 +65,14 @@ const Scores = () => {
 
       <div className="p-6 mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-1">Practise Scores</h1>
+          <div className="flex items-center gap-2">
+            <Trophy size={28} className="text-yellow-500" />
+            <h1 className="text-2xl font-bold text-gray-800 mb-1">Practise Scores</h1>
+          </div>
           <p className="text-gray-600">
             Category:{' '}
             <span className="font-medium text-gray-800">
-              {deck?.category || '—'}
+              {deck?.categoryName || '—'}
             </span>{' '}
             · Deck:{' '}
             <span className="font-medium text-gray-800">
