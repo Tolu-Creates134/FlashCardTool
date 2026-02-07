@@ -113,10 +113,6 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
         try {
             const data = await fetchCategories();
             setCategories(data);
-
-            if(data.length > 0) {
-                setSelectedCategoryId(data[0].id);
-            }
         } catch (error) {
             console.error('Failed to fetch categories', error);
         } finally {
@@ -208,9 +204,9 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
                         className="flex-grow p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                     >
                         {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                            {category.name}
-                        </option>
+                            <option key={category.id} value={category.id}>
+                                {category.name}
+                            </option>
                         ))}
                     </select>
                     <button

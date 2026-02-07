@@ -26,8 +26,6 @@ const Home = () => {
         ]);
         setCategories(catData);
         setDecks(deckData);
-        // console.log('Fetched decks response:', deckData);
-        // console.log('Fetched categories response:', catData);
       } catch (err) {
         console.error('Failed to load data:', err);
       } finally {

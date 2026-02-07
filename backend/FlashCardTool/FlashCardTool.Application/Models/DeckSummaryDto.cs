@@ -1,10 +1,11 @@
 namespace FlashCardTool.Application.Models;
 
-public record class DeckListItemDto
+public record class DeckSummaryDto
 (
     Guid Id,
     string Name,
     string Description,
     string CategoryName,
-    string CategoryId
+    Guid CategoryId,
+    int FlashCardCount
 );

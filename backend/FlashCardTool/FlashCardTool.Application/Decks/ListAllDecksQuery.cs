@@ -6,12 +6,13 @@ using FlashCardTool.Application.Models;
 using FlashCardTool.Domain.Entities;
 using FlashCardTool.Domain.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlashCardTool.Application.Decks;
 
 public record ListAllDecksQuery : IRequest<ListAllDecksResponse>;
 
-public record ListAllDecksResponse(DeckListItemDto[] Decks);
+public record ListAllDecksResponse(DeckSummaryDto[] Decks);
 
 public class ListAllDecksQueryHandler : IRequestHandler<ListAllDecksQuery, ListAllDecksResponse>
 {
@@ -47,27 +48,26 @@ public class ListAllDecksQueryHandler : IRequestHandler<ListAllDecksQuery, ListA
 
         if (userCategories.Count == 0)
         {
-            return new ListAllDecksResponse(Array.Empty<DeckListItemDto>());
+            return new ListAllDecksResponse([]);
         }
 
         var categoryLookup = userCategories.ToDictionary(c => c.Id);
         var allowedCategoryIds = categoryLookup.Keys.ToList();
 
-        var decks = (await unitOfWork
+        var decks = await unitOfWork
         .Repository<Deck>()
-        .FindAsync(d => allowedCategoryIds.Contains(d.CategoryId), cancellationToken))
-        .ToList();
+        .Query()
+        .Where(d => allowedCategoryIds.Contains(d.CategoryId))
+        .Select(d => new DeckSummaryDto(
+            d.Id,
+            d.Name,
+            d.Description,
+            d.Category.Name,
+            d.CategoryId,
+            d.Flashcards.Count()
+        ))
+        .ToListAsync();
 
-        foreach (var deck in decks)
-        {
-            if (categoryLookup.TryGetValue(deck.CategoryId, out var category))
-            {
-                deck.Category = category;
-            }
-        }
-
-        var deckDtos = mapper.Map<List<DeckListItemDto>>(decks);
-
-        return new ListAllDecksResponse(deckDtos.ToArray());
+        return new ListAllDecksResponse(decks.ToArray());
     }
 }

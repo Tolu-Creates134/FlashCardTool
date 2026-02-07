@@ -12,18 +12,7 @@ export const AuthProvider = ({ children }) => {
 
     // When the app loads, try fetching the current user
     useEffect(() => {
-        const token = localStorage.getItem("accessToken")
-        if (token) {
-            fetchCurrentUser()
-                .then((data) => setUser(data))
-                .catch((error) => {
-                    setUser(null)
-                    console.log(error) // for testing purposes
-                })
-                .finally(() => setLoading(false));
-        } else {
-            setLoading(false)
-        }
+        // Add logic here for fetching current user if needed
     }, [])
 
     const login = (userData, accessToken) => {
