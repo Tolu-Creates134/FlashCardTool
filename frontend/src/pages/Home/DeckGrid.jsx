@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { PlusIcon } from "lucide-react";
 import DeckCard from '../../components/cards/DeckCard';
 
