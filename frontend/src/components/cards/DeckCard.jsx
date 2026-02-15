@@ -9,7 +9,6 @@ import { BookOpenIcon } from "lucide-react";
 const DeckCard = ({ deck, categoryName, onSelect }) => {
 
   useEffect(() => {
-    console.log('loading from DeckCard component', deck);
   }, [])
 
   return (

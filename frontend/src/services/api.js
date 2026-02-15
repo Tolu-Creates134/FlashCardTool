@@ -157,6 +157,7 @@ export const deleteDeck = async (deckId) => {
 /**
  * Fetch individual deck by id
  * @param {string} deckId
+ * @returns
  */
 export const fetchDeckById = async (deckId) => {
   const res = await api.get(`/decks/${deckId}`);
@@ -180,7 +181,8 @@ export const updateDeck = async (deckId, deckData) => {
 /**
  * Persists practise sessions scores
  * @param {*} deckId 
- * @param {*} sessionsData 
+ * @param {*} sessionsData
+ * @returns
  */
 export const createPractiseSession = async (deckId, sessionsData) => {
   const res = await api.post(

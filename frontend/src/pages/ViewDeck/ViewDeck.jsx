@@ -28,7 +28,6 @@ const ViewDeck = () => {
         setDeck(deckData.deck);
         setFlashcards(flashcardData?.flashCards || flashcardData || []);
       } catch (err) {
-        console.error(`Failed to load deck ${deckId}`, err);
         setError('Unable to load deck. Please try again.');
       } finally {
         setLoading(false);

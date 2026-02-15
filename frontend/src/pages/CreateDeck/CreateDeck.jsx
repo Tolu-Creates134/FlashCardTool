@@ -1,19 +1,21 @@
 import React, {useEffect, useState} from 'react'
-import { PlusIcon, XIcon, UploadIcon, BookOpenIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { generateUniqueId } from '../../utils/helpers';
 import { createCategory, fetchCategories, createDeck } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
+
 /**
- * 
+ * Create deck component
+ * @param {*} param0 
  * @returns 
  */
 const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onCreateCategory = () => {}}) => {
 
     const [categories, setCategories] = useState([])
-    const [loadingCategories, setLoadingCategories] = useState(true)
+    // const [loadingCategories, setLoadingCategories] = useState(true)
     const [creatingCategory, setCreatingCategory] = useState(false);
-    const [categoryError, setCategoryError] = useState("");
+    // const [categoryError, setCategoryError] = useState("");
 
     const [deckName, setDeckName] = useState("");
     const [deckDescription, setDeckDescription] = useState("");
@@ -32,15 +34,14 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
     const navigate = useNavigate();
 
     // Implement AI functionality later
-    const [contentForAI, setContentForAI] = useState("");
-    const [isGenerating, setIsGenerating] = useState(false);
+    // const [contentForAI, setContentForAI] = useState("");
+    // const [isGenerating, setIsGenerating] = useState(false);
 
     const handleCreateCategory = async () => {
         const name = newCategoryName.trim();
         if(!name) return;
 
         try {
-            setCategoryError("");
             setCreatingCategory(true);
             const createdCategory = await createCategory({ name });
             setCategories((prev) => [createdCategory, ...prev]);
@@ -50,7 +51,6 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
             onCreateCategory(createdCategory);
         } catch (error) {
             console.error('Failed to create category', error);
-            setCategoryError("Unable to create category. Please try again.");
         } finally {
             setCreatingCategory(false);
         }
@@ -116,7 +116,6 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
         } catch (error) {
             console.error('Failed to fetch categories', error);
         } finally {
-            setLoadingCategories(false);
         }
     };
 

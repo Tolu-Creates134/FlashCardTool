@@ -20,8 +20,6 @@ const Scores = () => {
           fetchDeckById(deckId)
         ]);
 
-        console.log(deckData)
-
         setPractiseSessions(sessionData.sessions || []);
         setDeck(deckData?.deck || null)
       } catch (error) {
