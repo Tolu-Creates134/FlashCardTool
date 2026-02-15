@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchCategories, fetchDeckById, fetchFlashcardsByDeckId, updateDeck } from '../../services/api';
-import { PlusIcon, Trash2, SquarePen } from 'lucide-react';
+import { PlusIcon, Trash2 } from 'lucide-react';
 
+/**
+ * Edit deck component
+ * @returns 
+ */
 const EditDeck = () => {
     const { deckId } = useParams();
     const navigate = useNavigate();
@@ -17,7 +21,7 @@ const EditDeck = () => {
     const [flashcardError, setFlashcardError] = useState('');
     const [newQuestion, setNewQuestion] = useState('');
     const [newAnswer, setNewAnswer] = useState('');
-    const [error, setError] = useState('')
+    // const [error, setError] = useState('')
 
     // stable local ids for rendering new cards without server ids
   const withLocalIds = (cards) => 
@@ -38,7 +42,7 @@ const EditDeck = () => {
                 setCategories(categoriesRes || []);
                 setFlashcards(withLocalIds(flashRes.flashCards || flashRes || []));
             } catch (error) {
-                setError('Unable to load deck for editing');
+                console.log(error)
             } finally {
                 setLoading(false);
             }
@@ -86,7 +90,7 @@ const EditDeck = () => {
     const handleSave = async () => {
         if (!canSave) return;
         setIsSaving(true);
-        setError('');
+        // setError('');
 
         const payload = {
             name: deckName.trim(),
@@ -104,9 +108,9 @@ const EditDeck = () => {
             navigate(`/decks/${deckId}`)
         } catch (err) {
             console.error('Failed to update deck', err);
-            const message = 
-            err.message || 'Unable to save deck. Please try again.';
-            setError(message);
+            // const message = 
+            // err.message || 'Unable to save deck. Please try again.';
+            // setError(message);
         } finally {
             setIsSaving(false);
         }

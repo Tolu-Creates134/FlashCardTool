@@ -1,5 +1,10 @@
 import React from 'react'
 
+/**
+ * Single flashcard component
+ * @param {*} param0 
+ * @returns 
+ */
 const FlashCard = ({flashcard, index}) => {
   return (
     <div key={flashcard.id || index} className="border rounded-md p-4">

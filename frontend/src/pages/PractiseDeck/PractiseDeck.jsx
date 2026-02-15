@@ -2,13 +2,17 @@ import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchDeckById, fetchFlashcardsByDeckId, createPractiseSession } from '../../services/api';
 
+/**
+ * Practise Deck component
+ * @returns 
+ */
 const PractiseDeck = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
 
   const sessionStartRef = useRef(null);
   const hasSavedSessionRef = useRef(false);
-  const [savingSession, setSavingSession] = useState(false);
+  // const [savingSession, setSavingSession] = useState(false);
 
   const [deck, setDeck] = useState(null);
   const [flashcards, setFlashcards] = useState([]);
@@ -77,12 +81,12 @@ const PractiseDeck = () => {
     };
 
     try {
-      setSavingSession(true);
+      // setSavingSession(true);
       await createPractiseSession(deckId, payload);
     } catch (err) {
       console.error('Failed to save practise session', err);
     } finally {
-      setSavingSession(false);
+      //setSavingSession(false);
     }
   };
 

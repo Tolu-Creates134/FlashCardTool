@@ -3,6 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { fetchDeckById, fetchPractiseSessions } from '../../services/api';
 import { Trophy } from 'lucide-react';
 
+/**
+ * Scores component
+ * @returns 
+ */
 const Scores = () => {
   const navigate = useNavigate();
   const { deckId } = useParams();
@@ -32,7 +36,7 @@ const Scores = () => {
     loadData();
 
     console.log(practiseSessions)
-  }, [deckId]);
+  }, [deckId, practiseSessions]);
 
   const rows = useMemo(() => {
     return practiseSessions.map((session) => ({

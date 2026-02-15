@@ -1,5 +1,9 @@
 let logoutHandler = null;
 
+/**
+ * Logout handler
+ * @param {*} handler 
+ */
 export const registerLogoutHandler = (handler) => {
   logoutHandler = handler;
 };
@@ -13,6 +17,9 @@ const hardRedirectToLogin = () => {
   }
 };
 
+/**
+ * Trigger logout
+ */
 export const triggerLogout = () => {
   if (logoutHandler) {
     try {

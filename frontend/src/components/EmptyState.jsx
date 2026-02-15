@@ -2,7 +2,8 @@ import React from 'react'
 import { BookOpenIcon, PlusIcon } from "lucide-react";
 
 /**
- * Empty state component for when no decks exist
+ * Empty state component for when deck does not exist
+ * @param {*} param0 
  * @returns 
  */
 const EmptyState = ({ onCreateDeck }) => {

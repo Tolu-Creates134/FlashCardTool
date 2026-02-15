@@ -11,6 +11,10 @@ import { AuthContext } from "../../context/Authcontext";
 import { Outlet } from "react-router-dom";
 import ErrorToastr from "../ErrorToastr";
 
+/**
+ * Main layout compnent
+ * @returns 
+ */
 const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();

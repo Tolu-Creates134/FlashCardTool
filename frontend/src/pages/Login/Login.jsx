@@ -5,6 +5,10 @@ import { loginWithGoogle } from '../../services/api';
 import { AuthContext } from '../../context/Authcontext';
 import { BookOpen } from 'lucide-react';
 
+/**
+ * Login component
+ * @returns 
+ */
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext)

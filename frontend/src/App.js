@@ -9,6 +9,10 @@ import PractiseDeck from './pages/PractiseDeck/PractiseDeck';
 import EditDeck from './pages/EditDeck/EditDeck';
 import Scores from './pages/Scores/Scores';
 
+/**
+ * App Component
+ * @returns 
+ */
 function App() {
   return (
     <Routes>

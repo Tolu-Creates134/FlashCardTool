@@ -1,13 +1,17 @@
 import React, { createContext, useState, useEffect, useCallback } from "react";
-import { fetchCurrentUser } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { registerLogoutHandler } from "../utils/logoutManager";
 
 export const AuthContext = createContext();
 
+/**
+ * Auth provider component
+ * @param {*} param0 
+ * @returns 
+ */
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     // When the app loads, try fetching the current user
@@ -32,7 +36,7 @@ export const AuthProvider = ({ children }) => {
     }, [logout]);
 
     return (
-        <AuthContext.Provider value={{ user, setUser, login, logout, loading}}>
+        <AuthContext.Provider value={{ user, setUser, login, logout}}>
             {children}
         </AuthContext.Provider>
     )
