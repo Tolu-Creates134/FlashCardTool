@@ -44,5 +44,24 @@ public class DataHubContext(DbContextOptions<DataHubContext> options) : DbContex
         .WithMany()
         .HasForeignKey(p => p.DeckId)
         .OnDelete(DeleteBehavior.Cascade);
+
+        var userId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        modelBuilder.Entity<Category>().HasData(
+            new Category
+            {
+                Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                Name = "General",
+                UserId = userId
+            }
+        );
+
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = userId,
+                Email = "admin@test.com",
+            }
+        );
     }
 }

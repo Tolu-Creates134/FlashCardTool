@@ -145,6 +145,16 @@ export const createDeck = async (deckData) => {
 };
 
 /**
+ * Deletes a deck and its flashcards
+ * @param {*} deckId 
+ * @returns 
+ */
+export const deleteDeck = async (deckId) => {
+  const res = await api.delete(`decks/${deckId}`);
+  return res.data;
+}
+
+/**
  * Fetch individual deck by id
  * @param {string} deckId
  */

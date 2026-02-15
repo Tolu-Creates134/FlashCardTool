@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using FlashCardTool.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -84,7 +86,7 @@ builder.Services.AddCors(options =>
             policy.WithOrigins("http://localhost:3000")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials();
+                .AllowAnyOrigin();
         });
 });
 
@@ -96,8 +98,8 @@ app.UseAuthorization();
 
 app.RegisterAllEndpoints();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.MapOpenApi();
     app.UseSwagger();

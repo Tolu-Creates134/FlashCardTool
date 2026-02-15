@@ -43,6 +43,15 @@ namespace FlashCardTool.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "General",
+                            UserId = new Guid("11111111-1111-1111-1111-111111111111")
+                        });
                 });
 
             modelBuilder.Entity("FlashCardTool.Domain.Entities.Deck", b =>
@@ -153,7 +162,6 @@ namespace FlashCardTool.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RefreshToken")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("RefreshTokenExpiry")
@@ -165,6 +173,15 @@ namespace FlashCardTool.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Email = "admin@test.com",
+                            RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            _Timestamp = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
                 });
 
             modelBuilder.Entity("FlashCardTool.Domain.Entities.Category", b =>

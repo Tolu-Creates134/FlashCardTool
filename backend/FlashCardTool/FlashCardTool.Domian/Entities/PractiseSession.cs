@@ -12,6 +12,6 @@ public class PractiseSession : BaseEntity
     public double Accuracy { get; set; }
     public int CompletionTime { get; set; }
     public string? ResponseJson { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; }
     public Deck Deck { get; set; } = null!;
 }

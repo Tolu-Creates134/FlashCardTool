@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchDeckById, fetchFlashcardsByDeckId } from '../../services/api';
+import { deleteDeck, fetchDeckById, fetchFlashcardsByDeckId } from '../../services/api';
 import { PlayIcon, SquarePen, Trash, ChartColumn } from 'lucide-react';
 import FlashCard from '../../components/cards/FlashCard';
 
@@ -37,6 +37,15 @@ const ViewDeck = () => {
 
     loadDeckData();
   }, [deckId]);
+
+  const handleDelete = async (deckId) => {
+    try {
+      await deleteDeck(deckId)
+      navigate('/home')
+    } catch (error) {
+      setError('Unable to delete deck. Please try again.')
+    }
+  }
 
   if (loading) {
     return (
@@ -91,7 +100,12 @@ const ViewDeck = () => {
             <SquarePen />
           </button>
 
-          <Trash className="text-red-600" />
+          <button
+            type='button'
+            onClick={() => { handleDelete(deckId)}}
+          >
+            <Trash className="text-red-600" />
+          </button>
         </div>
       </div>
 

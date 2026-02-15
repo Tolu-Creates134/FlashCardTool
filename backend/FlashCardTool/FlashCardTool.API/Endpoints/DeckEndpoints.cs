@@ -44,13 +44,13 @@ public static class DeckEndpoints
 
     private static void DeleteDeck(RouteGroupBuilder group)
     {
-        group.MapDelete("/{id:guid}", async (
-            Guid id,
+        group.MapDelete("/{deckId:guid}", async (
+            Guid deckId,
             IMediator mediator,
             CancellationToken cancellationToken
         ) =>
         {
-            await mediator.Send(new DeleteDeckCommand(id), cancellationToken);
+            await mediator.Send(new DeleteDeckCommand(deckId), cancellationToken);
             return Results.NoContent();
         })
         .WithName("DeleteDeck")
