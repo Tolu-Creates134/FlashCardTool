@@ -25,7 +25,12 @@ public static class AuthenticationEndpoints
         {
             try
             {
-                var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
+                var settings = new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { config["Google:ClientId"] }
+                };
+
+                var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
 
                 var saveUserResult = await mediator.Send(new SaveUserCommand(
                     payload.Name,
