@@ -20,12 +20,13 @@ const Home = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoading(true);
         const [catData, deckData] = await Promise.all([
           fetchCategories(),
           fetchDecks(),
         ]);
         setCategories(catData);
-        setDecks(deckData);
+        setDecks(Array.isArray(deckData) ? deckData : deckData?.decks ?? []);
       } catch (err) {
         console.error('Failed to load data:', err);
       } finally {
@@ -70,7 +71,7 @@ const Home = () => {
         <CategorySection
           key={category.id}
           category={category}
-          decks={decks.decks}
+          decks={decks}
           categories={categories}
           onSelectDeck={handleSelectDeck}
           onCreateDeck={handleCreateDeck}
