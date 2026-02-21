@@ -90,7 +90,7 @@ builder.Services.AddCors(options =>
         });
 });
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
@@ -113,4 +113,3 @@ if (!app.Environment.IsProduction())
 
 
 app.Run();
-

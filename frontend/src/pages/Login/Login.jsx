@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { loginWithGoogle } from '../../services/api';
 import { AuthContext } from '../../context/Authcontext';
 import { BookOpen } from 'lucide-react';
+import { fetchCurrentUser } from "../../services/api"
 
 /**
  * Login component
@@ -25,8 +26,15 @@ const Login = () => {
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
 
-      const user = {email}
-      login(user, accessToken)
+      const me = await fetchCurrentUser();
+      login(
+        {
+          id: me?.id,
+          email: me?.email,
+          name: me?.name || me?.fullName || "",
+        },
+        accessToken
+      );
 
       navigate('/home');
     } catch (error) {

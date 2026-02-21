@@ -38,7 +38,18 @@ const emitApiError = (error) => {
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
 
-  if (token) {
+  if (!token) return config;
+  
+  // const url = config.url ?? "";
+  // const isAuthRoute = url.startsWith("/auth/") || url.startsWith("/api/auth/") || url.includes("/auth/");
+
+  const base = config.baseURL ?? window.location.origin;
+  const fullUrl = new URL(config.url ?? "", base);
+  const path = fullUrl.pathname;
+
+  const isAuthRoute = path.includes("/auth/");
+
+  if (!isAuthRoute ) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 

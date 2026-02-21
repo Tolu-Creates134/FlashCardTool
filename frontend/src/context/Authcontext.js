@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerLogoutHandler } from "../utils/logoutManager";
+import { fetchCurrentUser } from "../services/api";
 
 export const AuthContext = createContext();
 
@@ -11,12 +12,27 @@ export const AuthContext = createContext();
  */
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    // const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     // When the app loads, try fetching the current user
     useEffect(() => {
-        // Add logic here for fetching current user if needed
+        const hydrateUser = async () => {
+            const token = localStorage.getItem("accessToken")
+            if (!token) return;
+
+            try {
+                const user = await fetchCurrentUser()
+
+                setUser({
+                    id: user.id,
+                    name: user.name,
+                    email: user.email
+                });
+            } catch (error) {
+                console.error("Failed to fetch current user", error)
+            }
+        }
+        hydrateUser();
     }, [])
 
     const login = (userData, accessToken) => {

@@ -18,7 +18,7 @@ import ErrorToastr from "../ErrorToastr";
 const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useContext(AuthContext);
+  const { logout, user } = useContext(AuthContext);
 
   const [apiError, setApiError] = useState(null)
 
@@ -89,6 +89,20 @@ const MainLayout = () => {
 
       {/* MAIN CONTENT */}
       <main className="flex-grow container mx-auto p-4 md:p-6">
+        <div className="-ml-2 mb-4">
+          <span
+            className="text-lg font-bold text-gray-700"
+            style={{ fontFamily: '"Trebuchet MS", "Segoe UI", sans-serif' }}
+          >
+            {user?.name ? (
+              <>
+                Welcome back, <span className="text-indigo-600">{user.name}</span>
+              </>
+            ) : (
+              user?.email || ""
+            )}
+          </span>
+        </div>
         <Outlet/>
       </main>
 
