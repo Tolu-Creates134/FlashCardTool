@@ -19,7 +19,7 @@ const Login = () => {
 
     try {
       // Send ID token to backend
-      const { accessToken, refreshToken, email } = await loginWithGoogle(googleIdToken)
+      const { accessToken, refreshToken } = await loginWithGoogle(googleIdToken)
       console.log(`${process.env.REACT_APP_API_BASE_URL}/api`)
 
       // Save access/refresh tokens locally

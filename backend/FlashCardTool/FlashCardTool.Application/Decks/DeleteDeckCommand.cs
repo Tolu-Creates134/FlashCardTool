@@ -3,6 +3,7 @@ using FlashCardTool.Domain.Entities;
 using FlashCardTool.Domain.Exceptions;
 using FlashCardTool.Domain.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlashCardTool.Application.Decks;
 
@@ -27,13 +28,35 @@ public class DeleteDeckCommandHandler : IRequestHandler<DeleteDeckCommand>
         ArgumentNullException.ThrowIfNull(request);
 
         var userId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required.");
-    
+
         var deckRepository = unitOfWork.Repository<Deck>();
-        var deck = await deckRepository.GetByIdAsync(request.Id, cancellationToken);
+        var categoryRepository = unitOfWork.Repository<Category>();
+
+        var deck = await unitOfWork
+        .Repository<Deck>()
+        .FirstOrDefaultAsync(
+            d => d.Id == request.Id,
+            query => query
+                .Include(d => d.Category)
+                .ThenInclude(c => c!.Decks),
+            cancellationToken
+        );
 
         if (deck is null)
         {
             throw new EntityNotFoundException(nameof(Deck), request.Id.ToString());
+        }
+
+        if (deck.Category is null || deck.Category.UserId != userId)
+        {
+            throw new InvalidOperationException("Cannot delete a deck that does not belong to the current user.");
+        }
+
+        if (deck.Category.Decks.Count == 1)
+        {
+            categoryRepository.Remove(deck.Category);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            return;
         }
 
         deckRepository.Remove(deck);
