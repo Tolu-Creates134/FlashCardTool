@@ -11,6 +11,7 @@ public static class ConfigurationServices
         CategoryEndpoints.DefineEndpoints(app);
         AuthenticationEndpoints.DefineEndpoints(app);
         FlashCardEndpoints.DefineEndpoints(app);
+        UserEndpoints.DefineEndpoints(app);
         // Add other feature endpoints here
     }
 }

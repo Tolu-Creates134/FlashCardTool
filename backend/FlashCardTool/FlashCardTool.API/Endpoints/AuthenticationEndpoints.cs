@@ -4,10 +4,6 @@ using FlashCardTool.Infrastructure.Auth;
 using Google.Apis.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace FlashCardTool.API.Endpoints;
 
