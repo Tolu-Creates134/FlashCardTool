@@ -34,9 +34,7 @@ const Scores = () => {
     }
 
     loadData();
-
-    console.log(practiseSessions)
-  }, [deckId, practiseSessions]);
+  }, [deckId]);
 
   const rows = useMemo(() => {
     return practiseSessions.map((session) => ({
