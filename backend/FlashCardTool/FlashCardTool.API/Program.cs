@@ -88,8 +88,7 @@ builder.Services.AddCors(options =>
                 "https://black-ocean-02c9a7803.2.azurestaticapps.net"
             )
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowAnyOrigin();
+            .AllowAnyMethod();
         });
 });
 
