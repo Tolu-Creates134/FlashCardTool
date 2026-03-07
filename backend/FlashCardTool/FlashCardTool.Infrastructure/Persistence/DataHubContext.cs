@@ -52,6 +52,7 @@ public class DataHubContext(DbContextOptions<DataHubContext> options) : DbContex
             {
                 Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
                 Name = "General",
+                CreatedBy = "System",
                 UserId = userId
             }
         );
