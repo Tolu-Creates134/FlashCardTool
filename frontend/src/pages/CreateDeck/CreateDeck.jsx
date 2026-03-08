@@ -133,34 +133,6 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <h2 className="text-lg font-semibold mb-4">Deck Information</h2>
 
-            {/* Deck name */}
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Deck Name
-                </label>
-                <input
-                    type="text"
-                    value={deckName}
-                    onChange={(e) => setDeckName(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="e.g., Biology 101"
-                />
-            </div>
-
-            {/* Description */}
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                </label>
-                <textarea
-                    value={deckDescription}
-                    onChange={(e) => setDeckDescription(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="What is this deck about?"
-                    rows={3}
-                />
-            </div>
-
             {/* Category */}
             <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -217,6 +189,34 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
                     </button>
                 </div>
             )}
+            </div>
+
+            {/* Deck name */}
+            <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Deck Name
+                </label>
+                <input
+                    type="text"
+                    value={deckName}
+                    onChange={(e) => setDeckName(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="e.g., Biology 101"
+                />
+            </div>
+
+            {/* Description */}
+            <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Deck Description
+                </label>
+                <textarea
+                    value={deckDescription}
+                    onChange={(e) => setDeckDescription(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="What is this deck about?"
+                    rows={3}
+                />
             </div>
         </div>
 

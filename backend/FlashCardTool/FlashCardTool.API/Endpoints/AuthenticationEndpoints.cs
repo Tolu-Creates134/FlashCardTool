@@ -10,13 +10,34 @@ namespace FlashCardTool.API.Endpoints;
 public static class AuthenticationEndpoints
 {
     private const string RoutePrefix = "api/auth";
+    private const string AccessTokenCookieName = "access_token";
+    private const string RefreshTokenCookieName = "refresh_token";
+
+    private static CookieOptions BuildAccessTokenCookieOptions() => new()
+    {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTimeOffset.UtcNow.AddMinutes(15),
+        Path = "/"
+    };
+
+    private static CookieOptions BuildRefreshTokenCookieOptions() => new()
+    {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTimeOffset.UtcNow.AddDays(30),
+        Path = "/api/auth"
+    };
 
     private static void GoogleLogin(RouteGroupBuilder group)
     {
         group.MapPost("/google-login", async (
             [FromBody] GoogleLoginRequest request,
             IConfiguration config,
-            IMediator mediator
+            IMediator mediator,
+            HttpContext httpContext
         ) =>
         {
             try
@@ -47,6 +68,18 @@ public static class AuthenticationEndpoints
                     15 // minutes
                 );
 
+                httpContext.Response.Cookies.Append(
+                    AccessTokenCookieName,
+                    accessToken,
+                    BuildAccessTokenCookieOptions()
+                );
+
+                httpContext.Response.Cookies.Append(
+                    RefreshTokenCookieName,
+                    saveUserResult.refreshToken,
+                    BuildRefreshTokenCookieOptions()
+                );
+
                 return Results.Ok(new
                 {
                     accessToken,
@@ -70,12 +103,31 @@ public static class AuthenticationEndpoints
     private static void RefreshToken(RouteGroupBuilder group)
     {
         group.MapPost("/refresh",  async(
-            [FromBody] RefreshTokenRequest request,
             IConfiguration config,
-            IMediator mediator
+            IMediator mediator,
+            HttpContext httpContext
         ) =>
         {
-            var result = await mediator.Send(new RefreshTokenCommand(request.RefreshToken));
+            var refreshToken = httpContext.Request.Cookies[RefreshTokenCookieName];
+
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return Results.Unauthorized();
+            }        
+
+            var result = await mediator.Send(new RefreshTokenCommand(refreshToken));
+
+            httpContext.Response.Cookies.Append(
+                AccessTokenCookieName,
+                result.AccessToken,
+                BuildAccessTokenCookieOptions()
+            );
+
+            httpContext.Response.Cookies.Append(
+                RefreshTokenCookieName,
+                result.RefreshToken,
+                BuildRefreshTokenCookieOptions()
+            );
 
             return Results.Ok(result);
         })
@@ -84,6 +136,17 @@ public static class AuthenticationEndpoints
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status401Unauthorized);
+    }
+
+    private static void Logout(RouteGroupBuilder group)
+    {
+        group.MapPost("/logout", (HttpContext httpContext) =>
+        {
+            httpContext.Response.Cookies.Delete(AccessTokenCookieName, new CookieOptions { Path = "/" });
+            httpContext.Response.Cookies.Delete(RefreshTokenCookieName, new CookieOptions { Path = "/api/auth" });
+
+            return Results.NoContent();
+        });
     }
 
     public static void DefineEndpoints(WebApplication app)
@@ -95,5 +158,6 @@ public static class AuthenticationEndpoints
 
         GoogleLogin(authGroup);
         RefreshToken(authGroup);
+        Logout(authGroup);
     }
 }

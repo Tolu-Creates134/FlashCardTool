@@ -14,8 +14,8 @@ public class JwtHelper
     public static string GenerateJwtToken(
         Guid userId,
         string email,
-        string name,
-        string pictureUrl,
+        string? name,
+        string? pictureUrl,
         IConfiguration config, 
         int expiryMinutes)
     {

@@ -52,7 +52,7 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
 
         var newRefreshToken = JwtHelper.GenerateRefreshToken();
 
-        user.RefreshToken = newRefreshToken;
+        user!.RefreshToken = newRefreshToken;
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(30);
         user._Timestamp = DateTime.UtcNow;
 

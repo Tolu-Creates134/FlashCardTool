@@ -19,22 +19,16 @@ const Login = () => {
 
     try {
       // Send ID token to backend
-      const { accessToken, refreshToken } = await loginWithGoogle(googleIdToken)
+      await loginWithGoogle(googleIdToken)
       console.log(`${process.env.REACT_APP_API_BASE_URL}/api`)
 
-      // Save access/refresh tokens locally
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-
       const me = await fetchCurrentUser();
-      login(
-        {
-          id: me?.id,
-          email: me?.email,
-          name: me?.name || me?.fullName || "",
-        },
-        accessToken
-      );
+
+      login({
+        id: me?.id,
+        email: me?.email,
+        name: me?.name || me?.fullName || "",
+      });
 
       navigate('/home');
     } catch (error) {
