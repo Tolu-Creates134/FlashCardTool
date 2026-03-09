@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using FlashCardTool.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using FlashCardTool.API.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -108,6 +109,10 @@ builder.Services.AddCors(options =>
 });
 
 WebApplication app = builder.Build();
+
+app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<UnhandledExceptionMiddleware>();
+app.UseMiddleware<StatusCodePageMiddleware>();
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();

@@ -26,4 +26,8 @@
     <ProjectReference Include="../FlashCardTool.Infrastructure/FlashCardTool.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models/" />
+  </ItemGroup>
+
 </Project>

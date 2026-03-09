@@ -40,59 +40,50 @@ public static class AuthenticationEndpoints
             HttpContext httpContext
         ) =>
         {
-            try
+            var settings = new GoogleJsonWebSignature.ValidationSettings
             {
-                var settings = new GoogleJsonWebSignature.ValidationSettings
-                {
-                    Audience = new[] { config["Google:ClientId"] }
-                };
+                Audience = new[] { config["Google:ClientId"] }
+            };
 
-                var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
+            var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
 
-                var saveUserResult = await mediator.Send(new SaveUserCommand(
-                    payload.Name,
-                    payload.Email,
-                    payload.Picture
-                ));
+            var saveUserResult = await mediator.Send(new SaveUserCommand(
+                payload.Name,
+                payload.Email,
+                payload.Picture
+            ));
 
-                var userId = saveUserResult.Id;
+            var userId = saveUserResult.Id;
 
-                var refreshToken = saveUserResult.refreshToken;
+            var refreshToken = saveUserResult.refreshToken;
 
-                var accessToken = JwtHelper.GenerateJwtToken(
-                    userId,
-                    payload.Email,
-                    payload.Name,
-                    payload.Picture,
-                    config,
-                    15 // minutes
-                );
+            var accessToken = JwtHelper.GenerateJwtToken(
+                userId,
+                payload.Email,
+                payload.Name,
+                payload.Picture,
+                config,
+                15 // minutes
+            );
 
-                httpContext.Response.Cookies.Append(
-                    AccessTokenCookieName,
-                    accessToken,
-                    BuildAccessTokenCookieOptions()
-                );
+            httpContext.Response.Cookies.Append(
+                AccessTokenCookieName,
+                accessToken,
+                BuildAccessTokenCookieOptions()
+            );
 
-                httpContext.Response.Cookies.Append(
-                    RefreshTokenCookieName,
-                    saveUserResult.refreshToken,
-                    BuildRefreshTokenCookieOptions()
-                );
+            httpContext.Response.Cookies.Append(
+                RefreshTokenCookieName,
+                saveUserResult.refreshToken,
+                BuildRefreshTokenCookieOptions()
+            );
 
-                return Results.Ok(new
-                {
-                    accessToken,
-                    refreshToken,
-                    email = payload.Email
-                });
-            }
-            catch(Exception ex)
+            return Results.Ok(new
             {
-                Console.WriteLine($"Google login failed: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
-                return Results.Unauthorized();
-            }
+                accessToken,
+                refreshToken,
+                email = payload.Email
+            });
         })
         .WithName("GoogleLogin")
         .WithDescription("Handles Google login and issues access/refresh tokens")
