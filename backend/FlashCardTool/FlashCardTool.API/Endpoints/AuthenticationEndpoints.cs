@@ -1,6 +1,6 @@
+using FlashCardTool.Application.Common.Auth;
 using FlashCardTool.Application.Models;
 using FlashCardTool.Application.Users;
-using FlashCardTool.Infrastructure.Auth;
 using Google.Apis.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

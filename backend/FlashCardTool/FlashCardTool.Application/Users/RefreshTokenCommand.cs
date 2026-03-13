@@ -1,7 +1,7 @@
 using System;
+using FlashCardTool.Application.Common.Auth;
 using FlashCardTool.Domain.Entities;
 using FlashCardTool.Domain.Interfaces;
-using FlashCardTool.Infrastructure.Auth;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 
