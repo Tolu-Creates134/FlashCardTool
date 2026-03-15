@@ -20,7 +20,6 @@ const Login = () => {
     try {
       // Send ID token to backend
       await loginWithGoogle(googleIdToken)
-      console.log(`${process.env.REACT_APP_API_BASE_URL}/api`)
 
       const me = await fetchCurrentUser();
 

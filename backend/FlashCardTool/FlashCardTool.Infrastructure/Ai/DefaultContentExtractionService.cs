@@ -6,20 +6,29 @@ namespace FlashCardTool.Infrastructure.Ai;
 
 public sealed class DefaultContentExtractionService : IContentExtractionService
 {
-    public Task<ExtractedContentResult> ExtractAsync(
+    public async Task<ExtractedContentResult> ExtractAsync(
         AiContentSource source,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        if (source.SourceType == AiSourceType.Text)
+        return source.SourceType switch
         {
-            return Task.FromResult(new ExtractedContentResult(
+            AiSourceType.Text => new ExtractedContentResult(
                 source.Text?.Trim() ?? string.Empty,
                 AiSourceType.Text,
-                Array.Empty<string>()));
-        }
+                Array.Empty<string>()
+            ),
 
-        throw new NotSupportedException("File extraction is not implemented yet.");
+            AiSourceType.Pdf => throw new NotSupportedException(
+                "PDF extraction is not implemented yet."
+            ),
+
+            AiSourceType.Image => throw new NotSupportedException(
+                "Image extraction is not implemented yet."
+            ),
+
+            _ => throw new InvalidOperationException("Unsupported AI content source.")
+        };
     }
 }

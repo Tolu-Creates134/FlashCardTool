@@ -24,7 +24,9 @@ public static class InfrastructureConfiguration
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IContentExtractionService, DefaultContentExtractionService>();
-        services.AddScoped<IAiFlashcardGenerationService, OpenAiFlashcardGenerationService>();
+
+        services.AddHttpClient<IAiFlashcardGenerationService, OpenAiFlashcardGenerationService>();
+
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
         return services;

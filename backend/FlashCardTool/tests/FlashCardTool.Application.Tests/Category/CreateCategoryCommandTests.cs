@@ -1,7 +1,8 @@
 using FlashCardTool.Application.Categories;
 using FlashCardTool.Application.Models;
 using FlashCardTool.Application.Tests.Common;
-using FlashCardTool.Domain.Entities;
+using Xunit;
+using DomainCategory = FlashCardTool.Domain.Entities.Category;
 
 namespace FlashCardTool.Application.Tests.Category;
 
@@ -11,7 +12,7 @@ public class CreateCategoryCommandTests
     public async Task Handle_sets_current_user_fields_and_persists_category()
     {
         var userId = Guid.NewGuid();
-        var categoryRepository = new InMemoryRepository<Category>();
+        var categoryRepository = new InMemoryRepository<DomainCategory>();
         var unitOfWork = new FakeUnitOfWork()
             .WithRepository(categoryRepository);
         var currentUser = new FakeCurrentUserService(userId, "owner@example.com", "Owner Name");

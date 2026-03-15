@@ -77,7 +77,8 @@ public sealed class GenerateFlashcardsCommandHandler
                 extracted.Text,
                 request.Instructions,
                 request.TargetCardCount,
-                extracted.SourceType),
+                extracted.SourceType
+            ),
             cancellationToken
         );
 

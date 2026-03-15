@@ -47,7 +47,8 @@ public class UnhandledExceptionMiddleware
             context.Request.Method,
             context.Request.Path,
             statusCode,
-            context.TraceIdentifier);
+            context.TraceIdentifier
+        );
 
         context.Response.Clear();
         context.Response.StatusCode = statusCode;
