@@ -3,6 +3,7 @@ import { Sparkles, Trash2, Upload } from 'lucide-react';
 import { generateFlashcardsPreview } from '../services/api';
 import { generateUniqueId } from '../utils/helpers';
 import AIProgressBar from './ui/AIProgressBar';
+import ConfirmActionModal from './ui/ConfirmActionModal';
 
 const normalizeGeneratedCards = (responseData) => {
   const cards = responseData?.flashCards || responseData?.FlashCards || [];
@@ -36,6 +37,7 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
   const [sourceSummary, setSourceSummary] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [cardToDelete, setCardToDelete] = useState(null);
   const progressIntervalRef = useRef(null);
 
   const hasDraft = generatedCards.length > 0;
@@ -205,6 +207,17 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
         progress={generationProgress}
         message={generationMessage}
         isComplete={generationComplete}
+      />
+      <ConfirmActionModal
+        isOpen={Boolean(cardToDelete)}
+        title="Delete this AI draft card?"
+        message="Are you sure you want to remove this generated flashcard from the review draft?"
+        confirmText="Delete Card"
+        onCancel={() => setCardToDelete(null)}
+        onConfirm={() => {
+          handleRemoveCard(cardToDelete);
+          setCardToDelete(null);
+        }}
       />
 
       <div className={`border border-indigo-100 rounded-lg bg-indigo-50/60 p-4 mb-6 transition-opacity ${isGenerating ? 'pointer-events-none opacity-60' : 'opacity-100'}`}>
@@ -383,7 +396,7 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
                       </div>
                       <button
                         type="button"
-                        onClick={() => handleRemoveCard(card.id)}
+                        onClick={() => setCardToDelete(card.id)}
                         className="text-sm text-red-600 hover:text-red-700 flex items-center"
                       >
                         <Trash2 size={16} className="mr-1" />

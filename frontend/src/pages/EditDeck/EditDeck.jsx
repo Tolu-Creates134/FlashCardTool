@@ -4,6 +4,7 @@ import { fetchCategories, fetchDeckById, fetchFlashcardsByDeckId, updateDeck } f
 import { PlusIcon, Trash2 } from 'lucide-react';
 import AiFlashcardGenerator from '../../components/AiFlashcardGenerator';
 import { generateUniqueId } from '../../utils/helpers';
+import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
 
 /**
  * Edit deck component
@@ -24,6 +25,7 @@ const EditDeck = () => {
     const [saveError, setSaveError] = useState('');
     const [newQuestion, setNewQuestion] = useState('');
     const [newAnswer, setNewAnswer] = useState('');
+    const [flashcardToDelete, setFlashcardToDelete] = useState(null);
     // const [error, setError] = useState('')
 
     // stable local ids for rendering new cards without server ids
@@ -153,6 +155,18 @@ const EditDeck = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
+        <ConfirmActionModal
+            isOpen={Boolean(flashcardToDelete)}
+            title="Delete this flashcard?"
+            message="Are you sure you want to remove this flashcard from the deck?"
+            confirmText="Delete Flashcard"
+            onCancel={() => setFlashcardToDelete(null)}
+            onConfirm={() => {
+                handleRemoveFlashcard(flashcardToDelete);
+                setFlashcardToDelete(null);
+            }}
+        />
+
         <button
             className="mt-4 flex items-center text-indigo-600 font-medium hover:text-indigo-700"
             onClick={() => navigate(`/decks/${deckId}`)}
@@ -258,7 +272,7 @@ const EditDeck = () => {
                             </div>
                             <button
                                 className="ml-4 text-sm text-red-600 hover:text-red-700 flex items-center"
-                                onClick={() => handleRemoveFlashcard(card._localId)}
+                                onClick={() => setFlashcardToDelete(card._localId)}
                             >
                                 <Trash2 size={16} className="mr-1" />
                                 Delete

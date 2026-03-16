@@ -4,6 +4,7 @@ import { generateUniqueId } from '../../utils/helpers';
 import { createCategory, fetchCategories, createDeck } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import AiFlashcardGenerator from '../../components/AiFlashcardGenerator';
+import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
 
 
 /**
@@ -31,6 +32,7 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
     const [flashcardError, setFlashcardError] = useState("");
     const [saveError, setSaveError] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+    const [flashcardToDelete, setFlashcardToDelete] = useState(null);
 
     const navigate = useNavigate();
 
@@ -140,6 +142,18 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
 
   return (
     <div className="max-w-4xl mx-auto">
+        <ConfirmActionModal
+            isOpen={Boolean(flashcardToDelete)}
+            title="Delete this flashcard?"
+            message="Are you sure you want to remove this flashcard from the deck draft?"
+            confirmText="Delete Flashcard"
+            onCancel={() => setFlashcardToDelete(null)}
+            onConfirm={() => {
+                handleRemoveFlashcard(flashcardToDelete);
+                setFlashcardToDelete(null);
+            }}
+        />
+
         <h1 className="text-2xl font-bold text-gray-800 mb-6">
             Create New Flashcard Deck
         </h1>
@@ -300,7 +314,7 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
                                 </div>
                                 <button
                                     className="text-sm text-red-500 hover:text-red-600"
-                                    onClick={() => handleRemoveFlashcard(card.id)}
+                                    onClick={() => setFlashcardToDelete(card.id)}
                                 >
                                     Remove
                                 </button>
