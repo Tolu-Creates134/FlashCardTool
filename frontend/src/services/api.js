@@ -160,6 +160,21 @@ export const updateDeck = async (deckId, deckData) => {
 }
 
 /**
+ * Generates AI flashcard preview drafts
+ * @param {FormData} formData
+ * @returns
+ */
+export const generateFlashcardsPreview = async (formData) => {
+  const res = await api.post('/decks/ai/generate-preview', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return res.data;
+}
+
+/**
  * Persists practise sessions scores
  * @param {*} deckId 
  * @param {*} sessionsData

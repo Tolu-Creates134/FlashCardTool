@@ -12,6 +12,7 @@ export const AuthContext = createContext();
  */
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [authReady, setAuthReady] = useState(false);
     const navigate = useNavigate();
 
     // When the app loads, try fetching the current user
@@ -27,6 +28,8 @@ export const AuthProvider = ({ children }) => {
                 });
             } catch (error) {
                 setUser(null);
+            } finally {
+                setAuthReady(true);
             }
         }
         hydrateUser();
@@ -53,7 +56,7 @@ export const AuthProvider = ({ children }) => {
     }, [logout]);
 
     return (
-        <AuthContext.Provider value={{ user, setUser, login, logout}}>
+        <AuthContext.Provider value={{ user, setUser, login, logout, authReady }}>
             {children}
         </AuthContext.Provider>
     )

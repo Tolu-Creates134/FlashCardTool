@@ -3,6 +3,7 @@ import { PlusIcon } from "lucide-react";
 import { generateUniqueId } from '../../utils/helpers';
 import { createCategory, fetchCategories, createDeck } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
+import AiFlashcardGenerator from '../../components/AiFlashcardGenerator';
 
 
 /**
@@ -33,10 +34,6 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
 
     const navigate = useNavigate();
 
-    // Implement AI functionality later
-    // const [contentForAI, setContentForAI] = useState("");
-    // const [isGenerating, setIsGenerating] = useState(false);
-
     const handleCreateCategory = async () => {
         const name = newCategoryName.trim();
         if(!name) return;
@@ -57,8 +54,13 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
     };
 
     const handleSaveDeck = async () => {
-        if (!deckName.trim() || flashcards.length === 0) {
-            setSaveError("Please provide a deck name and add at least one flashcard.");
+        if (!deckName.trim()) {
+            setSaveError("Please provide a deck name before saving.");
+            return;
+        }
+
+        if (flashcards.length === 0) {
+            setSaveError("Please add at least one flashcard before saving.");
             return;
         }
 
@@ -107,6 +109,19 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
 
     const handleRemoveFlashcard = (id) => {
         setFlashcards((prev) => prev.filter((card) => card.id !== id));
+    };
+
+    const handleApproveAiCards = (approvedCards) => {
+        setFlashcards((prev) => [
+            ...prev,
+            ...approvedCards.map((card) => ({
+                id: generateUniqueId(),
+                question: card.question,
+                answer: card.answer,
+            })),
+        ]);
+        setFlashcardError("");
+        setSaveError("");
     };
 
     const loadCategories = async () => {
@@ -199,7 +214,10 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
                 <input
                     type="text"
                     value={deckName}
-                    onChange={(e) => setDeckName(e.target.value)}
+                    onChange={(e) => {
+                        setDeckName(e.target.value);
+                        if (saveError) setSaveError("");
+                    }}
                     className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="e.g., Biology 101"
                 />
@@ -223,6 +241,12 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
         {/* Flashcards Section */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <h2 className="text-lg font-semibold mb-4">Flashcards</h2>
+
+            <AiFlashcardGenerator
+                existingCount={flashcards.length}
+                onApprove={handleApproveAiCards}
+            />
+
             <div className="mb-3">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Question
@@ -297,9 +321,9 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
             </button>
             <button
                 onClick={handleSaveDeck}
-                disabled={!deckName.trim() || flashcards.length === 0 || isSaving}
+                disabled={isSaving}
                 className={`px-6 py-2 rounded-md ${
-                    !deckName.trim() || flashcards.length === 0 || isSaving
+                    isSaving
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-indigo-600 text-white hover:bg-indigo-700"
                 }`}

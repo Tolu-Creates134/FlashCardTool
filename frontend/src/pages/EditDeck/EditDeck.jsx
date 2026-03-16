@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchCategories, fetchDeckById, fetchFlashcardsByDeckId, updateDeck } from '../../services/api';
 import { PlusIcon, Trash2 } from 'lucide-react';
+import AiFlashcardGenerator from '../../components/AiFlashcardGenerator';
+import { generateUniqueId } from '../../utils/helpers';
 
 /**
  * Edit deck component
@@ -19,13 +21,14 @@ const EditDeck = () => {
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [flashcardError, setFlashcardError] = useState('');
+    const [saveError, setSaveError] = useState('');
     const [newQuestion, setNewQuestion] = useState('');
     const [newAnswer, setNewAnswer] = useState('');
     // const [error, setError] = useState('')
 
     // stable local ids for rendering new cards without server ids
-  const withLocalIds = (cards) => 
-    cards.map((c) => ({ ...c, _localId: c._localId || crypto.randomUUID() }));
+    const withLocalIds = (cards) => 
+    cards.map((c) => ({ ...c, _localId: c._localId || generateUniqueId() }));
 
     useEffect(() => {
         const loadData = async () => {
@@ -63,7 +66,7 @@ const EditDeck = () => {
                 id: undefined,
                 question: newQuestion.trim(),
                 answer: newAnswer.trim(),
-                _localId: crypto.randomUUID(),
+                _localId: generateUniqueId(),
             }, 
         ]);
         setNewQuestion('');
@@ -82,15 +85,39 @@ const EditDeck = () => {
         setFlashcards((prev) => prev.filter((card) => card._localId !== localId));
     };
 
+    const handleApproveAiCards = (approvedCards) => {
+        setFlashcards((prev) => [
+            ...prev,
+            ...approvedCards.map((card) => ({
+                id: undefined,
+                question: card.question,
+                answer: card.answer,
+                _localId: generateUniqueId(),
+            })),
+        ]);
+        setFlashcardError('');
+        setSaveError('');
+    };
+
     const canSave = useMemo(
-        () => deckName.trim() && flashcards.length > 0 && !isSaving,
-        [deckName, flashcards, isSaving]
+        () => !isSaving,
+        [isSaving]
     );
 
     const handleSave = async () => {
+        if (!deckName.trim()) {
+            setSaveError('Please provide a deck name before saving.');
+            return;
+        }
+
+        if (flashcards.length === 0) {
+            setSaveError('Please add at least one flashcard before saving.');
+            return;
+        }
+
         if (!canSave) return;
         setIsSaving(true);
-        // setError('');
+        setSaveError('');
 
         const payload = {
             name: deckName.trim(),
@@ -149,7 +176,10 @@ const EditDeck = () => {
                 <input
                     type="text"
                     value={deckName}
-                    onChange={(e) => setDeckName(e.target.value)}
+                    onChange={(e) => {
+                        setDeckName(e.target.value);
+                        if (saveError) setSaveError('');
+                    }}
                     className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="e.g., Biology 101"
                 />
@@ -189,6 +219,11 @@ const EditDeck = () => {
         {/* Flashcards Section */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <h2 className="text-lg font-semibold mb-4">Flashcards</h2>
+
+            <AiFlashcardGenerator
+                existingCount={flashcards.length}
+                onApprove={handleApproveAiCards}
+            />
 
             {flashcards.length === 0 && (
                 <p className="text-gray-500 mb-4">No flashcards yet. Add one below.</p>
@@ -283,6 +318,9 @@ const EditDeck = () => {
                 {isSaving ? 'Saving...' : 'Save Changes'}
             </button>
         </div>
+        {saveError && (
+            <p className="text-sm text-red-600 text-right mt-2">{saveError}</p>
+        )}
     </div>
   )
 };

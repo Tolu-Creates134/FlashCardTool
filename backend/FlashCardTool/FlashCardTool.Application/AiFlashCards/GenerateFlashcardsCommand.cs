@@ -45,14 +45,14 @@ public sealed class GenerateFlashcardsCommandHandler
         CancellationToken cancellationToken)
     {
         var userId = currentUserService.UserId
-            ?? throw new InvalidOperationException("Current user identifier is required.");
+        ?? throw new InvalidOperationException("Current user identifier is required.");
 
         if (request.DeckId.HasValue)
         {
             var deck = await unitOfWork.Repository<Deck>().FirstOrDefaultAsync(
-                d => d.Id == request.DeckId.Value,
-                query => query.Include(d => d.Category),
-                cancellationToken);
+            d => d.Id == request.DeckId.Value,
+            query => query.Include(d => d.Category),
+            cancellationToken);
 
             if (deck is null)
             {
