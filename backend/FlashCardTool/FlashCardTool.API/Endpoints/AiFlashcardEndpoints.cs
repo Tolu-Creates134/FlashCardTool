@@ -139,8 +139,8 @@ public static class AiFlashcardEndpoints
     {
         var decks = app
         .MapGroup(RoutePrefix)
-        .WithTags("AI Flashcards");
-        //.RequireAuthorization();
+        .WithTags("AI Flashcards")
+        .RequireAuthorization();
 
         GenerateForDeck(decks);
         GeneratePreview(decks);

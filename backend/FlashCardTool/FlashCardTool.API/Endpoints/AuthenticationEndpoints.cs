@@ -17,7 +17,7 @@ public static class AuthenticationEndpoints
     {
         HttpOnly = true,
         Secure = true,
-        SameSite = SameSiteMode.Strict,
+        SameSite = SameSiteMode.None,
         Expires = DateTimeOffset.UtcNow.AddMinutes(15),
         Path = "/"
     };
@@ -26,7 +26,7 @@ public static class AuthenticationEndpoints
     {
         HttpOnly = true,
         Secure = true,
-        SameSite = SameSiteMode.Strict,
+        SameSite = SameSiteMode.None,
         Expires = DateTimeOffset.UtcNow.AddDays(30),
         Path = "/api/auth"
     };
