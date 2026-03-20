@@ -88,14 +88,19 @@ builder.Services.AddCors(options =>
 
 WebApplication app = builder.Build();
 
+// CORS
+app.UseCors("AllowFrontend");
+
+// Middleware
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<UnhandledExceptionMiddleware>();
 app.UseMiddleware<StatusCodePageMiddleware>();
 
-app.UseCors("AllowFrontend");
+//Auth
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Endpoints
 app.RegisterAllEndpoints();
 
 //Configure the HTTP request pipeline.
@@ -110,6 +115,5 @@ if (!app.Environment.IsProduction())
 {
     app.UseHttpsRedirection();
 }
-
 
 app.Run();

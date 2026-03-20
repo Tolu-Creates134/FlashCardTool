@@ -79,6 +79,14 @@ export const loginWithGoogle = async (idToken) => {
 };
 
 /**
+ * Login with Google
+ * @returns
+ */
+// const handleGoogleLogin = () => {
+//   window.location.href = `${process.env.REACT_APP_API_BASE_URL}/api/auth/google-login`;
+// };
+
+/**
  * Logut current user
  * @returns
  */
