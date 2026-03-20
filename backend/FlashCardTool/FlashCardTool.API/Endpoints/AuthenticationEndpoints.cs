@@ -1,6 +1,6 @@
+using FlashCardTool.Application.Common.Auth;
 using FlashCardTool.Application.Models;
 using FlashCardTool.Application.Users;
-using FlashCardTool.Infrastructure.Auth;
 using Google.Apis.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -10,56 +10,80 @@ namespace FlashCardTool.API.Endpoints;
 public static class AuthenticationEndpoints
 {
     private const string RoutePrefix = "api/auth";
+    private const string AccessTokenCookieName = "access_token";
+    private const string RefreshTokenCookieName = "refresh_token";
+
+    private static CookieOptions BuildAccessTokenCookieOptions() => new()
+    {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTimeOffset.UtcNow.AddMinutes(15),
+        Path = "/"
+    };
+
+    private static CookieOptions BuildRefreshTokenCookieOptions() => new()
+    {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTimeOffset.UtcNow.AddDays(30),
+        Path = "/api/auth"
+    };
 
     private static void GoogleLogin(RouteGroupBuilder group)
     {
         group.MapPost("/google-login", async (
             [FromBody] GoogleLoginRequest request,
             IConfiguration config,
-            IMediator mediator
+            IMediator mediator,
+            HttpContext httpContext
         ) =>
         {
-            try
+            var settings = new GoogleJsonWebSignature.ValidationSettings
             {
-                var settings = new GoogleJsonWebSignature.ValidationSettings
-                {
-                    Audience = new[] { config["Google:ClientId"] }
-                };
+                Audience = new[] { config["Google:ClientId"] }
+            };
 
-                var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
+            var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
 
-                var saveUserResult = await mediator.Send(new SaveUserCommand(
-                    payload.Name,
-                    payload.Email,
-                    payload.Picture
-                ));
+            var saveUserResult = await mediator.Send(new SaveUserCommand(
+                payload.Name,
+                payload.Email,
+                payload.Picture
+            ));
 
-                var userId = saveUserResult.Id;
+            var userId = saveUserResult.Id;
 
-                var refreshToken = saveUserResult.refreshToken;
+            var refreshToken = saveUserResult.refreshToken;
 
-                var accessToken = JwtHelper.GenerateJwtToken(
-                    userId,
-                    payload.Email,
-                    payload.Name,
-                    payload.Picture,
-                    config,
-                    15 // minutes
-                );
+            var accessToken = JwtHelper.GenerateJwtToken(
+                userId,
+                payload.Email,
+                payload.Name,
+                payload.Picture,
+                config,
+                15 // minutes
+            );
 
-                return Results.Ok(new
-                {
-                    accessToken,
-                    refreshToken,
-                    email = payload.Email
-                });
-            }
-            catch(Exception ex)
+            httpContext.Response.Cookies.Append(
+                AccessTokenCookieName,
+                accessToken,
+                BuildAccessTokenCookieOptions()
+            );
+
+            httpContext.Response.Cookies.Append(
+                RefreshTokenCookieName,
+                saveUserResult.refreshToken,
+                BuildRefreshTokenCookieOptions()
+            );
+
+            return Results.Ok(new
             {
-                Console.WriteLine($"Google login failed: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
-                return Results.Unauthorized();
-            }
+                accessToken,
+                refreshToken,
+                email = payload.Email
+            });
         })
         .WithName("GoogleLogin")
         .WithDescription("Handles Google login and issues access/refresh tokens")
@@ -70,12 +94,31 @@ public static class AuthenticationEndpoints
     private static void RefreshToken(RouteGroupBuilder group)
     {
         group.MapPost("/refresh",  async(
-            [FromBody] RefreshTokenRequest request,
             IConfiguration config,
-            IMediator mediator
+            IMediator mediator,
+            HttpContext httpContext
         ) =>
         {
-            var result = await mediator.Send(new RefreshTokenCommand(request.RefreshToken));
+            var refreshToken = httpContext.Request.Cookies[RefreshTokenCookieName];
+
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return Results.Unauthorized();
+            }        
+
+            var result = await mediator.Send(new RefreshTokenCommand(refreshToken));
+
+            httpContext.Response.Cookies.Append(
+                AccessTokenCookieName,
+                result.AccessToken,
+                BuildAccessTokenCookieOptions()
+            );
+
+            httpContext.Response.Cookies.Append(
+                RefreshTokenCookieName,
+                result.RefreshToken,
+                BuildRefreshTokenCookieOptions()
+            );
 
             return Results.Ok(result);
         })
@@ -84,6 +127,17 @@ public static class AuthenticationEndpoints
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status401Unauthorized);
+    }
+
+    private static void Logout(RouteGroupBuilder group)
+    {
+        group.MapPost("/logout", (HttpContext httpContext) =>
+        {
+            httpContext.Response.Cookies.Delete(AccessTokenCookieName, new CookieOptions { Path = "/" });
+            httpContext.Response.Cookies.Delete(RefreshTokenCookieName, new CookieOptions { Path = "/api/auth" });
+
+            return Results.NoContent();
+        });
     }
 
     public static void DefineEndpoints(WebApplication app)
@@ -95,5 +149,6 @@ public static class AuthenticationEndpoints
 
         GoogleLogin(authGroup);
         RefreshToken(authGroup);
+        Logout(authGroup);
     }
 }

@@ -1,7 +1,7 @@
 using System;
+using FlashCardTool.Application.Common.Auth;
 using FlashCardTool.Domain.Entities;
 using FlashCardTool.Domain.Interfaces;
-using FlashCardTool.Infrastructure.Auth;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 
@@ -52,7 +52,7 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
 
         var newRefreshToken = JwtHelper.GenerateRefreshToken();
 
-        user.RefreshToken = newRefreshToken;
+        user!.RefreshToken = newRefreshToken;
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(30);
         user._Timestamp = DateTime.UtcNow;
 

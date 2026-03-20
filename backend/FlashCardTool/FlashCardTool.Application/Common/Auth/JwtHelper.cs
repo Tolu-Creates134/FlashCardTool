@@ -1,4 +1,3 @@
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -6,20 +5,19 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
+namespace FlashCardTool.Application.Common.Auth;
 
-namespace FlashCardTool.Infrastructure.Auth;
-
-public class JwtHelper
+public static class JwtHelper
 {
     public static string GenerateJwtToken(
         Guid userId,
         string email,
-        string name,
-        string pictureUrl,
-        IConfiguration config, 
+        string? name,
+        string? pictureUrl,
+        IConfiguration config,
         int expiryMinutes)
     {
-        var secret = config["Jwt:Key"];;
+        var secret = config["Jwt:Key"];
         var issuer = config["Jwt:Issuer"];
         var audience = config["Jwt:Audience"];
 
@@ -27,26 +25,26 @@ public class JwtHelper
         {
             throw new InvalidOperationException("JWT secret key is not configured.");
         }
-        
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret!));
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim("userId", userId.ToString()),
-            new Claim(JwtRegisteredClaimNames.Sub, email),
-            new Claim(JwtRegisteredClaimNames.Email, email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new("userId", userId.ToString()),
+            new(JwtRegisteredClaimNames.Sub, email),
+            new(JwtRegisteredClaimNames.Email, email),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
         if (!string.IsNullOrWhiteSpace(name))
         {
-            claims.Append(new Claim("name", name));
+            claims.Add(new Claim("name", name));
         }
 
         if (!string.IsNullOrWhiteSpace(pictureUrl))
         {
-            claims.Append(new Claim("picture", pictureUrl));
+            claims.Add(new Claim("picture", pictureUrl));
         }
 
         var token = new JwtSecurityToken(
@@ -62,14 +60,8 @@ public class JwtHelper
 
     public static string GenerateRefreshToken()
     {
-        var bytes = GenerateRandomNumber(64);
-        return Convert.ToBase64String(bytes);
-    }
-
-    private static byte[] GenerateRandomNumber(int size)
-    {
-        var bytes = new byte[size];
+        var bytes = new byte[64];
         RandomNumberGenerator.Fill(bytes);
-        return bytes;
+        return Convert.ToBase64String(bytes);
     }
 }

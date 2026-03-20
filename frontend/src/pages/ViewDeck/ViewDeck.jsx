@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { deleteDeck, fetchDeckById, fetchFlashcardsByDeckId } from '../../services/api';
 import { PlayIcon, SquarePen, Trash, ChartColumn } from 'lucide-react';
 import FlashCard from '../../components/cards/FlashCard';
+import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
 
 /**
  * Component for viewing the flashcards within a deck
@@ -15,6 +16,7 @@ const ViewDeck = () => {
   const [flashcards, setFlashcards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const loadDeckData = async () => {
@@ -74,6 +76,17 @@ const ViewDeck = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
+      <ConfirmActionModal
+        isOpen={showDeleteModal}
+        title="Delete this deck?"
+        message={`Are you sure you want to delete "${deck.name}"? This will permanently remove the deck and its flashcards.`}
+        confirmText="Delete Deck"
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          setShowDeleteModal(false);
+          handleDelete(deckId);
+        }}
+      />
 
       <button
         className="mt-4 flex items-center text-indigo-600 font-medium hover:text-indigo-700"
@@ -101,7 +114,7 @@ const ViewDeck = () => {
 
           <button
             type='button'
-            onClick={() => { handleDelete(deckId)}}
+            onClick={() => setShowDeleteModal(true)}
           >
             <Trash className="text-red-600" />
           </button>

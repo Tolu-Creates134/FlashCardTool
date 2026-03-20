@@ -9,9 +9,6 @@ export const registerLogoutHandler = (handler) => {
 };
 
 const hardRedirectToLogin = () => {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-
   if (window.location.pathname !== '/') {
     window.location.replace('/');
   }

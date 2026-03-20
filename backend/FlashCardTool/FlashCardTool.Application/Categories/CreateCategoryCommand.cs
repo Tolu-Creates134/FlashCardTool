@@ -30,11 +30,17 @@ public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComman
 
     public async Task<CreateCategoryResponse> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
+        var userId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required.");
+
         var category = mapper.Map<Category>(request.Category);
 
-        category.UserId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required.");
+        category.UserId = userId;
+        category.CreatedBy = currentUserService.Name
+            ?? currentUserService.Email
+            ?? throw new InvalidOperationException("Current user name or email is required.");
 
         var created = await unitOfWork.Repository<Category>().AddAsync(category, cancellationToken);
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new CreateCategoryResponse(mapper.Map<CategoryDto>(created));

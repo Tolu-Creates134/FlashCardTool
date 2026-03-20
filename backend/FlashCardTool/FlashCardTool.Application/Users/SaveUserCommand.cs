@@ -1,10 +1,9 @@
 using System;
 using AutoMapper;
+using FlashCardTool.Application.Common.Auth;
 using FlashCardTool.Domain.Entities;
 using FlashCardTool.Domain.Interfaces;
-using FlashCardTool.Infrastructure.Auth;
 using MediatR;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace FlashCardTool.Application.Users;
 
@@ -64,5 +63,3 @@ public class SaveUserCommandHandler : IRequestHandler<SaveUserCommand, SaveUserC
         return new SaveUserCommandResponse(newUser.Id, newUser.RefreshToken);
     }
 }
-
-

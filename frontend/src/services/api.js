@@ -6,18 +6,13 @@ import { triggerLogout } from '../utils/logoutManager';
  */
 export const api = axios.create({
   baseURL: `${process.env.REACT_APP_API_BASE_URL}/api`,
+  withCredentials: true // Includes cookies in each server request
 });
 
 let refreshRequest = null;
 
 const refreshAccessToken = async () => {
-  const refreshToken = localStorage.getItem('refreshToken');
-
-  if (!refreshToken) {
-    throw new Error('Missing refresh token');
-  }
-
-  const { data } = await api.post('/auth/refresh', { refreshToken });
+  const { data } = await api.post('/auth/refresh');
   return data;
 };
 
@@ -35,27 +30,6 @@ const emitApiError = (error) => {
   window.dispatchEvent(new CustomEvent('api-error', {detail: {message, status}}));
 };
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
-
-  if (!token) return config;
-  
-  // const url = config.url ?? "";
-  // const isAuthRoute = url.startsWith("/auth/") || url.startsWith("/api/auth/") || url.includes("/auth/");
-
-  const base = config.baseURL ?? window.location.origin;
-  const fullUrl = new URL(config.url ?? "", base);
-  const path = fullUrl.pathname;
-
-  const isAuthRoute = path.includes("/auth/");
-
-  if (!isAuthRoute ) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-});
-
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -70,29 +44,17 @@ api.interceptors.response.use(
 
       try {
         if (!refreshRequest) {
-          refreshRequest = refreshAccessToken()
-            .then(({ accessToken, refreshToken }) => {
-              localStorage.setItem('accessToken', accessToken);
-              if (refreshToken) {
-                localStorage.setItem('refreshToken', refreshToken);
-              }
-              api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-              return accessToken;
-            })
-            .finally(() => {
-              refreshRequest = null;
-            });
+          refreshRequest = refreshAccessToken().finally(() => {
+            refreshRequest = null;
+          })
         }
 
-        const newAccessToken = await refreshRequest;
-        originalRequest.headers = {
-          ...originalRequest.headers,
-          Authorization: `Bearer ${newAccessToken}`,
-        };
+        await refreshRequest;
         return api(originalRequest);
       } catch (refreshError) {
         emitApiError(refreshError);
         refreshRequest = null;
+
         const refreshStatus = refreshError.response?.status;
         const missingRefreshToken = refreshError.message === 'Missing refresh token';
         if (refreshStatus === 401 || refreshStatus === 403 || missingRefreshToken) {
@@ -107,14 +69,22 @@ api.interceptors.response.use(
 );
 
 /**
- * Login with details
+ * Login with Google
  * @param {*} idToken
  * @returns
  */
 export const loginWithGoogle = async (idToken) => {
   const res = await api.post("/auth/google-login", { idToken: idToken });
-  return res.data; // contains accessToken, refreshToken, email
+  return res.data;
 };
+
+/**
+ * Logut current user
+ * @returns
+ */
+export const logoutUser = async () => {
+  await api.post('/auth/logout');
+}
 
 /**
  * Fetches all categories.
@@ -187,6 +157,21 @@ export const updateDeck = async (deckId, deckData) => {
     deckData
   )
   return res.data
+}
+
+/**
+ * Generates AI flashcard preview drafts
+ * @param {FormData} formData
+ * @returns
+ */
+export const generateFlashcardsPreview = async (formData) => {
+  const res = await api.post('/decks/ai/generate-preview', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return res.data;
 }
 
 /**

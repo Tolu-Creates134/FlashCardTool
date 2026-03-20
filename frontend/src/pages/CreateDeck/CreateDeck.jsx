@@ -3,6 +3,8 @@ import { PlusIcon } from "lucide-react";
 import { generateUniqueId } from '../../utils/helpers';
 import { createCategory, fetchCategories, createDeck } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
+import AiFlashcardGenerator from '../../components/AiFlashcardGenerator';
+import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
 
 
 /**
@@ -30,12 +32,9 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
     const [flashcardError, setFlashcardError] = useState("");
     const [saveError, setSaveError] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+    const [flashcardToDelete, setFlashcardToDelete] = useState(null);
 
     const navigate = useNavigate();
-
-    // Implement AI functionality later
-    // const [contentForAI, setContentForAI] = useState("");
-    // const [isGenerating, setIsGenerating] = useState(false);
 
     const handleCreateCategory = async () => {
         const name = newCategoryName.trim();
@@ -57,8 +56,13 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
     };
 
     const handleSaveDeck = async () => {
-        if (!deckName.trim() || flashcards.length === 0) {
-            setSaveError("Please provide a deck name and add at least one flashcard.");
+        if (!deckName.trim()) {
+            setSaveError("Please provide a deck name before saving.");
+            return;
+        }
+
+        if (flashcards.length === 0) {
+            setSaveError("Please add at least one flashcard before saving.");
             return;
         }
 
@@ -109,6 +113,19 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
         setFlashcards((prev) => prev.filter((card) => card.id !== id));
     };
 
+    const handleApproveAiCards = (approvedCards) => {
+        setFlashcards((prev) => [
+            ...prev,
+            ...approvedCards.map((card) => ({
+                id: generateUniqueId(),
+                question: card.question,
+                answer: card.answer,
+            })),
+        ]);
+        setFlashcardError("");
+        setSaveError("");
+    };
+
     const loadCategories = async () => {
         try {
             const data = await fetchCategories();
@@ -125,6 +142,18 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
 
   return (
     <div className="max-w-4xl mx-auto">
+        <ConfirmActionModal
+            isOpen={Boolean(flashcardToDelete)}
+            title="Delete this flashcard?"
+            message="Are you sure you want to remove this flashcard from the deck draft?"
+            confirmText="Delete Flashcard"
+            onCancel={() => setFlashcardToDelete(null)}
+            onConfirm={() => {
+                handleRemoveFlashcard(flashcardToDelete);
+                setFlashcardToDelete(null);
+            }}
+        />
+
         <h1 className="text-2xl font-bold text-gray-800 mb-6">
             Create New Flashcard Deck
         </h1>
@@ -132,34 +161,6 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
         {/* Deck Info */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <h2 className="text-lg font-semibold mb-4">Deck Information</h2>
-
-            {/* Deck name */}
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Deck Name
-                </label>
-                <input
-                    type="text"
-                    value={deckName}
-                    onChange={(e) => setDeckName(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="e.g., Biology 101"
-                />
-            </div>
-
-            {/* Description */}
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                </label>
-                <textarea
-                    value={deckDescription}
-                    onChange={(e) => setDeckDescription(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="What is this deck about?"
-                    rows={3}
-                />
-            </div>
 
             {/* Category */}
             <div className="mb-4">
@@ -218,11 +219,48 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
                 </div>
             )}
             </div>
+
+            {/* Deck name */}
+            <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Deck Name
+                </label>
+                <input
+                    type="text"
+                    value={deckName}
+                    onChange={(e) => {
+                        setDeckName(e.target.value);
+                        if (saveError) setSaveError("");
+                    }}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="e.g., Biology 101"
+                />
+            </div>
+
+            {/* Description */}
+            <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Deck Description
+                </label>
+                <textarea
+                    value={deckDescription}
+                    onChange={(e) => setDeckDescription(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="What is this deck about?"
+                    rows={3}
+                />
+            </div>
         </div>
 
         {/* Flashcards Section */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <h2 className="text-lg font-semibold mb-4">Flashcards</h2>
+
+            <AiFlashcardGenerator
+                existingCount={flashcards.length}
+                onApprove={handleApproveAiCards}
+            />
+
             <div className="mb-3">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Question
@@ -276,7 +314,7 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
                                 </div>
                                 <button
                                     className="text-sm text-red-500 hover:text-red-600"
-                                    onClick={() => handleRemoveFlashcard(card.id)}
+                                    onClick={() => setFlashcardToDelete(card.id)}
                                 >
                                     Remove
                                 </button>
@@ -297,9 +335,9 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
             </button>
             <button
                 onClick={handleSaveDeck}
-                disabled={!deckName.trim() || flashcards.length === 0 || isSaving}
+                disabled={isSaving}
                 className={`px-6 py-2 rounded-md ${
-                    !deckName.trim() || flashcards.length === 0 || isSaving
+                    isSaving
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-indigo-600 text-white hover:bg-indigo-700"
                 }`}

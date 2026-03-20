@@ -12,6 +12,7 @@ public static class ConfigurationServices
         AuthenticationEndpoints.DefineEndpoints(app);
         FlashCardEndpoints.DefineEndpoints(app);
         UserEndpoints.DefineEndpoints(app);
+        AiFlashcardEndpoints.DefineEndpoints(app);
         // Add other feature endpoints here
     }
 }

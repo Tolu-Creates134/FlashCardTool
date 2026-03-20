@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using FlashCardTool.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using FlashCardTool.API.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,27 +23,6 @@ builder.Services.AddSwaggerGen(options =>
         Title = "FlashCardTool API",
         Version = "v1"
     });
-
-    var securityScheme = new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Description = "Enter 'Bearer {token}'",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Reference = new OpenApiReference
-        {
-            Type = ReferenceType.SecurityScheme,
-            Id = "Bearer"
-        }
-    };
-
-    options.AddSecurityDefinition("Bearer", securityScheme);
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        { securityScheme, Array.Empty<string>() }
-    });
 });
 
 // Application
@@ -53,9 +31,9 @@ builder.Services.AddApplication();
 // Infrastructure
 builder.Services.AddInfrastructure(builder.Configuration);
 
+
 // Authentication
-var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException("JWT Key is not configured.");
+var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.");
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -75,6 +53,21 @@ builder.Services
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Cookies["access_token"];
+
+                if (!string.IsNullOrWhiteSpace(accessToken))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 builder.Services.AddAuthorization();
 
@@ -89,11 +82,15 @@ builder.Services.AddCors(options =>
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowAnyOrigin();
+            .AllowCredentials();
         });
 });
 
 WebApplication app = builder.Build();
+
+app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<UnhandledExceptionMiddleware>();
+app.UseMiddleware<StatusCodePageMiddleware>();
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
