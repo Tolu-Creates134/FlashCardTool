@@ -62,19 +62,19 @@ Deployment Strategy
 This is your gold section.
 
 Document:
-##Backend
+## Backend
 - Dockerized
 - Built locally
 - Pushed to Azure Container Registry
 - Deployed to Azure Container Apps
 - Secrets configured via Container App secrets
 
-##Database
+## Database
 - Azure SQL Serverless
 - EF Core migrations
 - Connection string stored as secret
 
-##Frontend
+## Frontend
 - Azure Static Web Apps
 - GitHub Actions CI/CD
 - Build-time environment variables
