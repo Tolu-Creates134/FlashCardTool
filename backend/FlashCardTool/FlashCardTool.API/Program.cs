@@ -80,8 +80,8 @@ builder.Services.AddCors(options =>
                 "http://localhost:3000",
                 "https://black-ocean-02c9a7803.2.azurestaticapps.net"
             )
-            .AllowAnyHeader()
-            .AllowAnyMethod()
+            .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .WithHeaders("Content-Type", "Authorization")
             .AllowCredentials();
         });
 });
