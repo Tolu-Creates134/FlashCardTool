@@ -138,23 +138,46 @@ Backend configuration is handled via:
 
 ## 🧠 System Architecture
 
-The backend follows Clean Architecture principles:
+The backend follows a Clean Architecture approach, separating concerns across distinct layers to improve maintainability, testability, and scalability.
 
-### Domain Layer
-- Core business entities
-- No external dependencies
+### 🔹 Layer Responsibilities
+#### Domain Layer
+- Contains core business entities (e.g. Deck, Flashcard, User)
+- Defines business rules and invariants
+- No dependencies on external frameworks or libraries
 
-### Application Layer
-- Business logic and use cases
-- MediatR commands and queries
+#### Application Layer
+- Implements business use cases using CQRS (Command Query Responsibility Segregation)
+- Uses MediatR to handle commands and queries
 
-### Infrastructure Layer
-- Database access (EF Core)
-- External integrations
+Examples:
+- CreateDeckCommand
+- GenerateFlashcardsCommand
 
-### API Layer
-- HTTP endpoints
-- Middleware pipeline
+Responsibilities:
+- Orchestrates domain logic
+- Validates input
+- Coordinates between domain and infrastructure
+
+#### Infrastructure Layer
+Handles external concerns:
+- Database access (Entity Framework Core)
+- AI service integration (OpenAI)
+- Authentication services
+
+Responsibilities:
+- Implements interfaces defined in Application layer
+- Keeps external dependencies isolated
+
+#### API Layer
+- Defines HTTP endpoints using Minimal APIs
+- Handles request/response mapping
+- Applies middleware for cross-cutting concerns
+
+Middleware includes:
+- Request logging
+- Global exception handling
+- Status code standardisation
 
 Mention:
 Build time vs runtime differences
