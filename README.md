@@ -30,55 +30,131 @@ Azure SQL Database
 
 ## 🛠 Tech Stack
 
-Frontend:
+#### Frontend:
 - React (Create React App)
 - Axios
 - Google OAuth
 
-Backend:
+#### Backend:
 - .NET 9
 - Minimal APIs
 - Entity Framework Core
 - MediatR
 - JWT Authentication
 
-Cloud:
+#### Cloud:
 - Azure Container Apps
 - Azure SQL (Serverless)
 - Azure Static Web Apps
 - Azure Container Registry
 
-## 🔐 Authentication Flow
+## 🔐 Authentication Behaviour (COME BACK TO THIS SECTION TO MAKE SURE IT IS CORRECT)
 
-1. User signs in with Google on the frontend.
-2. Google returns an ID token.
-3. The ID token is sent to the backend.
-4. Backend validates the token using GoogleJsonWebSignature.
-5. Backend generates a JWT for the user.
-6. JWT is used to authorize future requests.
+Authentication is handled using Google OAuth and JWT-based cookies.
 
-Deployment Strategy
+### Login Flow
 
-This is your gold section.
+1. User initiates Google sign-in
+2. Browser is redirected to backend OAuth endpoint
+3. Backend redirects to Google
+4. Google returns identity token
+5. Backend validates token
+6. JWT is generated and stored in a secure HTTP-only cookie
 
-Document:
+### Session Management
+
+- JWT stored in HTTP-only cookie
+- Automatically sent with each request
+- No manual token handling in frontend
+
+### Security Considerations
+
+- HTTP-only cookies prevent XSS attacks
+- SameSite=None + Secure required for cross-origin requests
+- Backend validates all incoming tokens
+
+## ⚠️ Environment Variables
+
+### Frontend (Build-Time Injection)
+
+React applications are static builds, meaning environment variables are injected at build time.
+
+Example:
+
+REACT_APP_API_BASE_URL=https://your-api-url
+
+These values are embedded into the application during:
+
+npm run build
+
+### Why This Matters
+
+- Changing `.env` locally does NOT affect production
+- Variables must be configured in:
+  - GitHub Actions pipeline
+  - Azure Static Web Apps configuration
+
+### Backend (Runtime Configuration)
+
+Backend configuration is handled via:
+
+- Azure Container App environment variables
+- Secrets stored securely in Azure
+
+## 🚀 Deployment Strategy
+
 ### Backend
-- Dockerized
-- Built locally
-- Pushed to Azure Container Registry
+
+- Dockerised .NET API
+- Built and pushed to Azure Container Registry
 - Deployed to Azure Container Apps
-- Secrets configured via Container App secrets
+- Secrets configured via Azure
 
 ### Database
+
 - Azure SQL Serverless
-- EF Core migrations
-- Connection string stored as secret
+- Managed via EF Core migrations
+- Connection string stored securely
 
 ### Frontend
-- Azure Static Web Apps
-- GitHub Actions CI/CD
-- Build-time environment variables
-- REACT_APP_* injection
+
+- Hosted on Azure Static Web Apps
+- Built via GitHub Actions
+- Environment variables injected at build time
+
+## 🔄 CI/CD Pipeline
+
+### Frontend
+
+- Triggered on push to main
+- Builds React app
+- Deploys to Azure Static Web Apps
+
+### Backend
+
+- Builds Docker image
+- Pushes to Azure Container Registry
+- Deploys to Azure Container Apps
+
+## 🧠 System Architecture
+
+The backend follows Clean Architecture principles:
+
+### Domain Layer
+- Core business entities
+- No external dependencies
+
+### Application Layer
+- Business logic and use cases
+- MediatR commands and queries
+
+### Infrastructure Layer
+- Database access (EF Core)
+- External integrations
+
+### API Layer
+- HTTP endpoints
+- Middleware pipeline
 
 Mention:
 Build time vs runtime differences
