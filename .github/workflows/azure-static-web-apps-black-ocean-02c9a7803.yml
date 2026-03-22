@@ -37,8 +37,12 @@ jobs:
           REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
           ###### End of Repository/Build Configurations ######
       # ── Backend: DB Migration ──────────────────────────────
+      - name: Install EF Tools
+        run: dotnet tool install --global dotnet-ef
+
       - name: Run Migrations
         run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
           dotnet ef database update \
             --project FlashCardTool.Infrastructure \
             --startup-project FlashCardTool.API
