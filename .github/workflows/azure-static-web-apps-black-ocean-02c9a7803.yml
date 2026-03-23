@@ -47,10 +47,10 @@ jobs:
       - name: Run Migrations
         run: |
           export PATH="$PATH:$HOME/.dotnet/tools"
+          cd backend/FlashCardTool/FlashCardTool/FlashCardTool.API
           dotnet ef database update \
-            --project FlashCardTool.Infrastructure \
-            --startup-project FlashCardTool.API
-        working-directory: ./backend/FlashCardTool/FlashCardTool
+            --project ../FlashCardTool.Infrastructure \
+            --startup-project .
         env:
           ConnectionStrings__DefaultConnection: ${{ secrets.PROD_CONNECTION_STRING }}
       # ── Backend: Build & Push Docker Image ────────────────
