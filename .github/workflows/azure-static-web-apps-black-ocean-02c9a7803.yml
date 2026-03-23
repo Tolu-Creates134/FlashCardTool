@@ -47,10 +47,18 @@ jobs:
       - name: Run Migrations
         run: |
           export PATH="$PATH:$HOME/.dotnet/tools"
-          cd $GITHUB_WORKSPACE/backend/FlashCardTool
+          echo "=== GITHUB_WORKSPACE ==="
+          echo $GITHUB_WORKSPACE
+          echo "=== Contents of backend ==="
+          ls $GITHUB_WORKSPACE/backend
+          echo "=== Contents of backend/FlashCardTool ==="
+          ls $GITHUB_WORKSPACE/backend/FlashCardTool
+          echo "=== Contents of backend/FlashCardTool/FlashCardTool ==="
+          ls $GITHUB_WORKSPACE/backend/FlashCardTool/FlashCardTool
+          cd $GITHUB_WORKSPACE/backend/FlashCardTool/FlashCardTool
           dotnet ef database update \
-            --startup-project FlashCardTool.API.csproj \
-            --project FlashCardTool.Infrastructure.csproj
+            --startup-project FlashCardTool.API/FlashCardTool.API.csproj \
+            --project FlashCardTool.Infrastructure/FlashCardTool.Infrastructure.csproj
         env:
           ConnectionStrings__DefaultConnection: ${{ secrets.PROD_CONNECTION_STRING }}
       # ── Backend: Build & Push Docker Image ────────────────
