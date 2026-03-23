@@ -55,6 +55,8 @@ jobs:
             --verbose
         env:
           ConnectionStrings__DefaultConnection: ${{ secrets.PROD_CONNECTION_STRING }}
+          ASPNETCORE_ENVIRONMENT: Production
+          DOTNET_ENVIRONMENT: Production
       # ── Backend: Build & Push Docker Image ────────────────
       - name: Azure Login
         uses: azure/login@v2
