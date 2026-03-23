@@ -50,7 +50,7 @@ jobs:
           dotnet ef database update \
             --project FlashCardTool.Infrastructure \
             --startup-project FlashCardTool.API
-        working-directory: ./backend/FlashCardTool
+        working-directory: ./backend/FlashCardTool/FlashCardTool
         env:
           ConnectionStrings__DefaultConnection: ${{ secrets.PROD_CONNECTION_STRING }}
       # ── Backend: Build & Push Docker Image ────────────────
