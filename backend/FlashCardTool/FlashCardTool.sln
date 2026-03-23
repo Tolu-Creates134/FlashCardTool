@@ -11,10 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashCardTool.Infrastructur
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashCardTool.API", "FlashCardTool.API\FlashCardTool.API.csproj", "{4AAA49E8-EAF6-4841-A69B-5DBE724666D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashCardTool.API.Tests", "tests\FlashCardTool.API.Tests\FlashCardTool.API.Tests.csproj", "{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashCardTool.Application.Tests", "tests\FlashCardTool.Application.Tests\FlashCardTool.Application.Tests.csproj", "{706648BA-3F67-4327-A726-A3F91A46528F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,30 +69,6 @@ Global
 		{4AAA49E8-EAF6-4841-A69B-5DBE724666D7}.Release|x64.Build.0 = Release|Any CPU
 		{4AAA49E8-EAF6-4841-A69B-5DBE724666D7}.Release|x86.ActiveCfg = Release|Any CPU
 		{4AAA49E8-EAF6-4841-A69B-5DBE724666D7}.Release|x86.Build.0 = Release|Any CPU
-		{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}.Debug|x64.Build.0 = Debug|Any CPU
-		{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}.Debug|x86.Build.0 = Debug|Any CPU
-		{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}.Release|x64.ActiveCfg = Release|Any CPU
-		{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}.Release|x64.Build.0 = Release|Any CPU
-		{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}.Release|x86.ActiveCfg = Release|Any CPU
-		{F8A33B1E-0E0A-4B8B-9B57-2313C2A802D5}.Release|x86.Build.0 = Release|Any CPU
-		{706648BA-3F67-4327-A726-A3F91A46528F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{706648BA-3F67-4327-A726-A3F91A46528F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{706648BA-3F67-4327-A726-A3F91A46528F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{706648BA-3F67-4327-A726-A3F91A46528F}.Debug|x64.Build.0 = Debug|Any CPU
-		{706648BA-3F67-4327-A726-A3F91A46528F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{706648BA-3F67-4327-A726-A3F91A46528F}.Debug|x86.Build.0 = Debug|Any CPU
-		{706648BA-3F67-4327-A726-A3F91A46528F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{706648BA-3F67-4327-A726-A3F91A46528F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{706648BA-3F67-4327-A726-A3F91A46528F}.Release|x64.ActiveCfg = Release|Any CPU
-		{706648BA-3F67-4327-A726-A3F91A46528F}.Release|x64.Build.0 = Release|Any CPU
-		{706648BA-3F67-4327-A726-A3F91A46528F}.Release|x86.ActiveCfg = Release|Any CPU
-		{706648BA-3F67-4327-A726-A3F91A46528F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
