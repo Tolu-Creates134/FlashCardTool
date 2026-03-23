@@ -47,7 +47,7 @@ jobs:
       - name: Run Migrations
         run: |
           export PATH="$PATH:$HOME/.dotnet/tools"
-          cd $GITHUB_WORKSPACE/backend/FlashCardTool/FlashCardTool
+          cd $GITHUB_WORKSPACE/backend/FlashCardTool
           dotnet ef database update \
             --startup-project FlashCardTool.API.csproj \
             --project FlashCardTool.Infrastructure.csproj
