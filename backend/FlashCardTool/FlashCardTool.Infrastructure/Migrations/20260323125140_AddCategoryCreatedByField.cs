@@ -1,3 +1,4 @@
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -5,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FlashCardTool.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCategoryCreatedByAuditField : Migration
+    public partial class AddCategoryCreatedByField : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,8 +15,7 @@ namespace FlashCardTool.Infrastructure.Migrations
                 name: "CreatedBy",
                 table: "Categories",
                 type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
+                nullable: true);
 
             migrationBuilder.UpdateData(
                 table: "Categories",
