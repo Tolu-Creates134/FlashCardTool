@@ -40,6 +40,10 @@ jobs:
       - name: Install EF Tools
         run: dotnet tool install --global dotnet-ef
 
+      - name: Restore NuGet Packages
+        run: dotnet restore
+        working-directory: ./backend/FlashCardTool
+
       - name: Run Migrations
         run: |
           export PATH="$PATH:$HOME/.dotnet/tools"
