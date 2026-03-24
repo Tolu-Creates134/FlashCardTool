@@ -1,4 +1,6 @@
 # FlashLearn
+<img width="1440" height="814" alt="Screenshot 2026-03-24 at 22 00 55" src="https://github.com/user-attachments/assets/ccd229e9-490b-476e-bae8-0cc2bdab3e58" />
+
 
 ## 📚 What is FlashLearn?
 FlashCardTool is a web-based study platform that helps users create, manage, and practice flashcards to improve learning and retention.
