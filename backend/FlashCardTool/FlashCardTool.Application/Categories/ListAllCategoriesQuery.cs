@@ -2,6 +2,7 @@ using System;
 using AutoMapper;
 using FlashCardTool.Application.Models;
 using FlashCardTool.Domain.Entities;
+using FlashCardTool.Domain.Exceptions;
 using FlashCardTool.Domain.Interfaces;
 using MediatR;
 
@@ -33,11 +34,11 @@ public class ListAllCategoriesQueryHandler : IRequestHandler<ListAllCategoriesQu
 
     public async Task<ListAllCategoriesResponse> Handle(ListAllCategoriesQuery request, CancellationToken cancellationToken)
     {
-        var userId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required.");
+        var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user identifier is required.");
 
         if (userId == Guid.Empty)
         {
-            throw new InvalidOperationException("Current user identifier is required.");
+            throw new UnauthorizedAccessException("Current user identifier is required.");
         }
 
         var categories = await unitOfWork

@@ -45,7 +45,7 @@ public sealed class GenerateFlashcardsCommandHandler
         CancellationToken cancellationToken)
     {
         var userId = currentUserService.UserId
-        ?? throw new InvalidOperationException("Current user identifier is required.");
+        ?? throw new UnauthorizedAccessException("Current user identifier is required.");
 
         if (request.DeckId.HasValue)
         {
@@ -61,7 +61,7 @@ public sealed class GenerateFlashcardsCommandHandler
 
             if (deck.Category is null || deck.Category.UserId != userId)
             {
-                throw new InvalidOperationException("Cannot generate flashcards for a deck that does not belong to the current user.");
+                throw new ForbiddenOperationException("Cannot generate flashcards for a deck that does not belong to the current user.");
             }
         }
 
@@ -69,7 +69,7 @@ public sealed class GenerateFlashcardsCommandHandler
 
         if (string.IsNullOrWhiteSpace(extracted.Text))
         {
-            throw new InvalidOperationException("No readable content was found in the provided source.");
+            throw new ValidationException("No readable content was found in the provided source.");
         }
 
         var generated = await aiFlashcardGenerationService.GenerateAsync(
@@ -89,4 +89,3 @@ public sealed class GenerateFlashcardsCommandHandler
         );
     }
 }
-

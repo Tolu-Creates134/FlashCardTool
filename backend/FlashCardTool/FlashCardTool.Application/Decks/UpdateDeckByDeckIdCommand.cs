@@ -31,7 +31,7 @@ public class UpdateDeckByDeckIdCommandHandler : IRequestHandler<UpdateDeckByDeck
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var userId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required.");
+        var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user identifier is required.");
 
         var deckRepository = unitOfWork.Repository<Deck>();
         var flashCardRepository = unitOfWork.Repository<FlashCard>();
@@ -52,7 +52,7 @@ public class UpdateDeckByDeckIdCommandHandler : IRequestHandler<UpdateDeckByDeck
 
         if (existingDeck.Category is null || existingDeck.Category.UserId != userId)
         {
-            throw new InvalidOperationException("Cannot update a deck that does not belong to the current user.");
+            throw new ForbiddenOperationException("Cannot update a deck that does not belong to the current user.");
         }
 
         var category = await categoryRepository.FirstOrDefaultAsync(
@@ -67,7 +67,7 @@ public class UpdateDeckByDeckIdCommandHandler : IRequestHandler<UpdateDeckByDeck
 
         if (category.UserId != userId)
         {
-            throw new InvalidOperationException("Cannot move a deck to a category that does not belong to the current user.");
+            throw new ForbiddenOperationException("Cannot move a deck to a category that does not belong to the current user.");
         }
 
         existingDeck.Name = request.Deck.Name;

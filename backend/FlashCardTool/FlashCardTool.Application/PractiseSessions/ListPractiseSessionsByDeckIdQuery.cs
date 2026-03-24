@@ -35,7 +35,7 @@ public class ListPractiseSessionsByDeckIdQueryHandler : IRequestHandler<ListPrac
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var userId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required");
+        var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user identifier is required");
 
         var deckRepository = unitOfWork.Repository<Deck>();
 
@@ -52,7 +52,7 @@ public class ListPractiseSessionsByDeckIdQueryHandler : IRequestHandler<ListPrac
 
         if (deck.Category is null || deck.Category.UserId != userId)
         {
-            throw new InvalidOperationException("Cannot access practice sessions for a deck that does not belong to the current user.");
+            throw new ForbiddenOperationException("Cannot access practice sessions for a deck that does not belong to the current user.");
         }
 
         IQueryable<PractiseSession> sessionsQuery = unitOfWork
