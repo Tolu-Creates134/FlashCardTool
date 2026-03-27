@@ -4,6 +4,7 @@ using System.Linq;
 using AutoMapper;
 using FlashCardTool.Application.Models;
 using FlashCardTool.Domain.Entities;
+using FlashCardTool.Domain.Exceptions;
 using FlashCardTool.Domain.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +39,7 @@ public class ListAllDecksQueryHandler : IRequestHandler<ListAllDecksQuery, ListA
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var userId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required.");
+        var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user identifier is required.");
 
         var categoryRepo = unitOfWork.Repository<Category>();
 

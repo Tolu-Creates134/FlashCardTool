@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using FlashCardTool.Application.AiFlashCards;
 using FlashCardTool.Application.Common.Enums;
 using FlashCardTool.Application.Models;

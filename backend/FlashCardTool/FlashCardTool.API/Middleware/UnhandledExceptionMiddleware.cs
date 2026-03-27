@@ -1,7 +1,9 @@
 using System;
+using System.Data.Common;
 using FlashCardTool.API.Models;
 using FlashCardTool.Domain.Exceptions;
 using Google.Apis.Auth;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlashCardTool.API.Middleware;
 
@@ -67,6 +69,17 @@ public class UnhandledExceptionMiddleware
 
     private (int StatusCode, string Error, string Message) MapException(Exception exception)
     {
+        if (IsDatabaseException(exception))
+        {
+            return (
+                StatusCodes.Status500InternalServerError,
+                "DatabaseError",
+                _environment.IsDevelopment()
+                    ? exception.Message
+                    : "A database error occurred"
+            );
+        }
+
         return exception switch
         {
             EntityNotFoundException ex => (
@@ -87,9 +100,15 @@ public class UnhandledExceptionMiddleware
                 ex.Message
             ),
 
-            InvalidOperationException ex => (
+            ForbiddenOperationException ex => (
+                StatusCodes.Status403Forbidden,
+                "Forbidden",
+                ex.Message
+            ),
+
+            ValidationException ex => (
                 StatusCodes.Status400BadRequest,
-                "InvalidOperation",
+                "ValidationError",
                 ex.Message
             ),
 
@@ -106,6 +125,18 @@ public class UnhandledExceptionMiddleware
                     ? exception.Message
                     : "An unexpected error occurred"
             )
+        };
+    }
+
+    private static bool IsDatabaseException(Exception exception)
+    {
+        return exception switch
+        {
+            DbUpdateException => true,
+            DbException => true,
+            TimeoutException => true,
+            _ when exception.InnerException is not null => IsDatabaseException(exception.InnerException),
+            _ => false
         };
     }
 }

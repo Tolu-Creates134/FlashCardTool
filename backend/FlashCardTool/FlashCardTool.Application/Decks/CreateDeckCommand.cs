@@ -37,7 +37,7 @@ public class CreateDeckCommandHandler: IRequestHandler<CreateDeckCommand, Create
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(request.Deck);
 
-        var userId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required.");
+        var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user identifier is required.");
 
         var categoryRepo = unitOfWork.Repository<Category>();
 
@@ -53,7 +53,7 @@ public class CreateDeckCommandHandler: IRequestHandler<CreateDeckCommand, Create
 
         if (category.UserId != userId)
         {
-            throw new InvalidOperationException("Cannot create a deck in a category that does not belong to the current user.");
+            throw new ForbiddenOperationException("Cannot create a deck in a category that does not belong to the current user.");
         }
 
         var deck = mapper.Map<Deck>(request.Deck);

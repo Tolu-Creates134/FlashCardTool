@@ -14,8 +14,6 @@ obj/
 *.sln.docstates
 
 # EF Core migrations temp files
-**/Migrations/*.Designer.cs
-**/Migrations/*.csproj.EntityFrameworkCore.*
 
 # ASP.NET secrets and settings
 secrets.json

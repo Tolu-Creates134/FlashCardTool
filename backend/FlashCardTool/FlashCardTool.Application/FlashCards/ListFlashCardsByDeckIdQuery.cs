@@ -38,7 +38,7 @@ public class ListFlashCardsByDeckIdQueryHandler : IRequestHandler<ListFlashCards
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var userId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required.");
+        var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user identifier is required.");
 
         var deck = await unitOfWork
         .Repository<Deck>()
@@ -55,7 +55,7 @@ public class ListFlashCardsByDeckIdQueryHandler : IRequestHandler<ListFlashCards
 
         if (deck.Category is null || deck.Category.UserId != userId)
         {
-            throw new InvalidOperationException("Cannot access flashcards for a deck that does not belong to the current user.");
+            throw new ForbiddenOperationException("Cannot access flashcards for a deck that does not belong to the current user.");
         }
 
         var flashCards = await unitOfWork

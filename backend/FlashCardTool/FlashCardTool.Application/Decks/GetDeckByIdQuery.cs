@@ -37,7 +37,7 @@ public class GetDeckByIdQueryHandler : IRequestHandler<GetDeckByIdQuery, GetDeck
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var userId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required.");
+        var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user identifier is required.");
 
         var deck = await unitOfWork
             .Repository<Deck>()
@@ -55,7 +55,7 @@ public class GetDeckByIdQueryHandler : IRequestHandler<GetDeckByIdQuery, GetDeck
 
         if (deck.Category is null || deck.Category.UserId != userId)
         {
-            throw new InvalidOperationException("Cannot access a deck that does not belong to the current user.");
+            throw new ForbiddenOperationException("Cannot access a deck that does not belong to the current user.");
         }
 
         var deckDto = mapper.Map<DeckDto>(deck);

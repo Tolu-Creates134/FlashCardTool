@@ -27,7 +27,7 @@ public class DeleteDeckCommandHandler : IRequestHandler<DeleteDeckCommand>
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var userId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required.");
+        var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user identifier is required.");
 
         var deckRepository = unitOfWork.Repository<Deck>();
         var categoryRepository = unitOfWork.Repository<Category>();
@@ -49,7 +49,7 @@ public class DeleteDeckCommandHandler : IRequestHandler<DeleteDeckCommand>
 
         if (deck.Category is null || deck.Category.UserId != userId)
         {
-            throw new InvalidOperationException("Cannot delete a deck that does not belong to the current user.");
+            throw new ForbiddenOperationException("Cannot delete a deck that does not belong to the current user.");
         }
 
         if (deck.Category.Decks.Count == 1)

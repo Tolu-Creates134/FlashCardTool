@@ -31,7 +31,7 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, G
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var userId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identified is required");
+        var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user identified is required");
 
         var user =  await unitOfWork.Repository<User>().GetByIdAsync(userId, cancellationToken);
 
@@ -47,5 +47,4 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, G
         );
     }
 }
-
 

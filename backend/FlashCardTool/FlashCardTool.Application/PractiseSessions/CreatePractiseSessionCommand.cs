@@ -36,16 +36,16 @@ public class CreatePractiseSessionCommandHandler : IRequestHandler<CreatePractis
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var userId = currentUserService.UserId ?? throw new InvalidOperationException("Current user identifier is required.");
+        var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException("Current user identifier is required.");
 
         if (request.CorrectCount < 0  || request.TotalCount < 0)
         {
-            throw new InvalidOperationException("Counts must be non-negative");
+            throw new ValidationException("Counts must be non-negative");
         }
 
         if (request.CorrectCount > request.TotalCount)
         {
-            throw new InvalidOperationException("Correct count cannot exceed total count");
+            throw new ValidationException("Correct count cannot exceed total count");
         }
 
         var deckRepository = unitOfWork.Repository<Deck>();
@@ -63,7 +63,7 @@ public class CreatePractiseSessionCommandHandler : IRequestHandler<CreatePractis
 
         if (deck.Category is null || deck.Category.UserId != userId)
         {
-            throw new InvalidOperationException($"Cannot create practise session, deck does not belong to current user");
+            throw new ForbiddenOperationException("Cannot create practise session, deck does not belong to current user");
         }
 
         var accuracy = request.TotalCount == 0 ? 0 : (double)request.CorrectCount / request.TotalCount;
