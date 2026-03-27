@@ -176,8 +176,3 @@ Middleware includes:
 - Request logging
 - Global exception handling
 - Status code standardisation
-
-Mention:
-Build time vs runtime differences
-Why env variables must be injected at build (through the pipeline build) (Ask Chatgpt how the webapp is getting its env variables)
-
