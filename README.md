@@ -24,15 +24,7 @@ Backend API: https://flashcards-api....azurecontainerapps.io/swagger
 - CI/CD pipeline via GitHub Actions
 
 ## Architecture Overview
-
-- DESIGN AND PLACE HERE
-
-React (Azure Static Web Apps)
-        ↓
-.NET API (Azure Container Apps, Docker)
-        ↓
-Azure SQL Database
-
+<img width="1057" height="718" alt="Screenshot 2026-03-27 at 15 44 24" src="https://github.com/user-attachments/assets/aac4552d-f171-4204-99fb-1fbbf7fa8c14" />
 
 ## 🛠 Tech Stack
 
