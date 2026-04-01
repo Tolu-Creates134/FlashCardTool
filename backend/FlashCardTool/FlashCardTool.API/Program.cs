@@ -78,7 +78,8 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins(
                 "http://localhost:3000",
-                "https://black-ocean-02c9a7803.2.azurestaticapps.net"
+                "https://black-ocean-02c9a7803.2.azurestaticapps.net",
+                "https://www.flash-learn.online"
             )
             .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .WithHeaders("Content-Type", "Authorization")
