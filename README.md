@@ -10,7 +10,8 @@ The platform is designed with scalability in mind and includes AI-powered flashc
 
 ## 🌍 Live Demo
 
-Frontend: https://www.flash-learn.online/
+Frontend: https://www.flash-learn.online
+
 Backend API: https://api.flash-learn.online/swagger/index.html
 
 ## ✨ Features
