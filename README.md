@@ -10,8 +10,8 @@ The platform is designed with scalability in mind and includes AI-powered flashc
 
 ## 🌍 Live Demo
 
-Frontend: https://black-ocean-02c9a7803.2.azurestaticapps.net  
-Backend API: https://flashcards-api....azurecontainerapps.io/swagger
+Frontend: https://www.flash-learn.online/
+Backend API: https://api.flash-learn.online/swagger/index.html
 
 ## ✨ Features
 
