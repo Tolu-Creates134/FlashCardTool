@@ -47,7 +47,7 @@ Backend API: https://api.flash-learn.online/swagger/index.html
 - Azure Static Web Apps
 - Azure Container Registry
 
-## 🔐 Authentication Behaviour (COME BACK TO THIS SECTION TO MAKE SURE IT IS CORRECT)
+## 🔐 Authentication Behaviour
 
 Authentication is handled using Google OAuth and JWT-based cookies.
 
