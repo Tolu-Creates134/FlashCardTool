@@ -16,7 +16,8 @@ obj/
 # EF Core migrations temp files
 
 # ASP.NET secrets and settings
-secrets.json
+**/appsettings.json
+**/appsettings.Development.json
 
 # VS Code settings
 .vscode/
@@ -30,3 +31,4 @@ secrets.json
 
 # VS for Mac
 .vs/
+
