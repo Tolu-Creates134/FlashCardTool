@@ -4,7 +4,7 @@
 
 
 ## 📚 What is FlashLearn?
-FlashCardTool is a web-based study platform that helps users create, manage, and practice flashcards to improve learning and retention.
+FlashLearn is a web-based study platform that helps users create, manage, and practice flashcards to improve learning and retention.
 Users can organise their study materials into decks, track their progress through practice sessions, and securely access their data using Google authentication.
 The platform is designed with scalability in mind and includes AI-powered flashcard generation features, allowing users to quickly turn notes, PDFs, or images into structured study content.
 
