@@ -31,6 +31,9 @@ builder.Services.AddApplication();
 // Infrastructure
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// Application Insights
+builder.Services.AddApplicationInsightsTelemetry();
+
 
 // Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.");
