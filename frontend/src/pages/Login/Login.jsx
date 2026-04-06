@@ -14,6 +14,14 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext)
 
+  const showLoginError = (message) => {
+    window.dispatchEvent(
+      new CustomEvent('api-error', {
+        detail: {message, status: 400}
+      })
+    );
+  };
+
   const handleSuccess = async (credentialResponse) => {
     const googleIdToken = credentialResponse.credential;
 
@@ -31,7 +39,9 @@ const Login = () => {
 
       navigate('/home');
     } catch (error) {
-      console.error('Login failed', error);
+      showLoginError(
+        'Login failed. Please try again.'
+      )
     }
   };
 

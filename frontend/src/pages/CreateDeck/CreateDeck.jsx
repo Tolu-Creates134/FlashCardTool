@@ -14,7 +14,7 @@ import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
  */
 const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onCreateCategory = () => {}}) => {
 
-    const [categories, setCategories] = useState([])
+    const [categories, setCategories] = useState(initialCategories)
     // const [loadingCategories, setLoadingCategories] = useState(true)
     const [creatingCategory, setCreatingCategory] = useState(false);
     // const [categoryError, setCategoryError] = useState("");
@@ -45,6 +45,7 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
             const createdCategory = await createCategory({ name });
             setCategories((prev) => [createdCategory, ...prev]);
             setSelectedCategoryId(createdCategory.id);
+            setSaveError("");
             setNewCategoryName("");
             setShowNewCategoryInput(false);
             onCreateCategory(createdCategory);
@@ -58,6 +59,11 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
     const handleSaveDeck = async () => {
         if (!deckName.trim()) {
             setSaveError("Please provide a deck name before saving.");
+            return;
+        }
+
+        if (!selectedCategoryId) {
+            setSaveError("Please provide a category name before saving")
             return;
         }
 
@@ -130,6 +136,7 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
         try {
             const data = await fetchCategories();
             setCategories(data);
+            setSelectedCategoryId((current) => current || data?.[0]?.id || "");
         } catch (error) {
             console.error('Failed to fetch categories', error);
         } finally {
@@ -200,9 +207,15 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
                 <div className="flex space-x-2">
                     <select
                         value={selectedCategoryId}
-                        onChange={(e) => setSelectedCategoryId(e.target.value)}
+                        onChange={(e) => {
+                            setSelectedCategoryId(e.target.value);
+                            if (saveError) setSaveError("");
+                        }}
                         className="flex-grow p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                     >
+                        <option value="" disabled>
+                            Select a category
+                        </option>
                         {categories.map((category) => (
                             <option key={category.id} value={category.id}>
                                 {category.name}
