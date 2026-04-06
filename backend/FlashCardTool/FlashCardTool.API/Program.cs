@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using FlashCardTool.API.Middleware;
+using Microsoft.ApplicationInsights;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -91,6 +92,17 @@ builder.Services.AddCors(options =>
 });
 
 WebApplication app = builder.Build();
+
+var telemetry = app.Services.GetRequiredService<TelemetryClient>();
+
+AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+{
+    if (args.ExceptionObject is Exception ex)
+    {
+        telemetry.TrackException(ex);
+        telemetry.Flush();
+    }
+};
 
 // CORS
 app.UseCors("AllowFrontend");
