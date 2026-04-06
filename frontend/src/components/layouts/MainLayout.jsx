@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Home as HomeIcon,
   Plus as PlusIcon,
@@ -9,7 +9,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../context/Authcontext";
 import { Outlet } from "react-router-dom";
-import ErrorToastr from "../ErrorToastr";
 
 /**
  * Main layout compnent
@@ -20,24 +19,12 @@ const MainLayout = () => {
   const location = useLocation();
   const { logout, user } = useContext(AuthContext);
 
-  const [apiError, setApiError] = useState(null)
 
   const currentPage =
   location.pathname === "/home" ? "home" 
   : location.pathname === "/create-deck"
   ? "create-deck"
   : "";
-
-  useEffect(() => {
-    const handleApiError = (event) => {
-      const detail = event?.detail || {};
-      setApiError({id: Date.now(), message: detail.message || 'Request failed'});
-    };
-
-    window.addEventListener('api-error', handleApiError);
-
-    return () => window.removeEventListener('api-error', handleApiError)
-  }, [])
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -110,14 +97,6 @@ const MainLayout = () => {
       <footer className="bg-gray-100 p-4 text-center text-gray-600 text-sm">
         <p>FlashLearn - Your AI-Powered Study Companion</p>
       </footer>
-
-      {apiError && (
-        <ErrorToastr
-          message={apiError.message}
-          onClose={() => setApiError(null)}
-          id={apiError.id}
-        />
-      )}
     </div>
   );
 };

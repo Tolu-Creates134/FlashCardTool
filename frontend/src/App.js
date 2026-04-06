@@ -12,6 +12,7 @@ import Scores from './pages/Scores/Scores';
 import LandingPage from './pages/LandingPage';
 import Signup from './pages/Signup/Signup';
 import { AuthContext } from './context/Authcontext';
+import GlobalErrorToastr from './components/GlobalErrorToastr';
 
 const AuthGate = ({ children }) => {
   const { authReady } = useContext(AuthContext);
@@ -54,6 +55,8 @@ const PublicOnlyRoute = () => {
 function App() {
   return (
     <AuthGate>
+      <GlobalErrorToastr />
+
       <Routes>
         <Route element={<PublicOnlyRoute />}>
           <Route path='/' element={<LandingPage />} />
