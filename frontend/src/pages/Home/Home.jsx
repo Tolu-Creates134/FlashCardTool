@@ -28,7 +28,7 @@ const Home = () => {
         setCategories(catData);
         setDecks(Array.isArray(deckData) ? deckData : deckData?.decks ?? []);
       } catch (err) {
-        console.error('Failed to load data:', err);
+        
       } finally {
         setLoading(false);
       }
@@ -37,11 +37,11 @@ const Home = () => {
     loadData();
   }, []);
 
-  useEffect(() => {
-    if (decks.length > 0) {
-      console.log('Deck state updated:', decks);
-    }
-  }, [decks]); 
+  // useEffect(() => {
+  //   if (decks.length > 0) {
+  //     console.log('Deck state updated:', decks);
+  //   }
+  // }, [decks]); 
 
   // Create new deck
   const handleCreateDeck =  () => {
