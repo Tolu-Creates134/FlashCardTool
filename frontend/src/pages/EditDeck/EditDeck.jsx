@@ -136,7 +136,7 @@ const EditDeck = () => {
             await updateDeck(deckId, payload)
             navigate(`/decks/${deckId}`)
         } catch (err) {
-            console.error('Failed to update deck', err);
+            // console.error('Failed to update deck', err);
             // const message = 
             // err.message || 'Unable to save deck. Please try again.';
             // setError(message);

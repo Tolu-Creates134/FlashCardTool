@@ -86,7 +86,7 @@ public static class DeckEndpoints
         ) =>
         {
             await mediator.Send(new UpdateDeckByDeckIdCommand(deckId, deckData), cancellationToken);
-            return Results.Ok(new { message = "Deck updated successfully" });
+            return Results.NoContent();
         })
         .WithName("UpdateDeckByDeckId")
         .WithDescription("Updates a deck and its corresponding flashcards")

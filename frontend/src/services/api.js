@@ -139,8 +139,7 @@ export const createDeck = async (deckData) => {
  * @returns 
  */
 export const deleteDeck = async (deckId) => {
-  const res = await api.delete(`decks/${deckId}`);
-  return res.data;
+  await api.delete(`decks/${deckId}`);
 }
 
 /**
@@ -160,11 +159,7 @@ export const fetchDeckById = async (deckId) => {
  * @returns 
  */
 export const updateDeck = async (deckId, deckData) => {
-  const res = await api.put(
-    `/decks/${deckId}`,
-    deckData
-  )
-  return res.data
+  await api.put(`/decks/${deckId}`, deckData)
 }
 
 /**
