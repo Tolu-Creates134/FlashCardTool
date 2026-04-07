@@ -204,3 +204,16 @@ Middleware includes:
 - Request logging
 - Global exception handling
 - Status code standardisation
+
+
+### Future Work Section
+
+```markdown
+## 🔮 Future Work
+- [ ] PDF and image upload for AI flashcard generation
+- [ ] Rate limiting on AI endpoints
+- [ ] Unit and integration test coverage
+- [ ] Admin dashboard
+- [ ] Dark mode
+```
+
