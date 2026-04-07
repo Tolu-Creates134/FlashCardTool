@@ -4,9 +4,11 @@
 
 
 ## 📚 What is FlashLearn?
-FlashLearn is a web-based study platform that helps users create, manage, and practice flashcards to improve learning and retention.
-Users can organise their study materials into decks, track their progress through practice sessions, and securely access their data using Google authentication.
-The platform is designed with scalability in mind and includes AI-powered flashcard generation features, allowing users to quickly turn notes, PDFs, or images into structured study content.
+FlashLearn is a full-stack SaaS study platform built with .NET 9 and React, deployed to Azure with a fully automated CI/CD pipeline.
+Users can create AI-powered flashcard decks, track practice sessions, and study smarter — all secured with Google OAuth and JWT authentication.
+
+Built as a personal project to demonstrate production-grade software engineering practices including Clean Architecture, 
+CQRS, containerisation, and cloud deployment.
 
 ## 🌍 Live Demo
 
