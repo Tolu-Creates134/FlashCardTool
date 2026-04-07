@@ -18,13 +18,14 @@ Backend API: https://api.flash-learn.online/swagger/index.html
 
 ## ✨ Features
 
-- Google OAuth authentication
-- JWT-based authorization
-- Role-based access control
-- Create, edit and delete decks
-- Flashcard tracking & practice sessions
-- Cloud deployment with Azure
-- CI/CD pipeline via GitHub Actions
+- 🤖 AI-powered flashcard generation using OpenAI GPT-4
+- 🔐 Google OAuth authentication with JWT cookies
+- 📊 Practice session tracking with accuracy scoring
+- 🏗️ Clean Architecture with CQRS pattern
+- 🐳 Dockerised API deployed to Azure Container Apps
+- 🔄 Fully automated CI/CD pipeline via GitHub Actions
+- 📈 Application monitoring with Azure Application Insights
+- 🗄️ Database migrations automated in pipeline
 
 ## Architecture Overview
 <img width="1057" height="718" alt="Screenshot 2026-03-27 at 15 44 24" src="https://github.com/user-attachments/assets/aac4552d-f171-4204-99fb-1fbbf7fa8c14" />
