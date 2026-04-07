@@ -52,29 +52,53 @@ Backend API: https://api.flash-learn.online/swagger/index.html
 
 ## 🔐 Authentication Behaviour
 
-Authentication is handled using Google OAuth and JWT-based cookies.
+This application uses Google Sign-In **only to verify the user's identity**. 
+After Google authentication succeeds, the backend issues its own JWT-based 
+session. Google is not involved in session management after the initial login.
 
 ### Login Flow
 
-1. User initiates Google sign-in
-2. Browser is redirected to backend OAuth endpoint
-3. Backend redirects to Google
-4. Google returns identity token
-5. Backend validates token
-6. JWT is generated and stored in a secure HTTP-only cookie
+1. User clicks "Sign in with Google" on the frontend
+2. Google Identity Services returns a Google `idToken` to the frontend
+3. Frontend sends that token to `POST /api/auth/google-login`
+4. Backend validates the Google token against the configured Google Client ID
+5. If valid, the backend creates or updates the user in the local database
+6. Backend generates two tokens:
+   - A short-lived **JWT access token** (15 minutes)
+   - A long-lived **refresh token** (30 days)
+7. Both tokens are stored in secure `HttpOnly` cookies
+8. Protected API endpoints read the JWT from the `access_token` cookie
+9. When the access token expires, the client calls `POST /api/auth/refresh` 
+   to rotate and renew both tokens
+
+### JWT Claims
+
+The JWT contains the following application user claims:
+- `userId`
+- `email`
+- `name`
+- `picture`
 
 ### Session Management
 
-- JWT stored in HTTP-only cookie
-- Automatically sent with each request
-- No manual token handling in frontend
+| | Detail |
+|---|---|
+| Access token lifetime | 15 minutes |
+| Refresh token lifetime | 30 days |
+| Storage | HttpOnly cookies |
+| Token rotation | Yes — both tokens rotated on refresh |
 
 ### Security Considerations
 
-- HTTP-only cookies prevent XSS attacks
-- SameSite=None + Secure required for cross-origin requests
-- Backend validates all incoming tokens
-
+- `HttpOnly` cookies prevent JavaScript from accessing tokens, 
+   protecting against XSS attacks
+- `SameSite=None` + `Secure` required for cross-origin requests 
+   between frontend and API
+- Google is only used to **prove identity once** — the app manages 
+   its own session entirely via JWT
+- All protected routes validate the JWT issuer, audience, 
+   signature and lifetime on every request
+  
 ## ⚠️ Environment Variables
 
 ### Frontend (Build-Time Injection)
