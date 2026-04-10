@@ -98,6 +98,101 @@ The JWT contains the following application user claims:
    its own session entirely via JWT
 - All protected routes validate the JWT issuer, audience, 
    signature and lifetime on every request
+
+## 🚨 Global Error Handling
+
+All API errors are handled centrally through a combination of an Axios 
+interceptor, a custom browser event, and a single top-level toast component.
+This means no individual component needs its own error handling logic for 
+API failures — errors are caught and displayed automatically across the 
+entire application.
+
+---
+
+### How It Works
+
+#### 1. Axios Response Interceptor
+Every API response passes through a global interceptor in `api.js`. 
+Successful responses are returned as-is. Failed responses are passed 
+to `emitApiError()` which:
+
+- Extracts the error message from `response.data.message`, 
+  `response.data.error`, or `error.message`
+- Dispatches a custom `api-error` event on the browser `window` object
+
+```javascript
+window.dispatchEvent(new CustomEvent('api-error', {
+    detail: { message, statusCode }
+}));
+```
+
+#### 2. Global Error Toast Component
+A single `GlobalErrorToastr` component is mounted at the top level 
+in `App.js` and is always listening while the app is running. It:
+
+- Subscribes to the `api-error` window event
+- Stores the latest error message in local state
+- Renders a toast notification portaled to `document.body`
+- Auto-dismisses after 5 seconds
+- Can also be manually dismissed by the user
+
+Because it lives at the top of the component tree, it catches errors 
+from any part of the application without any additional wiring.
+
+---
+
+### Auth Error Handling & Token Refresh
+
+There is a dedicated branch in the interceptor for `401 Unauthorized` 
+responses:
+
+1. The interceptor attempts a silent token refresh via `POST /auth/refresh`
+2. If refresh succeeds, the original request is automatically retried once
+3. If refresh fails with `401`, `403`, or a missing refresh token:
+   - An error event is emitted
+   - The user is logged out via `logoutManager.js`
+   - The user is redirected to `/`
+
+This means expired sessions are handled transparently — the user 
+will not notice their token was refreshed unless the refresh itself fails.
+
+---
+
+### Login Error Handling
+
+The login page manually dispatches the same `api-error` event on 
+Google login failure. This keeps login errors consistent with the 
+rest of the application rather than using a separate local alert.
+
+---
+
+### Behaviour Summary
+
+| Scenario | Behaviour |
+|---|---|
+| API request fails | Error toast shown automatically |
+| Access token expired | Silent refresh attempted, request retried |
+| Refresh token expired | User logged out and redirected to `/` |
+| Google login fails | Same global error toast shown |
+| Multiple errors | Only the latest error message is shown |
+
+---
+
+### Architecture Diagram
+
+```
+API Request fails
+      ↓
+Axios interceptor catches error
+      ↓
+emitApiError() extracts message + status code
+      ↓
+window.dispatchEvent('api-error')
+      ↓
+GlobalErrorToastr (always mounted in App.js)
+      ↓
+Toast displayed to user (auto-closes after 5 seconds)
+```
   
 ## ⚠️ Environment Variables
 
