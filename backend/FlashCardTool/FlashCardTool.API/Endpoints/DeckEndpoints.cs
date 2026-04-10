@@ -93,7 +93,7 @@ public static class DeckEndpoints
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status500InternalServerError);
     }
-
+    
     private static void CreatePraciseSession(RouteGroupBuilder group)
     {
         group.MapPost("/{deckId:guid}/practise-sessions", async (
@@ -142,7 +142,6 @@ public static class DeckEndpoints
         .Produces<ListPractiseSessionsByDeckIdQueryResponse>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status404NotFound);
     }
-
 
     public static void DefineEndpoints(WebApplication app)
     {
