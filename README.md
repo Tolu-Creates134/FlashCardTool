@@ -153,15 +153,12 @@ responses:
 This means expired sessions are handled transparently — the user 
 will not notice their token was refreshed unless the refresh itself fails.
 
----
 
 ### Login Error Handling
 
 The login page manually dispatches the same `api-error` event on 
 Google login failure. This keeps login errors consistent with the 
 rest of the application rather than using a separate local alert.
-
----
 
 ### Behaviour Summary
 
@@ -172,8 +169,6 @@ rest of the application rather than using a separate local alert.
 | Refresh token expired | User logged out and redirected to `/` |
 | Google login fails | Same global error toast shown |
 | Multiple errors | Only the latest error message is shown |
-
----
 
 ### Architecture Diagram
 
