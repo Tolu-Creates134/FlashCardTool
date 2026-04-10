@@ -153,7 +153,6 @@ responses:
 This means expired sessions are handled transparently — the user 
 will not notice their token was refreshed unless the refresh itself fails.
 
-
 ### Login Error Handling
 
 The login page manually dispatches the same `api-error` event on 
