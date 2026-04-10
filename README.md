@@ -107,8 +107,6 @@ This means no individual component needs its own error handling logic for
 API failures — errors are caught and displayed automatically across the 
 entire application.
 
----
-
 ### How It Works
 
 #### 1. Axios Response Interceptor
@@ -139,7 +137,6 @@ in `App.js` and is always listening while the app is running. It:
 Because it lives at the top of the component tree, it catches errors 
 from any part of the application without any additional wiring.
 
----
 
 ### Auth Error Handling & Token Refresh
 
