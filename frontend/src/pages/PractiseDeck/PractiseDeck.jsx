@@ -84,7 +84,7 @@ const PractiseDeck = () => {
       // setSavingSession(true);
       await createPractiseSession(deckId, payload);
     } catch (err) {
-      console.error('Failed to save practise session', err);
+      // console.error('Failed to save practise session', err);
     } finally {
       //setSavingSession(false);
     }
