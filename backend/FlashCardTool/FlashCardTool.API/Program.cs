@@ -24,6 +24,35 @@ builder.Services.AddSwaggerGen(options =>
         Title = "FlashCardTool API",
         Version = "v1"
     });
+
+    if(!builder.Environment.IsDevelopment())
+    {
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Paste your JWT access token here"
+        });
+
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
+    }
+
 });
 
 // Application
@@ -34,7 +63,6 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 // Application Insights
 builder.Services.AddApplicationInsightsTelemetry();
-
 
 // Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.");
@@ -67,6 +95,15 @@ builder.Services
                 if (!string.IsNullOrWhiteSpace(accessToken))
                 {
                     context.Token = accessToken;
+                    return Task.CompletedTask;
+                }
+
+                // Fall back to Authorization header — Swagger flow
+                var authHeader = context.Request.Headers["Authorization"].ToString();
+
+                if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
+                    context.Token = authHeader.Substring("Bearer ".Length).Trim();
                 }
 
                 return Task.CompletedTask;
