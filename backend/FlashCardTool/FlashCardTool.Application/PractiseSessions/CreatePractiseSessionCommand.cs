@@ -77,6 +77,7 @@ public class CreatePractiseSessionCommandHandler : IRequestHandler<CreatePractis
             CompletionTime = request.CompletionTime,
             Accuracy = accuracy,
             ResponseJson = request.ResponseJson,
+            CreatedAt = DateTime.UtcNow
         };
 
         var created = await unitOfWork.Repository<PractiseSession>().AddAsync(session, cancellationToken);

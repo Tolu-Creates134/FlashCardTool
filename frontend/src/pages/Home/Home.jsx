@@ -37,18 +37,10 @@ const Home = () => {
     loadData();
   }, []);
 
-  // useEffect(() => {
-  //   if (decks.length > 0) {
-  //     console.log('Deck state updated:', decks);
-  //   }
-  // }, [decks]); 
-
-  // Create new deck
-  const handleCreateDeck =  () => {
-    navigate('/create-deck')
+  const handleCreateDeck =  (categoryId) => {
+    navigate(categoryId ? `/create-deck/${categoryId}` : '/create-deck');
   };
 
-  // View Flashcards within deck
   const handleSelectDeck = async (deckId) => {
     navigate(`/decks/${deckId}`);
   };

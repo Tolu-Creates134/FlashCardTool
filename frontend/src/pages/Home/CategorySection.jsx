@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { FolderIcon } from "lucide-react";
 import DeckGrid from './DeckGrid';
 
@@ -8,9 +8,6 @@ import DeckGrid from './DeckGrid';
  * @returns 
  */
 const CategorySection = ({ category, decks, categories, onCreateDeck, onSelectDeck }) => {
-
-  useEffect(() => {
-  }, [])
 
   return (
     <div key={category.id} className="mb-8">
@@ -23,6 +20,7 @@ const CategorySection = ({ category, decks, categories, onCreateDeck, onSelectDe
         categories={categories}
         onSelectDeck={onSelectDeck}
         onCreateDeck={onCreateDeck}
+        existingCategoryId={category.id}
       />
     </div>
   )

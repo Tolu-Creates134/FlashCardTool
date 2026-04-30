@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import { PlusIcon } from "lucide-react";
 import { generateUniqueId } from '../../utils/helpers';
 import { createCategory, fetchCategories, createDeck } from '../../services/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AiFlashcardGenerator from '../../components/AiFlashcardGenerator';
 import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
 
@@ -14,8 +14,9 @@ import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
  */
 const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onCreateCategory = () => {}}) => {
 
+    const { categoryId } = useParams();
+
     const [categories, setCategories] = useState(initialCategories)
-    // const [loadingCategories, setLoadingCategories] = useState(true)
     const [creatingCategory, setCreatingCategory] = useState(false);
     // const [categoryError, setCategoryError] = useState("");
 
@@ -136,7 +137,10 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
         try {
             const data = await fetchCategories();
             setCategories(data);
-            setSelectedCategoryId((current) => current || data?.[0]?.id || "");
+
+            const hasRequestedCategory = data?.some((category) => String(category.id) === String(categoryId));
+            
+            setSelectedCategoryId(hasRequestedCategory ? categoryId : data?.[0]?.id || "");
         } catch (error) {
             console.error('Failed to fetch categories', error);
         } finally {
