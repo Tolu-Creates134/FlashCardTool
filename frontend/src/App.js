@@ -67,7 +67,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout/>}>
             <Route path='/home' element={<Home/>} />
-            <Route path='/create-deck' element={<CreateDeck/>} />
+            <Route path='/create-deck/:categoryId?' element={<CreateDeck/>} />
             <Route path='/decks/:deckId' element={<ViewDeck/>} />
             <Route path='/decks/:deckId/practise' element={<PractiseDeck/>} />
             <Route path='/decks/:deckId/edit' element={<EditDeck/>}/>
