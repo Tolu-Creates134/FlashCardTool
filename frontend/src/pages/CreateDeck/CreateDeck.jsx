@@ -133,23 +133,24 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
         setSaveError("");
     };
 
-    const loadCategories = async () => {
-        try {
-            const data = await fetchCategories();
-            setCategories(data);
-
-            const hasRequestedCategory = data?.some((category) => String(category.id) === String(categoryId));
-            
-            setSelectedCategoryId(hasRequestedCategory ? categoryId : data?.[0]?.id || "");
-        } catch (error) {
-            console.error('Failed to fetch categories', error);
-        } finally {
-        }
-    };
-
     useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const data = await fetchCategories();
+                setCategories(data);
+
+                const hasRequestedCategory = data?.some(
+                    (category) => String(category.id) === String(categoryId)
+                );
+
+                setSelectedCategoryId(hasRequestedCategory ? categoryId : data?.[0]?.id || "");
+            } catch (error) {
+                console.error('Failed to fetch categories', error);
+            }
+        };
+
         loadCategories();
-    }, [])
+    }, [categoryId])
 
   return (
     <div className="max-w-4xl mx-auto">
