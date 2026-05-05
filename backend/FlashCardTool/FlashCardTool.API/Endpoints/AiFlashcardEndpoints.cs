@@ -4,6 +4,7 @@ using FlashCardTool.Application.AiFlashCards;
 using FlashCardTool.Application.Common.Enums;
 using FlashCardTool.Application.Models;
 using MediatR;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlashCardTool.API.Endpoints;
@@ -140,7 +141,8 @@ public static class AiFlashcardEndpoints
         var decks = app
         .MapGroup(RoutePrefix)
         .WithTags("AI Flashcards")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .RequireRateLimiting("ai");
 
         GenerateForDeck(decks);
         GeneratePreview(decks);
