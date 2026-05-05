@@ -1,41 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import EmptyState from '../../components/EmptyState';
 import CategorySection from './CategorySection';
 import DeckGrid from './DeckGrid';
-import { fetchCategories, fetchDecks } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
+import { useCategoriesQuery } from '../../hooks/queries/useCategoriesQuery';
+import { useDecksQuery } from '../../hooks/queries/useDecksQuery';
 
 /**
  * Displays the home page content after user logs
  * @returns 
  */
 const Home = () => {
-  const [categories, setCategories] = useState([]);
-  const [decks, setDecks] = useState([]);
   const [activeTab, setActiveTab] = useState('categories');
-  const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const [catData, deckData] = await Promise.all([
-          fetchCategories(),
-          fetchDecks(),
-        ]);
-        setCategories(catData);
-        setDecks(Array.isArray(deckData) ? deckData : deckData?.decks ?? []);
-      } catch (err) {
-        
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    isError: categoriesError
+  } = useCategoriesQuery();
 
-    loadData();
-  }, []);
+  const {
+    data: decks = [],
+    isLoading: decksLoading,
+    isError: decksError
+  } = useDecksQuery()
+
+  const loading = categoriesLoading || decksLoading;
+  const error = categoriesError || decksError;
 
   const handleCreateDeck =  (categoryId) => {
     navigate(categoryId ? `/create-deck/${categoryId}` : '/create-deck');
@@ -50,6 +42,14 @@ const Home = () => {
       return (
         <div className='flex justify-center items-center py-10'>
           <p className='text-gray-500'>Loading your study materials...</p>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className='flex justify-center items-center py-10'>
+          <p className='text-red-600'>Unable to load your study materials.</p>
         </div>
       );
     }
