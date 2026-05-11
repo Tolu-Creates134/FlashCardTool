@@ -11,17 +11,19 @@ const CategorySection = ({ category, decks, categories, onCreateDeck, onSelectDe
 
   return (
     <div key={category.id} className="mb-8">
-      <div>
+      <div className="flex items-center">
         <FolderIcon size={20} className="text-indigo-500 mr-2" />
         <h2 className="text-xl font-semibold text-gray-800">{category.name}</h2>
       </div>
-      <DeckGrid
-        decks={decks.filter((deck) => deck.categoryId === category.id)}
-        categories={categories}
-        onSelectDeck={onSelectDeck}
-        onCreateDeck={onCreateDeck}
-        existingCategoryId={category.id}
-      />
+      <div className="mt-4">
+        <DeckGrid
+          decks={decks.filter((deck) => deck.categoryId === category.id)}
+          categories={categories}
+          onSelectDeck={onSelectDeck}
+          onCreateDeck={onCreateDeck}
+          existingCategoryId={category.id}
+        />
+      </div>
     </div>
   )
 }

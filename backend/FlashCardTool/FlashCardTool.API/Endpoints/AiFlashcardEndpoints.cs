@@ -100,9 +100,11 @@ public static class AiFlashcardEndpoints
                     request.Text,
                     request.File?.FileName,
                     request.File?.ContentType,
-                    fileStream),
+                    fileStream
+                ),
                 request.Instructions?.Trim(),
-                request.TargetCardCount);
+                request.TargetCardCount
+            );
 
             var result = await mediator.Send(command, cancellationToken);
             return Results.Ok(result);

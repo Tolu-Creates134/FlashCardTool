@@ -23,8 +23,13 @@ public static class InfrastructureConfiguration
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-        services.AddScoped<IContentExtractionService, DefaultContentExtractionService>();
+        services.AddScoped<IContentExtractionService, ContentExtractionService>();
+        services.AddScoped<IContentExtractionService, ContentExtractionService>();
+        services.AddScoped<IContentExtractor, TextContentExtractor>();
+        services.AddScoped<IContentExtractor, PdfContentExtractor>();
+        services.AddScoped<IContentExtractor, ImageContentExtractor>();
 
+        services.AddHttpClient<IImageTextExtractionService, OpenAiImageTextExtractionService>();
         services.AddHttpClient<IAiFlashcardGenerationService, OpenAiFlashcardGenerationService>();
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
