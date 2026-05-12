@@ -19,30 +19,60 @@ jobs:
         with:
           submodules: true
           lfs: false
+
       # ── Frontend ──────────────────────────────────────────
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_OCEAN_02C9A7803 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "./frontend" # App source code path
-          api_location: "" # Api source code path - optional
-          output_location: "build" # Built app content directory - optional
+          app_location: "./frontend"
+          api_location: ""
+          output_location: "build"
         env:
           REACT_APP_API_BASE_URL: ${{ secrets.REACT_APP_API_BASE_URL }}
           REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
-          ###### End of Repository/Build Configurations ######
-      # ── Backend: DB Migration ──────────────────────────────
-      - name: Install EF Tools
-        run: dotnet tool install --global dotnet-ef
+
+      # ── Backend: Setup & Test ──────────────────────────────
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
 
       - name: Restore NuGet Packages
         run: dotnet restore
         working-directory: ./backend/FlashCardTool
+
+      - name: Run Backend Tests
+        run: |
+          dotnet test \
+            --no-restore \
+            --verbosity normal \
+            --logger "trx;LogFileName=test-results.trx" \
+            --results-directory ./TestResults
+        working-directory: ./backend/FlashCardTool
+
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Backend Test Results
+          path: ./backend/FlashCardTool/TestResults/*.trx
+          reporter: dotnet-trx
+          fail-on-error: true
+
+      - name: Upload Test Results Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: ./backend/FlashCardTool/TestResults/*.trx
+
+      # ── Backend: DB Migration ──────────────────────────────
+      - name: Install EF Tools
+        run: dotnet tool install --global dotnet-ef
 
       - name: Run Migrations
         run: |
@@ -61,6 +91,7 @@ jobs:
           Jwt__Issuer: ${{ secrets.JWT_ISSUER }}
           Jwt__Audience: ${{ secrets.JWT_AUDIENCE }}
           ApplicationInsights__ConnectionString: ${{ secrets.APP_INSIGHTS_CONNECTION_STRING }}
+
       # ── Backend: Build & Push Docker Image ────────────────
       - name: Azure Login
         uses: azure/login@v2
@@ -77,6 +108,7 @@ jobs:
             -t flashcardsappacr.azurecr.io/flashcards-api:latest \
             --push \
             ./backend/FlashCardTool
+
       # ── Backend: Update Container App ─────────────────────
       - name: Update Container App
         run: |
@@ -98,4 +130,3 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_OCEAN_02C9A7803 }}
           action: "close"
-
