@@ -59,7 +59,7 @@ jobs:
         if: always()
         with:
           name: Backend Test Results
-          path: ./backend/FlashCardTool/TestResults/*.trx
+          path: ${{ github.workspace }}/TestResults/*.trx
           reporter: dotnet-trx
           fail-on-error: true
 
@@ -68,7 +68,7 @@ jobs:
         if: always()
         with:
           name: test-results
-          path: ./backend/FlashCardTool/TestResults/*.trx
+          path: ${{ github.workspace }}/TestResults/*.trx
 
       # ── Backend: DB Migration ──────────────────────────────
       - name: Install EF Tools
