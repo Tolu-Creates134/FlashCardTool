@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchDeckById, fetchPractiseSessions } from '../../services/api';
+import { useDeckQuery } from '../../hooks/queries/useDeckQuery';
+import { usePractiseSessionsQuery } from '../../hooks/queries/usePractiseSessionsQuery';
 import { Trophy } from 'lucide-react';
 
 /**
@@ -11,30 +12,29 @@ const Scores = () => {
   const navigate = useNavigate();
   const { deckId } = useParams();
 
-  const [loading, setLoading] = useState(false);
-  const [practiseSessions, setPractiseSessions] = useState([]);
-  const [deck, setDeck] = useState(null);
+  const {
+    data: practiseSessions = [],
+    isLoading: sessionsLoading,
+    isError: sessionsError,
+    error: sessionsQueryError
+  } = usePractiseSessionsQuery(deckId)
 
-  useEffect(() => {
-    const loadData =  async () => {
-      try {
-        setLoading(true);
-        const [sessionData, deckData] = await Promise.all([
-          fetchPractiseSessions(deckId),
-          fetchDeckById(deckId)
-        ]);
+  const {
+    data: deck = null,
+    isLoading: deckLoading,
+    isError: deckError,
+    error: deckQueryError
+  } = useDeckQuery(deckId)
 
-        setPractiseSessions(sessionData.sessions || []);
-        setDeck(deckData?.deck || null)
-      } catch (error) {
-        console.log(error)
-      } finally {
-        setLoading(false)
-      }
-    }
+  const loading = deckLoading || sessionsLoading
 
-    loadData();
-  }, [deckId]);
+  const error = 
+  deckQueryError?.message || 
+  sessionsQueryError?.message ||
+  (deckError || sessionsError
+    ? 'Unable to load scores. Please try again.'
+    : ''
+  );
 
   const rows = useMemo(() => {
     return practiseSessions.map((session) => ({
@@ -52,6 +52,20 @@ const Scores = () => {
         : '—'
     }));
   }, [practiseSessions]);
+
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+        <p className="text-red-600 mb-4">{error}</p>
+        <button
+          className="px-4 py-2 bg-indigo-600 text-white rounded"
+          onClick={() => navigate(`/decks/${deckId}`)}
+        >
+          Back to Deck
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto">

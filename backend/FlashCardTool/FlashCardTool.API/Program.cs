@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using FlashCardTool.API.Middleware;
 using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.RateLimiting;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,6 +55,22 @@ builder.Services.AddSwaggerGen(options =>
     }
 
 });
+
+// Rate limiting — production only
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.AddFixedWindowLimiter("ai", opt =>
+        {
+            opt.Window = TimeSpan.FromHours(1);
+            opt.PermitLimit = 20;
+            opt.QueueLimit = 0;
+        });
+
+        options.RejectionStatusCode = 429;
+    });
+}
 
 // Application
 builder.Services.AddApplication();
@@ -152,6 +169,12 @@ app.UseMiddleware<StatusCodePageMiddleware>();
 //Auth
 app.UseAuthentication();
 app.UseAuthorization();
+
+// OpenAI API Rate limiting
+if (!app.Environment.IsDevelopment())
+{
+    app.UseRateLimiter();
+}
 
 // Endpoints
 app.RegisterAllEndpoints();

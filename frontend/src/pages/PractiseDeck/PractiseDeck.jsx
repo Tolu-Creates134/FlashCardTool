@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchDeckById, fetchFlashcardsByDeckId, createPractiseSession } from '../../services/api';
+import { useDeckQuery } from '../../hooks/queries/useDeckQuery';
+import { useFlashcardsQuery } from '../../hooks/queries/useFlashcardsQuery';
+import { useCreatePractiseSessionMutation } from '../../hooks/mutations/useCreatePractiseSessionMutation';
 
 /**
  * Practise Deck component
@@ -12,43 +14,38 @@ const PractiseDeck = () => {
 
   const sessionStartRef = useRef(null);
   const hasSavedSessionRef = useRef(false);
-  // const [savingSession, setSavingSession] = useState(false);
-
-  const [deck, setDeck] = useState(null);
-  const [flashcards, setFlashcards] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [responses, setResponses] = useState([]);
   const [isFinished, setIsFinished] = useState(false);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setError('');
-        setLoading(true);
-        const [deckData, flashcardData] = await Promise.all([
-          fetchDeckById(deckId),
-          fetchFlashcardsByDeckId(deckId),
-        ]);
-        console.log(flashcardData)
-        setDeck(deckData.deck ?? deckData);
-        setFlashcards(flashcardData?.flashCards || flashcardData || []);
-        if (!sessionStartRef.current) {
-          sessionStartRef.current = Date.now();
-        }
-      } catch (err) {
-        console.error(`Failed to load practice deck ${deckId}`, err);
-        setError('Unable to load deck for practice. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {
+    data: deck = null,
+    isLoading: deckLoading,
+    isError: deckError,
+    error: deckQueryError,
+  } = useDeckQuery(deckId);
 
-    loadData();
-  }, [deckId]);
+  const {
+    data: flashcards = [],
+    isLoading: flashcardsLoading,
+    isError: flashcardsError,
+    error: flashcardsQueryError,
+  } = useFlashcardsQuery(deckId);
+
+  const createPractiseSessionMutation = useCreatePractiseSessionMutation();
+
+  const loading = deckLoading || flashcardsLoading;
+
+  const error =
+  deckQueryError?.message ||
+  flashcardsQueryError?.message ||
+  createPractiseSessionMutation.error?.message ||
+  (deckError || flashcardsError
+    ? 'Unable to load deck for practice. Please try again.'
+    : ''
+  );
 
   const currentCard = flashcards[currentIndex];
   const currentCardId = currentCard?.id ?? `card-${currentIndex}`;
@@ -81,12 +78,12 @@ const PractiseDeck = () => {
     };
 
     try {
-      // setSavingSession(true);
-      await createPractiseSession(deckId, payload);
+      await createPractiseSessionMutation.mutateAsync({
+        deckId,
+        sessionData: payload,
+      });
     } catch (err) {
-      // console.error('Failed to save practise session', err);
-    } finally {
-      //setSavingSession(false);
+      hasSavedSessionRef.current = false;
     }
   };
 
@@ -147,6 +144,12 @@ const PractiseDeck = () => {
     setIsFinished(true);
     persistPracticeSession(responses);
   };
+
+  useEffect(() => {
+    if (!loading && deck && sessionStartRef.current === null) {
+      sessionStartRef.current = Date.now();
+    }
+  }, [loading, deck]);
 
   if (loading) {
     return (

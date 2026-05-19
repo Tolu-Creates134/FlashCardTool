@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchCategories, fetchDeckById, fetchFlashcardsByDeckId, updateDeck } from '../../services/api';
 import { PlusIcon, Trash2 } from 'lucide-react';
 import AiFlashcardGenerator from '../../components/AiFlashcardGenerator';
 import { generateUniqueId } from '../../utils/helpers';
 import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
+import { useDeckQuery } from '../../hooks/queries/useDeckQuery';
+import { useFlashcardsQuery } from '../../hooks/queries/useFlashcardsQuery';
+import { useCategoriesQuery } from '../../hooks/queries/useCategoriesQuery';
+import { useUpdateDeckMutation } from '../../hooks/mutations/useUpdateDeckMutation';
 
 /**
  * Edit deck component
@@ -18,42 +21,60 @@ const EditDeck = () => {
     const [deckDescription, setDeckDescription] = useState('');
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
     const [flashcards, setFlashcards] = useState([]); // [{id?, question, answer, _localId}]
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [isSaving, setIsSaving] = useState(false);
     const [flashcardError, setFlashcardError] = useState('');
     const [saveError, setSaveError] = useState('');
     const [newQuestion, setNewQuestion] = useState('');
     const [newAnswer, setNewAnswer] = useState('');
     const [flashcardToDelete, setFlashcardToDelete] = useState(null);
-    // const [error, setError] = useState('')
+    const [hasHydratedForm, setHasHydratedForm] = useState(false);
 
     // stable local ids for rendering new cards without server ids
     const withLocalIds = (cards) => 
     cards.map((c) => ({ ...c, _localId: c._localId || generateUniqueId() }));
 
+    const {
+        data: deck = null,
+        isLoading: deckLoading,
+        isError: deckError,
+        error: deckQueryError
+    } = useDeckQuery(deckId);
+
+    const {
+        data: fetchedFlashcards = [],
+        isLoading: flashcardsLoading,
+        isError: flashcardsError,
+        error: flashcardsQueryError
+    } = useFlashcardsQuery(deckId);
+
+    const {
+        data: categories = [],
+        isLoading: categoriesLoading,
+        isError: categoriesError,
+        error: categoriesQueryError
+    } = useCategoriesQuery();
+
+    const updateDeckMutation = useUpdateDeckMutation();
+
+    const loading = deckLoading || flashcardsLoading || categoriesLoading
+
+    const error =
+    deckQueryError?.message ||
+    flashcardsQueryError?.message ||
+    categoriesQueryError?.message ||
+    (deckError || flashcardsError || categoriesError
+        ? 'Unable to load deck. Please try again.'
+        : ''
+    );
+
     useEffect(() => {
-        const loadData = async () => {
-            try {
-                const [deckRes, flashRes, categoriesRes] = await Promise.all([
-                fetchDeckById(deckId),
-                fetchFlashcardsByDeckId(deckId),
-                fetchCategories(),
-                ]);
-                const deck = deckRes.deck;
-                setDeckName(deck.name);
-                setDeckDescription(deck.description);
-                setSelectedCategoryId(deck.categoryId || categoriesRes?.[0]?.id || '');
-                setCategories(categoriesRes || []);
-                setFlashcards(withLocalIds(flashRes.flashCards || flashRes || []));
-            } catch (error) {
-                console.log(error)
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadData();
-    }, [deckId]);
+        if (!deck || hasHydratedForm) return;
+
+        setDeckName(deck.name || '');
+        setDeckDescription(deck.description || '');
+        setSelectedCategoryId(deck.categoryId || categories?.[0]?.id || '');
+        setFlashcards(withLocalIds(fetchedFlashcards || []));
+        setHasHydratedForm(true);
+    }, [deck, categories, fetchedFlashcards, hasHydratedForm]);
 
     const handleAddFlashcard = () => {
         if(!newQuestion.trim() || !newAnswer.trim()) {
@@ -102,9 +123,8 @@ const EditDeck = () => {
     };
 
     const canSave = useMemo(
-        () => !isSaving,
-        [isSaving]
-    );
+        () => !updateDeckMutation.isPending
+    ,[updateDeckMutation.isPending]);
 
     const handleSave = async () => {
         if (!deckName.trim()) {
@@ -118,7 +138,6 @@ const EditDeck = () => {
         }
 
         if (!canSave) return;
-        setIsSaving(true);
         setSaveError('');
 
         const payload = {
@@ -133,15 +152,17 @@ const EditDeck = () => {
         };
 
         try{
-            await updateDeck(deckId, payload)
+            await updateDeckMutation.mutateAsync({
+                deckId,
+                deckData: payload,
+            });
             navigate(`/decks/${deckId}`)
         } catch (err) {
-            // console.error('Failed to update deck', err);
-            // const message = 
-            // err.message || 'Unable to save deck. Please try again.';
-            // setError(message);
-        } finally {
-            setIsSaving(false);
+            const message =
+                err?.response?.data?.message ||
+                err?.message ||
+                'Unable to save deck. Please try again.';
+            setSaveError(message);
         }
     };
     
@@ -149,6 +170,20 @@ const EditDeck = () => {
         return (
             <div className="flex justify-center items-center py-10">
                 <p className="text-gray-500">Loading deck...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+                <p className="text-red-600 mb-4">{error}</p>
+                <button
+                    className="px-4 py-2 bg-indigo-600 text-white rounded"
+                    onClick={() => navigate(`/decks/${deckId}`)}
+                >
+                    Back to Deck
+                </button>
             </div>
         );
     }
@@ -329,7 +364,7 @@ const EditDeck = () => {
                     : 'bg-indigo-600 text-white hover:bg-indigo-700'
             }`}
             >
-                {isSaving ? 'Saving...' : 'Save Changes'}
+                {updateDeckMutation.isPending ? 'Saving...' : 'Save Changes'}
             </button>
         </div>
         {saveError && (

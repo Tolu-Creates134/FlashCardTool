@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from 'react'
 import { PlusIcon } from "lucide-react";
 import { generateUniqueId } from '../../utils/helpers';
-import { createCategory, fetchCategories, createDeck } from '../../services/api';
 import { useNavigate, useParams } from 'react-router-dom';
 import AiFlashcardGenerator from '../../components/AiFlashcardGenerator';
 import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
+import { useCategoriesQuery } from '../../hooks/queries/useCategoriesQuery';
+import { useCreateCategoryMutation } from '../../hooks/mutations/useCreateCategoryMutation';
+import { useCreateDeckMutation } from '../../hooks/mutations/useCreateDeckMutation';
 
 
 /**
@@ -15,10 +17,6 @@ import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
 const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onCreateCategory = () => {}}) => {
 
     const { categoryId } = useParams();
-
-    const [categories, setCategories] = useState(initialCategories)
-    const [creatingCategory, setCreatingCategory] = useState(false);
-    // const [categoryError, setCategoryError] = useState("");
 
     const [deckName, setDeckName] = useState("");
     const [deckDescription, setDeckDescription] = useState("");
@@ -32,28 +30,41 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
     const [currentAnswer, setCurrentAnswer] = useState("");
     const [flashcardError, setFlashcardError] = useState("");
     const [saveError, setSaveError] = useState("");
-    const [isSaving, setIsSaving] = useState(false);
     const [flashcardToDelete, setFlashcardToDelete] = useState(null);
 
     const navigate = useNavigate();
+
+    const {
+        data: fetchedCategories = [],
+        isLoading: categoriesLoading,
+        isError: categoriesError,
+        error: categoriesQueryError,
+    } = useCategoriesQuery();
+
+    const createCategoryMutation = useCreateCategoryMutation();
+
+    const createDeckMutation = useCreateDeckMutation();
+
+    const categories = fetchedCategories.length > 0 ? fetchedCategories : initialCategories;
+
+    const error =
+    categoriesQueryError?.message ||
+    (categoriesError ? 'Unable to load categories. Please try again.' : '');
 
     const handleCreateCategory = async () => {
         const name = newCategoryName.trim();
         if(!name) return;
 
         try {
-            setCreatingCategory(true);
-            const createdCategory = await createCategory({ name });
-            setCategories((prev) => [createdCategory, ...prev]);
+            const createdCategory = await createCategoryMutation.mutateAsync({ name });
             setSelectedCategoryId(createdCategory.id);
             setSaveError("");
             setNewCategoryName("");
             setShowNewCategoryInput(false);
             onCreateCategory(createdCategory);
         } catch (error) {
-            console.error('Failed to create category', error);
-        } finally {
-            setCreatingCategory(false);
+            const message = error.response?.data?.message || error.message || 'Unable to create category. Please try again.';
+            setSaveError(message);
         }
     };
 
@@ -83,19 +94,15 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
             })),
         };
 
-        setIsSaving(true);
         setSaveError("");
 
         try {
-            const createdDeck = await createDeck(payload);
+            const createdDeck = await createDeckMutation.mutateAsync(payload);
             onSave(createdDeck);
             navigate("/home");
         } catch (error) {
-            console.error("Failed to create deck", error);
             const message = error.response?.data?.message || "Unable to save deck. Please try again.";
             setSaveError(message);
-        } finally {
-            setIsSaving(false);
         }
     };
 
@@ -134,23 +141,36 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
     };
 
     useEffect(() => {
-        const loadCategories = async () => {
-            try {
-                const data = await fetchCategories();
-                setCategories(data);
+        if (selectedCategoryId || categories.length === 0) return;
 
-                const hasRequestedCategory = data?.some(
-                    (category) => String(category.id) === String(categoryId)
-                );
+        const hasRequestedCategory = categories.some(
+            (category) => String(category.id) === String(categoryId)
+        );
 
-                setSelectedCategoryId(hasRequestedCategory ? categoryId : data?.[0]?.id || "");
-            } catch (error) {
-                console.error('Failed to fetch categories', error);
-            }
-        };
+        setSelectedCategoryId(hasRequestedCategory ? categoryId : categories[0]?.id || "");
+    }, [categories, categoryId, selectedCategoryId]);
 
-        loadCategories();
-    }, [categoryId])
+    if (categoriesLoading && categories.length === 0) {
+        return (
+            <div className="flex justify-center items-center py-10">
+                <p className="text-gray-500">Loading categories...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+                <p className="text-red-600 mb-4">{error}</p>
+                <button
+                    className="px-4 py-2 bg-indigo-600 text-white rounded"
+                    onClick={() => navigate('/home')}
+                >
+                    Back to Home
+                </button>
+            </div>
+        );
+    }
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -191,10 +211,10 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
                         />
                         <button
                             onClick={handleCreateCategory}
-                            disabled={creatingCategory}
-                            className={`px-4 py-2 rounded-md text-white ${creatingCategory ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"}`}
+                            disabled={createCategoryMutation.isPending}
+                            className={`px-4 py-2 rounded-md text-white ${createCategoryMutation.isPending ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"}`}
                         >
-                            {creatingCategory ? "Adding..." : "Add"}
+                            {createCategoryMutation.isPending ? "Adding..." : "Add"}
                         </button>
                         <button
                             onClick={() => setShowNewCategoryInput(false)}
@@ -353,14 +373,14 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
             </button>
             <button
                 onClick={handleSaveDeck}
-                disabled={isSaving}
+                disabled={createDeckMutation.isPending}
                 className={`px-6 py-2 rounded-md ${
-                    isSaving
+                    createDeckMutation.isPending
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-indigo-600 text-white hover:bg-indigo-700"
                 }`}
             >
-                {isSaving ? "Saving..." : "Save Deck"}
+                {createDeckMutation.isPending ? "Saving..." : "Save Deck"}
             </button>
         </div>
         {saveError && (

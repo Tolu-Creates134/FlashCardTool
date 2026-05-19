@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { deleteDeck, fetchDeckById, fetchFlashcardsByDeckId } from '../../services/api';
 import { PlayIcon, SquarePen, Trash, ChartColumn } from 'lucide-react';
 import FlashCard from '../../components/cards/FlashCard';
+import { useDeckQuery } from '../../hooks/queries/useDeckQuery';
+import { useFlashcardsQuery } from '../../hooks/queries/useFlashcardsQuery';
+import { useDeleteDeckMutation } from '../../hooks/mutations/useDeleteDeckMutation';
 import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
 
 /**
@@ -12,40 +14,38 @@ import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
 const ViewDeck = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
-  const [deck, setDeck] = useState(null);
-  const [flashcards, setFlashcards] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  useEffect(() => {
-    const loadDeckData = async () => {
-      try {
-        setError('');
-        setLoading(true);
-        const [deckData, flashcardData] = await Promise.all([
-          fetchDeckById(deckId),
-          fetchFlashcardsByDeckId(deckId)
-        ]);
-        setDeck(deckData.deck);
-        setFlashcards(flashcardData?.flashCards || flashcardData || []);
-      } catch (err) {
-        setError('Unable to load deck. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {
+    data: deck = null,
+    isLoading: deckLoading,
+    isError: deckError,
+    error: deckQueryError,
+  } = useDeckQuery(deckId);
 
-    loadDeckData();
-  }, [deckId]);
+  const {
+    data: flashcards = [],
+    isLoading: flashcardsLoading,
+    isError: flashcardsError,
+    error: flashcardsQueryError,
+  } = useFlashcardsQuery(deckId)
 
-  const handleDelete = async (deckId) => {
-    try {
-      await deleteDeck(deckId)
-      navigate('/home')
-    } catch (error) {
-      setError('Unable to delete deck. Please try again.')
-    }
+  const deleteDeckMutation = useDeleteDeckMutation(deckId);
+  
+  const loading = flashcardsLoading || deckLoading;
+
+  const error = 
+  deckQueryError?.message ||
+  flashcardsQueryError?.message ||
+  deleteDeckMutation.error?.message ||
+  (deckError || flashcardsError || deleteDeckMutation.isError
+    ? 'Unable to load deck. Please try again.'
+    : ''
+  );
+
+  const handleDelete = async () => {
+    await deleteDeckMutation.mutateAsync();
+    navigate('/home');
   }
 
   if (loading) {
@@ -84,7 +84,7 @@ const ViewDeck = () => {
         onCancel={() => setShowDeleteModal(false)}
         onConfirm={() => {
           setShowDeleteModal(false);
-          handleDelete(deckId);
+          handleDelete();
         }}
       />
 
@@ -114,6 +114,7 @@ const ViewDeck = () => {
 
           <button
             type='button'
+            disabled={deleteDeckMutation.isPending}
             onClick={() => setShowDeleteModal(true)}
           >
             <Trash className="text-red-600" />

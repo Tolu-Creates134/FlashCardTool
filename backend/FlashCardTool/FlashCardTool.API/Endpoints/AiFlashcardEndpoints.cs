@@ -4,6 +4,7 @@ using FlashCardTool.Application.AiFlashCards;
 using FlashCardTool.Application.Common.Enums;
 using FlashCardTool.Application.Models;
 using MediatR;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlashCardTool.API.Endpoints;
@@ -99,9 +100,11 @@ public static class AiFlashcardEndpoints
                     request.Text,
                     request.File?.FileName,
                     request.File?.ContentType,
-                    fileStream),
+                    fileStream
+                ),
                 request.Instructions?.Trim(),
-                request.TargetCardCount);
+                request.TargetCardCount
+            );
 
             var result = await mediator.Send(command, cancellationToken);
             return Results.Ok(result);
@@ -140,7 +143,8 @@ public static class AiFlashcardEndpoints
         var decks = app
         .MapGroup(RoutePrefix)
         .WithTags("AI Flashcards")
-        .RequireAuthorization();
+        .RequireAuthorization()
+        .RequireRateLimiting("ai");
 
         GenerateForDeck(decks);
         GeneratePreview(decks);
