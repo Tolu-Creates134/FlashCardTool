@@ -8,6 +8,9 @@ COPY FlashCardTool.API/FlashCardTool.API.csproj FlashCardTool.API/
 COPY FlashCardTool.Application/FlashCardTool.Application.csproj FlashCardTool.Application/
 COPY FlashCardTool.Domian/FlashCardTool.Domain.csproj FlashCardTool.Domian/
 COPY FlashCardTool.Infrastructure/FlashCardTool.Infrastructure.csproj FlashCardTool.Infrastructure/
+COPY FlashCardTool.Application.Tests/FlashCardTool.Application.Tests.csproj FlashCardTool.Application.Tests/
+
+
 
 # Restore dependencies
 RUN dotnet restore
