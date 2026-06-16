@@ -107,6 +107,8 @@ const ViewDeck = () => {
         <div className="flex items-center gap-4">
           <button
             type='button'
+            title="Edit deck"
+            aria-label="Edit deck"
             onClick={() => navigate(`/decks/${deckId}/edit`)}
           >
             <SquarePen />
@@ -114,6 +116,8 @@ const ViewDeck = () => {
 
           <button
             type='button'
+            title="Delete deck"
+            aria-label="Delete deck"
             disabled={deleteDeckMutation.isPending}
             onClick={() => setShowDeleteModal(true)}
           >
