@@ -33,8 +33,6 @@ const emitApiError = (error) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    emitApiError(error)
-
     const originalRequest = error.config || {};
     const status = error.response?.status;
     const isAuthRoute = originalRequest.url?.includes('/auth/');
@@ -52,11 +50,12 @@ api.interceptors.response.use(
         await refreshRequest;
         return api(originalRequest);
       } catch (refreshError) {
-        emitApiError(refreshError);
         refreshRequest = null;
-
+        
         const refreshStatus = refreshError.response?.status;
         const missingRefreshToken = refreshError.message === 'Missing refresh token';
+        
+        emitApiError(refreshError);
         if (refreshStatus === 401 || refreshStatus === 403 || missingRefreshToken) {
           triggerLogout();
         }
@@ -64,6 +63,7 @@ api.interceptors.response.use(
       }
     }
 
+    emitApiError(error);
     return Promise.reject(error);
   }
 );
