@@ -14,7 +14,16 @@ public static class InfrastructureConfiguration
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<DataHubContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        services.AddDbContext<DataHubContext>(options =>
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"),
+                sqlOptions => sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(10),
+                    errorNumbersToAdd: null
+                )
+            )
+        );
         services.Configure<AiProviderOptions>(configuration.GetSection(AiProviderOptions.SectionName));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IDeckRepository, DeckRepository>();
