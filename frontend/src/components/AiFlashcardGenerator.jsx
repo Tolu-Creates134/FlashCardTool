@@ -39,6 +39,7 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
   const [notice, setNotice] = useState('');
   const [cardToDelete, setCardToDelete] = useState(null);
   const progressIntervalRef = useRef(null);
+  const [isDiscardDraftModalOpen, setIsDiscardDraftModalOpen] = useState(false);
 
   const hasDraft = generatedCards.length > 0;
 
@@ -176,11 +177,13 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
   };
 
   const handleDiscardDraft = () => {
-    const shouldDiscard = window.confirm('Discard this AI draft? The generated cards will be removed from review.');
-    if (!shouldDiscard) return;
+    setIsDiscardDraftModalOpen(true);
+  };
 
+  const confirmDiscardDraft = () => {
     resetDraft();
     setNotice('');
+    setIsDiscardDraftModalOpen(false);
   };
 
   const handleApprove = () => {
@@ -218,6 +221,14 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
           handleRemoveCard(cardToDelete);
           setCardToDelete(null);
         }}
+      />
+      <ConfirmActionModal
+        isOpen={isDiscardDraftModalOpen}
+        title="Discard this AI draft?"
+        message="Are you sure you want to remove all generated flashcards currently in review? This action cannot be undone."
+        confirmText="Discard Draft"
+        onCancel={() => setIsDiscardDraftModalOpen(false)}
+        onConfirm={confirmDiscardDraft}
       />
 
       <div className={`border border-indigo-100 rounded-lg bg-indigo-50/60 p-4 mb-6 transition-opacity ${isGenerating ? 'pointer-events-none opacity-60' : 'opacity-100'}`}>
