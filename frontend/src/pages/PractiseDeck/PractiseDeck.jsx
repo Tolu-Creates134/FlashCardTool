@@ -238,7 +238,7 @@ const PractiseDeck = () => {
         <p className='text-gray-600'>{deck.description}</p>
       </div>
 
-      <div className='bg-white p-6 rounded-lg shadow-md h-64 md:h-80 lg:h-96 flex flex-col'>
+      <div className='bg-white p-6 rounded-lg shadow-md min-h-[26rem] flex flex-col'>
         <div className='flex items-center justify-between text-sm text-gray-500'>
           <p className='text-sm text-gray-500'>
             Card {currentIndex + 1} of {totalCards}
@@ -253,7 +253,7 @@ const PractiseDeck = () => {
           )}
         </div>
 
-        <div className='flex-1 flex flex-col items-center justify-center text-center'>
+        <div className='flex-1 flex flex-col items-center text-center'>
           {!isFinished && currentCard && (
             <>
               <div className='mb-4 max-w-2xl'>
@@ -314,7 +314,7 @@ const PractiseDeck = () => {
                 </div>
               )}
 
-              <div className='mt-6 flex w-full max-w-2xl justify-between'>
+              <div className='mt-8 flex w-full max-w-2xl justify-between'>
                 <button
                   className='px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed'
                   onClick={handlePrevious}
