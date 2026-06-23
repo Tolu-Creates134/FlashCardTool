@@ -7,6 +7,7 @@ import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
 import { useDeckQuery } from '../../hooks/queries/useDeckQuery';
 import { useFlashcardsQuery } from '../../hooks/queries/useFlashcardsQuery';
 import { useCategoriesQuery } from '../../hooks/queries/useCategoriesQuery';
+import { useCreateCategoryMutation } from '../../hooks/mutations/useCreateCategoryMutation';
 import { useUpdateDeckMutation } from '../../hooks/mutations/useUpdateDeckMutation';
 
 /**
@@ -20,6 +21,8 @@ const EditDeck = () => {
     const [deckName, setDeckName] = useState('');
     const [deckDescription, setDeckDescription] = useState('');
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
     const [flashcards, setFlashcards] = useState([]); // [{id?, question, answer, _localId}]
     const [flashcardError, setFlashcardError] = useState('');
     const [saveError, setSaveError] = useState('');
@@ -53,6 +56,7 @@ const EditDeck = () => {
         error: categoriesQueryError
     } = useCategoriesQuery();
 
+    const createCategoryMutation = useCreateCategoryMutation();
     const updateDeckMutation = useUpdateDeckMutation();
 
     const loading = deckLoading || flashcardsLoading || categoriesLoading
@@ -122,6 +126,27 @@ const EditDeck = () => {
         setSaveError('');
     };
 
+    const handleCreateCategory = async () => {
+        const name = newCategoryName.trim();
+        if (!name) {
+            return;
+        }
+
+        try {
+            const createdCategory = await createCategoryMutation.mutateAsync({ name });
+            setSelectedCategoryId(createdCategory.id);
+            setSaveError('');
+            setNewCategoryName('');
+            setShowNewCategoryInput(false);
+        } catch (error) {
+            const message =
+                error?.response?.data?.message ||
+                error?.message ||
+                'Unable to create category. Please try again.';
+            setSaveError(message);
+        }
+    };
+
     const canSave = useMemo(
         () => !updateDeckMutation.isPending
     ,[updateDeckMutation.isPending]);
@@ -137,13 +162,18 @@ const EditDeck = () => {
             return;
         }
 
+        if (!selectedCategoryId) {
+            setSaveError('Please select or create a category before saving.');
+            return;
+        }
+
         if (!canSave) return;
         setSaveError('');
 
         const payload = {
             name: deckName.trim(),
             description: deckDescription.trim(),
-            categoryId: selectedCategoryId || null,
+            categoryId: selectedCategoryId,
             flashCards: flashcards.map(({id, question, answer}) => ({
                 id,
                 question: question.trim(),
@@ -251,17 +281,69 @@ const EditDeck = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Category
                 </label>
-                <select
-                    value={selectedCategoryId}
-                    onChange={(e) => setSelectedCategoryId(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                >
-                    {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                            {category.name}
-                        </option>
-                    ))}
-                </select>
+
+                {showNewCategoryInput ? (
+                    <div className="flex space-x-2">
+                        <input
+                            type="text"
+                            value={newCategoryName}
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                            className="flex-grow p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="New Category Name"
+                        />
+                        <button
+                            type="button"
+                            onClick={handleCreateCategory}
+                            disabled={createCategoryMutation.isPending}
+                            className={`px-4 py-2 rounded-md text-white ${
+                                createCategoryMutation.isPending
+                                    ? 'bg-indigo-400 cursor-not-allowed'
+                                    : 'bg-indigo-600 hover:bg-indigo-700'
+                            }`}
+                        >
+                            {createCategoryMutation.isPending ? 'Adding...' : 'Add'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setShowNewCategoryInput(false);
+                                setNewCategoryName('');
+                            }}
+                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex space-x-2">
+                        <select
+                            value={selectedCategoryId}
+                            onChange={(e) => {
+                                setSelectedCategoryId(e.target.value);
+                                if (saveError) setSaveError('');
+                            }}
+                            className="flex-grow p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <option value="" disabled>
+                                Select a category
+                            </option>
+                            {categories.map((category) => (
+                                <option key={category.id} value={category.id}>
+                                    {category.name}
+                                </option>
+                            ))}
+                        </select>
+
+                        <button
+                            type="button"
+                            onClick={() => setShowNewCategoryInput(true)}
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 flex items-center"
+                        >
+                            <PlusIcon size={16} className="mr-1" />
+                            New
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
 

@@ -32,7 +32,7 @@ const MainLayout = () => {
         <div className="container mx-auto flex justify-between items-center">
           <div
             className="flex items-center space-x-2 cursor-pointer"
-            onClick={() => navigate("/home")}
+            onClick={() => navigate("/marketing")}
           >
             <BookOpenIcon size={24} />
             <h1 className="text-xl font-bold">FlashLearn</h1>

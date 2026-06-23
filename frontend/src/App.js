@@ -32,7 +32,7 @@ const ProtectedRoute = () => {
   const { user } = useContext(AuthContext);
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
@@ -58,6 +58,8 @@ function App() {
       <GlobalErrorToastr />
 
       <Routes>
+        <Route path='/marketing' element={<LandingPage />} />
+
         <Route element={<PublicOnlyRoute />}>
           <Route path='/' element={<LandingPage />} />
           <Route path='/login' element={<Login />} />
