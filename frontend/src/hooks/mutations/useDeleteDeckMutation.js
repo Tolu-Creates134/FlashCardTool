@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteDeck } from "../../services/api";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Deletes a deck using deckId
@@ -9,6 +10,8 @@ import { deleteDeck } from "../../services/api";
 export const useDeleteDeckMutation = (deckId) => {
     const queryClient = useQueryClient();
 
+    const navigate = useNavigate();
+
     return useMutation({
         mutationFn: async () => {
             await deleteDeck(deckId)
@@ -16,7 +19,11 @@ export const useDeleteDeckMutation = (deckId) => {
         onSuccess: () => {
             queryClient.removeQueries({ queryKey: ['deck', deckId] });
             queryClient.removeQueries({ queryKey: ['flashcards', deckId]});
+            navigate('/home'); // navigate first
             queryClient.invalidateQueries({ queryKey: ['decks'] });
+            setTimeout(() => {
+                queryClient.invalidateQueries({ queryKey: ['decks'] }); // ← pushed to end of queue
+            }, 0);
         }
     });
 }

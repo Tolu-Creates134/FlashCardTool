@@ -44,8 +44,8 @@ const ViewDeck = () => {
   );
 
   const handleDelete = async () => {
-    await deleteDeckMutation.mutateAsync();
-    navigate('/home');
+    if (!deckId || deleteDeckMutation.isPending) return;
+    deleteDeckMutation.mutate();
   }
 
   if (loading) {
