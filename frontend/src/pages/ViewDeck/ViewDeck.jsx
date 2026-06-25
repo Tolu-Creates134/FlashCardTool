@@ -44,8 +44,7 @@ const ViewDeck = () => {
   );
 
   const handleDelete = async () => {
-    await deleteDeckMutation.mutateAsync();
-    navigate('/home');
+    deleteDeckMutation.mutate();
   }
 
   if (loading) {
