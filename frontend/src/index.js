@@ -7,7 +7,14 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/Authcontext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, 
+      retry: 1
+    }
+  }
+});
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;

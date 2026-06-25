@@ -44,6 +44,7 @@ const ViewDeck = () => {
   );
 
   const handleDelete = async () => {
+    if (!deckId || deleteDeckMutation.isPending) return;
     deleteDeckMutation.mutate();
   }
 
