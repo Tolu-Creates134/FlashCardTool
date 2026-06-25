@@ -90,6 +90,7 @@ jobs:
           docker buildx build \
             --platform linux/amd64 \
             -t flashcardsappacr.azurecr.io/flashcards-api:latest \
+            -t flashcardsappacr.azurecr.io/flashcards-api:${{ github.sha }} \
             --push \
             ./backend/FlashCardTool
 
@@ -101,7 +102,7 @@ jobs:
           az containerapp update \
             --name flashcards-api \
             --resource-group flashcardsapp-rg \
-            --image flashcardsappacr.azurecr.io/flashcards-api:latest
+            --image flashcardsappacr.azurecr.io/flashcards-api:${{ github.sha }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
