@@ -37,8 +37,7 @@ const ViewDeck = () => {
   const error = 
   deckQueryError?.message ||
   flashcardsQueryError?.message ||
-  deleteDeckMutation.error?.message ||
-  (deckError || flashcardsError || deleteDeckMutation.isError
+  (deckError || flashcardsError
     ? 'Unable to load deck. Please try again.'
     : ''
   );
