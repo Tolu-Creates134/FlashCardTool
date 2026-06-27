@@ -98,7 +98,7 @@ jobs:
       - name: Update Container App
         run: |
           echo "Waiting for any active provisioning to complete..."
-          sleep 30
+          sleep 60
           az containerapp update \
             --name flashcards-api \
             --resource-group flashcardsapp-rg \
