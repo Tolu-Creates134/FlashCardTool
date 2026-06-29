@@ -17,12 +17,16 @@ export const useDeleteDeckMutation = (deckId) => {
             await deleteDeck(deckId)
         },
         onSuccess: () => {
+            console.log('[DELETE] onSuccess fired ← is this appearing?');
             queryClient.removeQueries({ queryKey: ['deck', deckId] });
             queryClient.removeQueries({ queryKey: ['flashcards', deckId]});
             navigate('/home'); // navigate first
             setTimeout(() => {
-                queryClient.invalidateQueries({ queryKey: ['decks'] }); // ← pushed to end of queue
+                queryClient.invalidateQueries({ queryKey: ['decks'] });
             }, 0);
+        },
+        onError: (error) => {
+            console.log('[DELETE] onError fired:', error.message, error.response?.status);
         }
     });
 }

@@ -135,7 +135,7 @@ export const createDeck = async (deckData) => {
 
 /**
  * Deletes a deck and its flashcards
- * @param {*} deckId 
+ * @param {string} deckId 
  * @returns 
  */
 export const deleteDeck = async (deckId) => {
