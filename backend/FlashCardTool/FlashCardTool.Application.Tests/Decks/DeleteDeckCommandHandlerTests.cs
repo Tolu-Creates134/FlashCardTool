@@ -46,7 +46,6 @@ public class DeleteDeckCommandHandlerTests
         deckRepositoryMock
             .Setup(x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Deck, bool>>>(),
-                It.IsAny<Func<IQueryable<Deck>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Deck, object>>>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((Deck?)null);
 
@@ -59,14 +58,19 @@ public class DeleteDeckCommandHandlerTests
     public async Task Handle_ShouldThrowForbiddenOperationException_WhenDeckBelongsToAnotherUser()
     {
         var currentUserId = Guid.NewGuid();
+        var deck = BuildDeck(categoryUserId: Guid.NewGuid(), siblingDeckCount: 2);
 
         currentUserServiceMock.Setup(x => x.UserId).Returns(currentUserId);
         deckRepositoryMock
             .Setup(x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Deck, bool>>>(),
-                It.IsAny<Func<IQueryable<Deck>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Deck, object>>>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(BuildDeck(categoryUserId: Guid.NewGuid(), siblingDeckCount: 2));
+            .ReturnsAsync(deck);
+        categoryRepositoryMock
+            .Setup(x => x.FirstOrDefaultAsync(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Category, bool>>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(deck.Category);
 
         var act = async () => await handler.Handle(new DeleteDeckCommand(Guid.NewGuid()), CancellationToken.None);
 
@@ -84,9 +88,18 @@ public class DeleteDeckCommandHandlerTests
         deckRepositoryMock
             .Setup(x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Deck, bool>>>(),
-                It.IsAny<Func<IQueryable<Deck>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Deck, object>>>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(deck);
+        categoryRepositoryMock
+            .Setup(x => x.FirstOrDefaultAsync(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Category, bool>>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(deck.Category);
+        deckRepositoryMock
+            .Setup(x => x.CountAsync(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Deck, bool>>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
         await handler.Handle(new DeleteDeckCommand(deck.Id), CancellationToken.None);
 
@@ -105,9 +118,18 @@ public class DeleteDeckCommandHandlerTests
         deckRepositoryMock
             .Setup(x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Deck, bool>>>(),
-                It.IsAny<Func<IQueryable<Deck>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Deck, object>>>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(deck);
+        categoryRepositoryMock
+            .Setup(x => x.FirstOrDefaultAsync(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Category, bool>>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(deck.Category);
+        deckRepositoryMock
+            .Setup(x => x.CountAsync(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Deck, bool>>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(2);
 
         await handler.Handle(new DeleteDeckCommand(deck.Id), CancellationToken.None);
 
