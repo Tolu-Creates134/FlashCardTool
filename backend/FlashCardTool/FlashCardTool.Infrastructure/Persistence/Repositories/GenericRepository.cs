@@ -82,6 +82,22 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         return Task.FromResult(entry.Entity);
     }
 
+    public async Task<List<T>> ListAsync(
+        Expression<Func<T, bool>> predicate,
+        CancellationToken cancellationToken = default)
+    {
+        return await dbSet
+            .Where(predicate)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> CountAsync(
+        Expression<Func<T, bool>> predicate,
+        CancellationToken cancellationToken = default)
+    {
+        return await dbSet.CountAsync(predicate, cancellationToken);
+    }
+
     public IQueryable<T> Query()
     {
         return dbSet;

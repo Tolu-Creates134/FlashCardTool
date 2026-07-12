@@ -45,5 +45,15 @@ public interface IGenericRepository<T> where T : BaseEntity
         T entity
     );
 
+    Task<List<T>> ListAsync(
+        Expression<Func<T, bool>> predicate,
+        CancellationToken cancellationToken = default
+    );
+
+    Task<int> CountAsync(
+        Expression<Func<T, bool>> predicate,
+        CancellationToken cancellationToken = default
+    );
+
     IQueryable<T> Query();
 }
