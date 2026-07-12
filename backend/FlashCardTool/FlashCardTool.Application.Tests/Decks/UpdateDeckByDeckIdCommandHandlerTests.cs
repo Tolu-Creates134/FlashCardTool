@@ -61,7 +61,6 @@ public class UpdateDeckByDeckIdCommandHandlerTests
         deckRepositoryMock
             .Setup(x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Deck, bool>>>(),
-                It.IsAny<Func<IQueryable<Deck>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Deck, object>>>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((Deck?)null);
 
@@ -75,13 +74,19 @@ public class UpdateDeckByDeckIdCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldThrowForbiddenOperationException_WhenDeckBelongsToAnotherUser()
     {
+        var existingDeck = BuildExistingDeck(Guid.NewGuid());
+
         currentUserServiceMock.Setup(x => x.UserId).Returns(Guid.NewGuid());
         deckRepositoryMock
             .Setup(x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Deck, bool>>>(),
-                It.IsAny<Func<IQueryable<Deck>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Deck, object>>>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(BuildExistingDeck(Guid.NewGuid()));
+            .ReturnsAsync(existingDeck);
+        categoryRepositoryMock
+            .Setup(x => x.FirstOrDefaultAsync(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Category, bool>>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingDeck.Category);
 
         var act = async () => await handler.Handle(
             new UpdateDeckByDeckIdCommand(Guid.NewGuid(), BuildDeckDto(Guid.NewGuid())),
@@ -101,13 +106,13 @@ public class UpdateDeckByDeckIdCommandHandlerTests
         deckRepositoryMock
             .Setup(x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Deck, bool>>>(),
-                It.IsAny<Func<IQueryable<Deck>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Deck, object>>>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingDeck);
         categoryRepositoryMock
-            .Setup(x => x.FirstOrDefaultAsync(
+            .SetupSequence(x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Category, bool>>>(),
                 It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingDeck.Category)
             .ReturnsAsync((Category?)null);
 
         var act = async () => await handler.Handle(
@@ -128,13 +133,13 @@ public class UpdateDeckByDeckIdCommandHandlerTests
         deckRepositoryMock
             .Setup(x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Deck, bool>>>(),
-                It.IsAny<Func<IQueryable<Deck>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Deck, object>>>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingDeck);
         categoryRepositoryMock
-            .Setup(x => x.FirstOrDefaultAsync(
+            .SetupSequence(x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Category, bool>>>(),
                 It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingDeck.Category)
             .ReturnsAsync(targetCategory);
 
         var act = async () => await handler.Handle(
@@ -159,14 +164,24 @@ public class UpdateDeckByDeckIdCommandHandlerTests
         deckRepositoryMock
             .Setup(x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Deck, bool>>>(),
-                It.IsAny<Func<IQueryable<Deck>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Deck, object>>>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingDeck);
         categoryRepositoryMock
-            .Setup(x => x.FirstOrDefaultAsync(
+            .SetupSequence(x => x.FirstOrDefaultAsync(
                 It.IsAny<System.Linq.Expressions.Expression<Func<Category, bool>>>(),
                 It.IsAny<CancellationToken>()))
+            .ReturnsAsync(originalCategory)
             .ReturnsAsync(targetCategory);
+        flashCardRepositoryMock
+            .Setup(x => x.ListAsync(
+                It.IsAny<System.Linq.Expressions.Expression<Func<FlashCard, bool>>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingDeck.Flashcards.ToList());
+        deckRepositoryMock
+            .Setup(x => x.CountAsync(
+                It.IsAny<System.Linq.Expressions.Expression<Func<Deck, bool>>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
         deckRepositoryMock
             .Setup(x => x.UpdateAsync(It.IsAny<Deck>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Deck deck, CancellationToken _) => deck);
@@ -193,7 +208,6 @@ public class UpdateDeckByDeckIdCommandHandlerTests
         existingFlashcard.Answer.Should().Be("Updated answer");
 
         existingDeck.Flashcards.Should().Contain(x => x.Question == "New question" && x.Answer == "New answer");
-        existingDeck.Flashcards.Should().Contain(x => x.Id == removedFlashcard.Id);
 
         flashCardRepositoryMock.Verify(x => x.Remove(removedFlashcard), Times.Once);
         deckRepositoryMock.Verify(x => x.UpdateAsync(existingDeck, It.IsAny<CancellationToken>()), Times.Once);
