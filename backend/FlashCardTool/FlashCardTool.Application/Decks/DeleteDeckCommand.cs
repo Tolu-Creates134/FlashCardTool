@@ -36,9 +36,6 @@ public class DeleteDeckCommandHandler : IRequestHandler<DeleteDeckCommand>
         .Repository<Deck>()
         .FirstOrDefaultAsync(
             d => d.Id == request.Id,
-            query => query
-                .Include(d => d.Category)
-                .ThenInclude(c => c!.Decks),
             cancellationToken
         );
 
@@ -46,15 +43,26 @@ public class DeleteDeckCommandHandler : IRequestHandler<DeleteDeckCommand>
         {
             throw new EntityNotFoundException(nameof(Deck), request.Id.ToString());
         }
+        
+        var category = await categoryRepository.FirstOrDefaultAsync(
+            c => c.Id == deck.CategoryId,
+            cancellationToken
+        );
 
-        if (deck.Category is null || deck.Category.UserId != userId)
+        if (category is null || category.UserId != userId)
         {
             throw new ForbiddenOperationException("Cannot delete a deck that does not belong to the current user.");
         }
 
-        if (deck.Category.Decks.Count == 1)
+        var remainingDecks = await deckRepository.CountAsync(
+            d => d.CategoryId == category.Id,
+            cancellationToken
+        );
+
+        if (remainingDecks == 1)
         {
-            categoryRepository.Remove(deck.Category);
+            // Cascade delete will remove the last deck
+            categoryRepository.Remove(category);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             return;
         }
