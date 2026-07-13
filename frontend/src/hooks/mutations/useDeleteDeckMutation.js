@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteDeck } from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
 
 /**
  * Deletes a deck using deckId
@@ -9,12 +10,25 @@ import { useNavigate } from "react-router-dom";
  */
 export const useDeleteDeckMutation = (deckId) => {
     const queryClient = useQueryClient();
-
     const navigate = useNavigate();
+    const isDeleting = useRef(false);
 
     return useMutation({
         mutationFn: async () => {
-            await deleteDeck(deckId)
+            // Synchronous check — much faster than isPending
+            if (isDeleting.current) {
+                console.log('[DELETE] Blocked duplicate request');
+                throw new Error('Delete already in progress');
+            }
+
+            isDeleting.current = true;
+
+            try {
+                await deleteDeck(deckId);
+            } finally {
+                isDeleting.current = false;
+            }
+        
         },
         onSuccess: () => {
             console.log('[DELETE] onSuccess fired ← is this appearing?');
@@ -26,6 +40,7 @@ export const useDeleteDeckMutation = (deckId) => {
             }, 0);
         },
         onError: (error) => {
+            if (error.message === 'Delete already in progress') return;
             console.log('[DELETE] onError fired:', error.message, error.response?.status);
         }
     });
