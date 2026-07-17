@@ -24,7 +24,8 @@ export const useDeleteDeckMutation = (deckId) => {
             }, 0);
         },
         onError: (error) => {
-            console.log('[DELETE] onError fired:', error.message, error.response?.status);
+            if (error.response?.status === 404) return; // already handled in api.js
+            console.log('[DELETE] onError fired:', error.message);
         }
     });
 }

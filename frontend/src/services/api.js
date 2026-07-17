@@ -10,7 +10,6 @@ export const api = axios.create({
 });
 
 let refreshRequest = null;
-let lastSuccessfulDelete = null;
 
 const refreshAccessToken = async () => {
   const { data } = await api.post('/auth/refresh');
@@ -80,7 +79,6 @@ api.interceptors.response.use(
       console.log('[INTERCEPTOR] emitApiError SKIPPED');
     }
 
-    emitApiError(error);
     return Promise.reject(error);
   }
 );
@@ -158,33 +156,13 @@ export const createDeck = async (deckData) => {
 export const deleteDeck = async (deckId) => {
   try {
     await api.delete(`decks/${deckId}`, 
-      {
-        _skipErrorToast: true  // ← custom flag
-      }
-    );
-    lastSuccessfulDelete = { deckId, timestamp: Date.now() };
-    console.log(lastSuccessfulDelete);
-  } catch (error) {
-    console.log('[DELETE API] Error caught:', {
-      status: error.response?.status,
-      config: error.config,
-      skipFlag: error.config?._skipErrorToast
+    {
+      _skipErrorToast: true  // ← custom flag
     });
-
+  } catch (error) {
     if (error.response?.status === 404) {
-      const isDuplicate = lastSuccessfulDelete &&
-      lastSuccessfulDelete.deckId === deckId &&
-      Date.now() - lastSuccessfulDelete.timestamp < 500;
-
-      console.log('[DELETE API] 404 check:', {
-        lastSuccessfulDelete,
-        isDuplicate
-      });
-
-      if (isDuplicate) {
-        console.log('[DELETE] Azure duplicate request detected — ignoring 404');
-        return;
-      }
+      console.log('[DELETE] 404 received but deck was deleted — treating as success');
+      return;
     }
     throw error; 
   }
