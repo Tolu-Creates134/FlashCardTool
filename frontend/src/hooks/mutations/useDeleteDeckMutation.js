@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteDeck } from "../../services/api";
 import { useNavigate } from "react-router-dom";
-import { useRef } from "react";
 
 /**
  * Deletes a deck using deckId

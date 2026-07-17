@@ -11,6 +11,8 @@ export const api = axios.create({
 
 let refreshRequest = null;
 
+let lastSuccessfulDelete = null;
+
 const refreshAccessToken = async () => {
   const { data } = await api.post('/auth/refresh');
   return data;
@@ -139,11 +141,24 @@ export const createDeck = async (deckData) => {
  * @returns 
  */
 export const deleteDeck = async (deckId) => {
+
   try {
     await api.delete(`decks/${deckId}`);
+    lastSuccessfulDelete = true;
+    lastSuccessfulDelete = { deckId, timestamp: Date.now() };
   } catch (error) {
     if (error.response?.status === 404) {
-      return;
+      // Only treat as success if:
+      // 1. Same deck ID was just deleted
+      // 2. Within 500ms window (Azure duplicate fires within ~31ms)
+      const isDuplicate = lastSuccessfulDelete &&
+      lastSuccessfulDelete.deckId === deckId &&
+      Date.now() - lastSuccessfulDelete.timestamp < 500;
+
+      if (isDuplicate) {
+        console.log('[DELETE] Azure duplicate request detected — ignoring 404');
+        return;
+      }
     }
     throw error; 
   }
