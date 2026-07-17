@@ -10,7 +10,6 @@ export const api = axios.create({
 });
 
 let refreshRequest = null;
-
 let lastSuccessfulDelete = null;
 
 const refreshAccessToken = async () => {
@@ -38,6 +37,7 @@ api.interceptors.response.use(
     const originalRequest = error.config || {};
     const status = error.response?.status;
     const isAuthRoute = originalRequest.url?.includes('/auth/');
+    const skipErrorToast = originalRequest._skipErrorToast;
 
     if (status === 401 && !originalRequest._retry && !isAuthRoute) {
       originalRequest._retry = true;
@@ -63,6 +63,11 @@ api.interceptors.response.use(
         }
         return Promise.reject(refreshError);
       }
+    }
+
+    // Only emit error if not flagged to skip
+    if (!skipErrorToast) {
+      emitApiError(error);
     }
 
     emitApiError(error);
@@ -143,8 +148,11 @@ export const createDeck = async (deckData) => {
 export const deleteDeck = async (deckId) => {
 
   try {
-    await api.delete(`decks/${deckId}`);
-    lastSuccessfulDelete = true;
+    await api.delete(`decks/${deckId}`, 
+      {
+        _skipErrorToast: true  // ← custom flag
+      }
+    );
     lastSuccessfulDelete = { deckId, timestamp: Date.now() };
   } catch (error) {
     if (error.response?.status === 404) {
