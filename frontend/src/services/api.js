@@ -139,7 +139,14 @@ export const createDeck = async (deckData) => {
  * @returns 
  */
 export const deleteDeck = async (deckId) => {
-  await api.delete(`decks/${deckId}`);
+  try {
+    await api.delete(`decks/${deckId}`);
+  } catch (error) {
+    if (error.response?.status === 404) {
+      return;
+    }
+    throw error; 
+  }
 }
 
 /**
