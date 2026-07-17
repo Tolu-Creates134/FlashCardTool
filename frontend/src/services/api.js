@@ -39,6 +39,13 @@ api.interceptors.response.use(
     const isAuthRoute = originalRequest.url?.includes('/auth/');
     const skipErrorToast = originalRequest._skipErrorToast;
 
+    console.log('[INTERCEPTOR] Error caught:', {
+      status,
+      url: originalRequest.url,
+      skipErrorToast,
+      isAuthRoute
+    });
+
     if (status === 401 && !originalRequest._retry && !isAuthRoute) {
       originalRequest._retry = true;
 
@@ -67,7 +74,10 @@ api.interceptors.response.use(
 
     // Only emit error if not flagged to skip
     if (!skipErrorToast) {
+      console.log('[INTERCEPTOR] emitApiError called');
       emitApiError(error);
+    } else {
+      console.log('[INTERCEPTOR] emitApiError SKIPPED');
     }
 
     emitApiError(error);
@@ -146,7 +156,6 @@ export const createDeck = async (deckData) => {
  * @returns 
  */
 export const deleteDeck = async (deckId) => {
-
   try {
     await api.delete(`decks/${deckId}`, 
       {
@@ -154,14 +163,23 @@ export const deleteDeck = async (deckId) => {
       }
     );
     lastSuccessfulDelete = { deckId, timestamp: Date.now() };
+    console.log(lastSuccessfulDelete);
   } catch (error) {
+    console.log('[DELETE API] Error caught:', {
+      status: error.response?.status,
+      config: error.config,
+      skipFlag: error.config?._skipErrorToast
+    });
+
     if (error.response?.status === 404) {
-      // Only treat as success if:
-      // 1. Same deck ID was just deleted
-      // 2. Within 500ms window (Azure duplicate fires within ~31ms)
       const isDuplicate = lastSuccessfulDelete &&
       lastSuccessfulDelete.deckId === deckId &&
       Date.now() - lastSuccessfulDelete.timestamp < 500;
+
+      console.log('[DELETE API] 404 check:', {
+        lastSuccessfulDelete,
+        isDuplicate
+      });
 
       if (isDuplicate) {
         console.log('[DELETE] Azure duplicate request detected — ignoring 404');
