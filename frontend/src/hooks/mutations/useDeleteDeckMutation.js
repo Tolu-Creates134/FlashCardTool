@@ -21,6 +21,7 @@ export const useDeleteDeckMutation = (deckId) => {
             navigate('/home'); // navigate first
             setTimeout(() => {
                 queryClient.invalidateQueries({ queryKey: ['decks'] });
+                queryClient.invalidateQueries({ queryKey: ['categories'] });
             }, 0);
         },
         onError: (error) => {

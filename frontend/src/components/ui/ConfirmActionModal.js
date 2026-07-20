@@ -16,6 +16,7 @@ const ConfirmActionModal = ({
   onCancel,
 }) => {
   const cancelButtonRef = useRef(null);
+  const messages = Array.isArray(message) ? message : [message];
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -47,24 +48,35 @@ const ConfirmActionModal = ({
         aria-modal="true"
         aria-labelledby="confirm-action-title"
         aria-describedby="confirm-action-message"
-        className="w-full max-w-md rounded-3xl border border-indigo-100 bg-white p-6 shadow-2xl shadow-slate-300/40 animate-[fadeIn_.18s_ease-out]"
+        className="w-full max-w-xl rounded-3xl border border-indigo-100 bg-white p-8 shadow-2xl shadow-slate-300/40 animate-[fadeIn_.18s_ease-out]"
       >
-        <div className="flex items-start gap-4">
+        <div className="flex flex-col items-center text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-red-600">
             <AlertTriangle size={24} />
           </div>
 
-          <div className="flex-1">
+          <div className="mt-4 w-full">
             <h3 id="confirm-action-title" className="text-xl font-semibold text-slate-900">
               {title}
             </h3>
-            <p id="confirm-action-message" className="mt-2 text-sm leading-6 text-slate-600">
-              {message}
-            </p>
+            {messages.length === 1 ? (
+              <p id="confirm-action-message" className="mt-5 text-sm leading-6 text-slate-600">
+                {messages[0]}
+              </p>
+            ) : (
+              <ul
+                id="confirm-action-message"
+                className="mt-5 inline-block list-disc space-y-2 pl-5 text-left text-sm leading-6 text-slate-600"
+              >
+                {messages.map((item, index) => (
+                  <li key={`${title}-message-${index}`}>{item}</li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 
-        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             ref={cancelButtonRef}
             type="button"

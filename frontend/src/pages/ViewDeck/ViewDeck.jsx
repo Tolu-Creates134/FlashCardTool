@@ -4,6 +4,7 @@ import { PlayIcon, SquarePen, Trash, ChartColumn } from 'lucide-react';
 import FlashCard from '../../components/cards/FlashCard';
 import { useDeckQuery } from '../../hooks/queries/useDeckQuery';
 import { useFlashcardsQuery } from '../../hooks/queries/useFlashcardsQuery';
+import { useDecksQuery } from '../../hooks/queries/useDecksQuery';
 import { useDeleteDeckMutation } from '../../hooks/mutations/useDeleteDeckMutation';
 import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
 
@@ -30,6 +31,7 @@ const ViewDeck = () => {
     error: flashcardsQueryError,
   } = useFlashcardsQuery(deckId)
 
+  const { data: decks = [] } = useDecksQuery();
   const deleteDeckMutation = useDeleteDeckMutation(deckId);
   
   const loading = flashcardsLoading || deckLoading;
@@ -81,12 +83,34 @@ const ViewDeck = () => {
     return null;
   }
 
+  const isLastDeckInCategory = decks.filter(
+    (existingDeck) => String(existingDeck.categoryId) === String(deck.categoryId)
+  ).length === 1;
+
+  const deleteMessages = [
+    <>
+      Are you sure you want to delete <strong>{deck.name}</strong>? This will permanently remove
+      the deck and its flashcards.
+    </>,
+  ];
+
+  if (isLastDeckInCategory) {
+    deleteMessages.push(
+      <>
+        This is the last remaining deck in <strong>{deck.categoryName}</strong>, so deleting it
+        will also delete that category.
+      </>
+    );
+  }
+
+  const deleteModalTitle = isLastDeckInCategory ? 'Delete Deck and Category' : 'Delete Deck';
+
   return (
     <div className="max-w-4xl mx-auto">
       <ConfirmActionModal
         isOpen={showDeleteModal}
-        title="Delete this deck?"
-        message={`Are you sure you want to delete "${deck.name}"? This will permanently remove the deck and its flashcards.`}
+        title={deleteModalTitle}
+        message={deleteMessages}
         confirmText="Delete Deck"
         onCancel={() => setShowDeleteModal(false)}
         onConfirm={() => {
