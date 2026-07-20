@@ -4,6 +4,7 @@ import { generateFlashcardsPreview } from '../services/api';
 import { generateUniqueId } from '../utils/helpers';
 import AIProgressBar from './ui/AIProgressBar';
 import ConfirmActionModal from './ui/ConfirmActionModal';
+import AutoResizeTextarea from './ui/AutoResizeTextarea';
 
 const normalizeGeneratedCards = (responseData) => {
   const cards = responseData?.flashCards || responseData?.FlashCards || [];
@@ -390,14 +391,14 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
                         <p className="text-sm font-semibold text-gray-700 mb-2">
                           Draft Card {index + 1}
                         </p>
-                        <input
-                          type="text"
+                        <AutoResizeTextarea
                           value={card.question}
                           onChange={(event) => handleCardChange(card.id, 'question', event.target.value)}
                           className="w-full mb-2 p-2 border border-gray-300 rounded-md"
                           placeholder="Question"
+                          rows={2}
                         />
-                        <textarea
+                        <AutoResizeTextarea
                           value={card.answer}
                           onChange={(event) => handleCardChange(card.id, 'answer', event.target.value)}
                           className="w-full p-2 border border-gray-300 rounded-md"

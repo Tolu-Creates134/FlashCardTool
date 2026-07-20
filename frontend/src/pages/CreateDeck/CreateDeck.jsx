@@ -4,6 +4,7 @@ import { generateUniqueId } from '../../utils/helpers';
 import { useNavigate, useParams } from 'react-router-dom';
 import AiFlashcardGenerator from '../../components/AiFlashcardGenerator';
 import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
+import AutoResizeTextarea from '../../components/ui/AutoResizeTextarea';
 import { useCategoriesQuery } from '../../hooks/queries/useCategoriesQuery';
 import { useCreateCategoryMutation } from '../../hooks/mutations/useCreateCategoryMutation';
 import { useCreateDeckMutation } from '../../hooks/mutations/useCreateDeckMutation';
@@ -303,24 +304,24 @@ const CreateDeck = ({onSave = () => {},  categories: initialCategories = [], onC
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Question
                 </label>
-                <input
-                    type="text"
+                <AutoResizeTextarea
                     value={currentQuestion}
                     onChange={(e) => setCurrentQuestion(e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md"
                     placeholder="Enter question"
+                    rows={2}
                 />
             </div>
             <div className="mb-3">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Answer
                 </label>
-                <input
-                    type="text"
+                <AutoResizeTextarea
                     value={currentAnswer}
                     onChange={(e) => setCurrentAnswer(e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md"
                     placeholder="Enter answer"
+                    rows={2}
                 />
             </div>
             <button
