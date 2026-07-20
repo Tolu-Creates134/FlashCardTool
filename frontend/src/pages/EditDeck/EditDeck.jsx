@@ -4,6 +4,7 @@ import { PlusIcon, Trash2 } from 'lucide-react';
 import AiFlashcardGenerator from '../../components/AiFlashcardGenerator';
 import { generateUniqueId } from '../../utils/helpers';
 import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
+import AutoResizeTextarea from '../../components/ui/AutoResizeTextarea';
 import { useDeckQuery } from '../../hooks/queries/useDeckQuery';
 import { useFlashcardsQuery } from '../../hooks/queries/useFlashcardsQuery';
 import { useCategoriesQuery } from '../../hooks/queries/useCategoriesQuery';
@@ -368,16 +369,16 @@ const EditDeck = () => {
                                 <p className="text-sm font-semibold text-gray-700 mb-2">
                                     Flashcard {index + 1}
                                 </p>
-                                <input
-                                    type="text"
+                                <AutoResizeTextarea
                                     value={card.question}
                                     onChange={(e) =>
                                         handleUpdateFlashcard(card._localId, 'question', e.target.value)
                                     }
                                     className="w-full mb-2 p-2 border border-gray-300 rounded-md"
                                     placeholder="Question"
+                                    rows={2}
                                 />
-                                <textarea
+                                <AutoResizeTextarea
                                     value={card.answer}
                                     onChange={(e) =>
                                     handleUpdateFlashcard(card._localId, 'answer', e.target.value)
@@ -402,14 +403,14 @@ const EditDeck = () => {
             {/* Add new flashcard */}
             <div className="mt-6 border-t pt-4">
                 <p className="text-sm font-semibold text-gray-700 mb-3">Add Flashcard</p>
-                <input
-                    type="text"
+                <AutoResizeTextarea
                     value={newQuestion}
                     onChange={(e) => setNewQuestion(e.target.value)}
                     className="w-full mb-2 p-2 border border-gray-300 rounded-md"
                     placeholder="Question"
+                    rows={2}
                 />
-                <textarea
+                <AutoResizeTextarea
                     value={newAnswer}
                     onChange={(e) => setNewAnswer(e.target.value)}
                     className="w-full mb-2 p-2 border border-gray-300 rounded-md"
