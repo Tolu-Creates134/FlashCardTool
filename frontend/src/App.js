@@ -12,7 +12,7 @@ import Scores from './pages/Scores/Scores';
 import LandingPage from './pages/LandingPage';
 import Signup from './pages/Signup/Signup';
 import { AuthContext } from './context/Authcontext';
-import GlobalErrorToastr from './components/GlobalErrorToastr';
+import GlobalErrorToastr from './components/ui/GlobalErrorToastr';
 
 const AuthGate = ({ children }) => {
   const { authReady } = useContext(AuthContext);

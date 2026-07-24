@@ -38,13 +38,6 @@ api.interceptors.response.use(
     const isAuthRoute = originalRequest.url?.includes('/auth/');
     const skipErrorToast = originalRequest._skipErrorToast;
 
-    console.log('[INTERCEPTOR] Error caught:', {
-      status,
-      url: originalRequest.url,
-      skipErrorToast,
-      isAuthRoute
-    });
-
     if (status === 401 && !originalRequest._retry && !isAuthRoute) {
       originalRequest._retry = true;
 
@@ -63,8 +56,14 @@ api.interceptors.response.use(
         const refreshStatus = refreshError.response?.status;
         const missingRefreshToken = refreshError.message === 'Missing refresh token';
         
-        emitApiError(refreshError);
         if (refreshStatus === 401 || refreshStatus === 403 || missingRefreshToken) {
+          emitApiError({
+            response: {
+              data: {
+                message: 'Your session has expired. Please sign in again.'
+              }
+            }
+          });
           triggerLogout();
         }
         return Promise.reject(refreshError);
@@ -73,10 +72,8 @@ api.interceptors.response.use(
 
     // Only emit error if not flagged to skip
     if (!skipErrorToast) {
-      console.log('[INTERCEPTOR] emitApiError called');
       emitApiError(error);
     } else {
-      console.log('[INTERCEPTOR] emitApiError SKIPPED');
     }
 
     return Promise.reject(error);

@@ -30,3 +30,93 @@ code {
 .animate-slide-in {
   animation: slide-in 200ms ease-out;
 }
+
+.flashlearn-editor {
+  color: #1f2937;
+}
+
+.flashlearn-editor p {
+  margin: 0 0 0.75rem;
+}
+
+.flashlearn-editor p:last-child {
+  margin-bottom: 0;
+}
+
+.flashlearn-editor ul,
+.flashlearn-editor ol {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.flashlearn-editor li {
+  margin: 0.25rem 0;
+}
+
+.flashlearn-editor code {
+  background: #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.1rem 0.35rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+}
+
+.flashlearn-editor pre {
+  overflow-x: auto;
+  margin: 0 0 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.flashlearn-editor pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.flashlearn-editor:focus-visible {
+  outline: none;
+}
+
+.flashlearn-richtext p {
+  margin: 0 0 0.75rem;
+}
+
+.flashlearn-richtext p:last-child {
+  margin-bottom: 0;
+}
+
+.flashlearn-richtext ul,
+.flashlearn-richtext ol {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.flashlearn-richtext li {
+  margin: 0.25rem 0;
+}
+
+.flashlearn-richtext code {
+  background: #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.1rem 0.35rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+}
+
+.flashlearn-richtext pre {
+  overflow-x: auto;
+  margin: 0 0 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.flashlearn-richtext pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}

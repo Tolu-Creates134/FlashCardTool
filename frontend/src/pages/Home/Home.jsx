@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import EmptyState from '../../components/EmptyState';
+import EmptyState from '../../components/ui/EmptyState';
 import CategorySection from './CategorySection';
 import DeckGrid from './DeckGrid';
 import { useNavigate } from 'react-router-dom';
