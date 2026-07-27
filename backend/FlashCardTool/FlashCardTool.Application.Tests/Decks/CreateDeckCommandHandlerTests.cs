@@ -7,7 +7,7 @@ using FlashCardTool.Domain.Entities;
 using FlashCardTool.Domain.Exceptions;
 using FlashCardTool.Domain.Interfaces;
 using Moq;
-using Xunit;
+using FlashCardTool.Application.Common.Interfaces;
 
 namespace FlashCardTool.Application.Tests.Decks;
 
@@ -18,6 +18,7 @@ public class CreateDeckCommandHandlerTests
     private readonly Mock<ICurrentUserService> currentUserServiceMock;
     private readonly Mock<IGenericRepository<Category>> categoryRepositoryMock;
     private readonly Mock<IGenericRepository<Deck>> deckRepositoryMock;
+    private readonly Mock<IRichTextSanitizerService> richTextSanitizerServiceMock;
     private readonly CreateDeckCommandHandler handler;
 
     public CreateDeckCommandHandlerTests()
@@ -33,6 +34,7 @@ public class CreateDeckCommandHandlerTests
         currentUserServiceMock = new Mock<ICurrentUserService>();
         categoryRepositoryMock = new Mock<IGenericRepository<Category>>();
         deckRepositoryMock = new Mock<IGenericRepository<Deck>>();
+        richTextSanitizerServiceMock = new Mock<IRichTextSanitizerService>();
 
         unitOfWorkMock
         .Setup(x => x.Repository<Category>())
@@ -45,7 +47,8 @@ public class CreateDeckCommandHandlerTests
         handler = new CreateDeckCommandHandler(
             unitOfWorkMock.Object,
             mapper,
-            currentUserServiceMock.Object
+            currentUserServiceMock.Object,
+            richTextSanitizerServiceMock.Object
         );
     }
 
@@ -137,6 +140,10 @@ public class CreateDeckCommandHandlerTests
         unitOfWorkMock
             .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
+
+        richTextSanitizerServiceMock
+            .Setup(x => x.SanitizeFlashCardHtml(It.IsAny<string>()))
+            .Returns((string html) => html);
 
         var command = new CreateDeckCommand(BuildDeckDto(categoryId));
 
