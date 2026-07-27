@@ -8,7 +8,6 @@ using System.Text;
 using FlashCardTool.API.Middleware;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.RateLimiting;
-using System.Threading.RateLimiting;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,7 +26,7 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1"
     });
 
-    if(builder.Environment.IsDevelopment())
+    if(!builder.Environment.IsDevelopment())
     {
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
@@ -69,43 +68,7 @@ if (!builder.Environment.IsDevelopment())
             opt.QueueLimit = 0;
         });
 
-        options.AddPolicy<string>("ai", httpContext =>
-        {
-            // Get the user's ID from their JWT claims
-            var userId = httpContext.User
-            .FindFirst("userId")?.Value;
-
-            // Fall back to IP address if no user ID found
-            var partitionKey = userId 
-            ?? httpContext.Connection.RemoteIpAddress?.ToString() 
-            ?? "anonymous";
-
-            return RateLimitPartition.GetSlidingWindowLimiter(
-                partitionKey,
-                _ => new SlidingWindowRateLimiterOptions
-                {
-                    Window = TimeSpan.FromHours(1),
-                    PermitLimit = 20,
-                    SegmentsPerWindow = 6, // splits window into 10min segments
-                    QueueLimit = 0
-                });
-        });
-
         options.RejectionStatusCode = 429;
-
-        // Custom rejection response
-        options.OnRejected = async (context, cancellationToken) =>
-        {
-            context.HttpContext.Response.StatusCode = 429;
-            context.HttpContext.Response.ContentType = "application/json";
-
-            await context.HttpContext.Response.WriteAsJsonAsync(new
-            {
-                error = "TooManyRequests",
-                message = "You have exceeded the AI generation limit of 20 requests per hour. Please try again later.",
-                statusCode = 429
-            }, cancellationToken);
-        };
     });
 }
 
@@ -215,22 +178,6 @@ if (!app.Environment.IsDevelopment())
 
 // Endpoints
 app.RegisterAllEndpoints();
-
-app.MapGet("/debug/claims", (HttpContext context) =>
-{
-    var claims = context.User.Claims.Select(c => new 
-    { 
-        type = c.Type, 
-        value = c.Value 
-    });
-
-    return Results.Ok(new
-    {
-        isAuthenticated = context.User.Identity?.IsAuthenticated,
-        authenticationType = context.User.Identity?.AuthenticationType,
-        claims
-    });
-});
 
 //Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
