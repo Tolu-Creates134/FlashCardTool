@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Sparkles, Trash2, Upload } from 'lucide-react';
-import { generateFlashcardsPreview } from '../services/api';
-import { generateUniqueId } from '../utils/helpers';
-import AIProgressBar from './ui/AIProgressBar';
-import ConfirmActionModal from './ui/ConfirmActionModal';
-import AutoResizeTextarea from './ui/AutoResizeTextarea';
+import { generateFlashcardsPreview } from '../../services/api';
+import { generateUniqueId } from '../../utils/helpers';
+import AIProgressBar from './AIProgressBar';
+import ConfirmActionModal from './ConfirmActionModal';
+import RichTextEditor from './RichTextEditor';
+import { hasRichTextContent } from '../../utils/hasRichTextContent';
 
 const normalizeGeneratedCards = (responseData) => {
   const cards = responseData?.flashCards || responseData?.FlashCards || [];
@@ -188,10 +189,15 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
   };
 
   const handleApprove = () => {
-    const approvedCards = generatedCards.map((card) => ({
-      question: card.question.trim(),
-      answer: card.answer.trim(),
-    })).filter((card) => card.question && card.answer);
+    const approvedCards = generatedCards
+      .filter(
+        (card) =>
+          hasRichTextContent(card.question) && hasRichTextContent(card.answer)
+      )
+      .map((card) => ({
+        question: card.question,
+        answer: card.answer,
+      }));
 
     if (approvedCards.length === 0) {
       setError('Keep at least one generated card with both a question and answer before approving.');
@@ -391,19 +397,21 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
                         <p className="text-sm font-semibold text-gray-700 mb-2">
                           Draft Card {index + 1}
                         </p>
-                        <AutoResizeTextarea
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
+                          Question
+                        </p>
+                        <RichTextEditor
                           value={card.question}
-                          onChange={(event) => handleCardChange(card.id, 'question', event.target.value)}
-                          className="w-full mb-2 p-2 border border-gray-300 rounded-md"
+                          onChange={(html) => handleCardChange(card.id, 'question', html)}
                           placeholder="Question"
-                          rows={2}
                         />
-                        <AutoResizeTextarea
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mt-4 mb-2">
+                          Answer
+                        </p>
+                        <RichTextEditor
                           value={card.answer}
-                          onChange={(event) => handleCardChange(card.id, 'answer', event.target.value)}
-                          className="w-full p-2 border border-gray-300 rounded-md"
+                          onChange={(html) => handleCardChange(card.id, 'answer', html)}
                           placeholder="Answer"
-                          rows={2}
                         />
                       </div>
                       <button

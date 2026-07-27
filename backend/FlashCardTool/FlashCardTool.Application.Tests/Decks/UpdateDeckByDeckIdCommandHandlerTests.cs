@@ -7,6 +7,7 @@ using FlashCardTool.Domain.Entities;
 using FlashCardTool.Domain.Exceptions;
 using FlashCardTool.Domain.Interfaces;
 using Moq;
+using FlashCardTool.Application.Common.Interfaces;
 
 namespace FlashCardTool.Application.Tests.Decks;
 
@@ -18,6 +19,7 @@ public class UpdateDeckByDeckIdCommandHandlerTests
     private readonly Mock<IGenericRepository<Deck>> deckRepositoryMock;
     private readonly Mock<IGenericRepository<Category>> categoryRepositoryMock;
     private readonly Mock<IGenericRepository<FlashCard>> flashCardRepositoryMock;
+    private readonly Mock<IRichTextSanitizerService> richTextSanitizerServiceMock;
     private readonly UpdateDeckByDeckIdCommandHandler handler;
 
     public UpdateDeckByDeckIdCommandHandlerTests()
@@ -30,15 +32,19 @@ public class UpdateDeckByDeckIdCommandHandlerTests
         deckRepositoryMock = new Mock<IGenericRepository<Deck>>();
         categoryRepositoryMock = new Mock<IGenericRepository<Category>>();
         flashCardRepositoryMock = new Mock<IGenericRepository<FlashCard>>();
+        richTextSanitizerServiceMock = new Mock<IRichTextSanitizerService>();
 
         unitOfWorkMock.Setup(x => x.Repository<Deck>()).Returns(deckRepositoryMock.Object);
         unitOfWorkMock.Setup(x => x.Repository<Category>()).Returns(categoryRepositoryMock.Object);
         unitOfWorkMock.Setup(x => x.Repository<FlashCard>()).Returns(flashCardRepositoryMock.Object);
 
+
         handler = new UpdateDeckByDeckIdCommandHandler(
             unitOfWorkMock.Object,
             mapper,
-            currentUserServiceMock.Object);
+            currentUserServiceMock.Object,
+            richTextSanitizerServiceMock.Object
+        );
     }
 
     [Fact]
@@ -185,7 +191,14 @@ public class UpdateDeckByDeckIdCommandHandlerTests
         deckRepositoryMock
             .Setup(x => x.UpdateAsync(It.IsAny<Deck>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Deck deck, CancellationToken _) => deck);
-
+        
+        richTextSanitizerServiceMock
+            .Setup(x => x.SanitizeFlashCardHtml(It.IsAny<string>()))
+            .Returns((string html) => html);
+        richTextSanitizerServiceMock
+            .Setup(x => x.HasMeaningfulContent(It.IsAny<string>()))
+            .Returns(true);
+        
         var command = new UpdateDeckByDeckIdCommand(
             existingDeck.Id,
             new DeckDto(

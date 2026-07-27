@@ -1,4 +1,5 @@
 using AutoMapper;
+using FlashCardTool.Application.Common.Interfaces;
 using FlashCardTool.Application.Models;
 using FlashCardTool.Domain.Entities;
 using FlashCardTool.Domain.Exceptions;
@@ -15,16 +16,24 @@ public class UpdateDeckByDeckIdCommandHandler : IRequestHandler<UpdateDeckByDeck
     private readonly IUnitOfWork unitOfWork;
     private readonly IMapper mapper;
     private readonly ICurrentUserService currentUserService;
+    private readonly IRichTextSanitizerService richTextSanitizerService;
 
-    public UpdateDeckByDeckIdCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
+    public UpdateDeckByDeckIdCommandHandler(
+        IUnitOfWork unitOfWork, 
+        IMapper mapper, 
+        ICurrentUserService currentUserService,
+        IRichTextSanitizerService richTextSanitizerService
+    )
     {
-        this.unitOfWork = unitOfWork;
-        this.mapper = mapper;
-        this.currentUserService = currentUserService;
-
         ArgumentNullException.ThrowIfNull(unitOfWork);
         ArgumentNullException.ThrowIfNull(mapper);
         ArgumentNullException.ThrowIfNull(currentUserService);
+        ArgumentNullException.ThrowIfNull(richTextSanitizerService);
+
+        this.unitOfWork = unitOfWork;
+        this.mapper = mapper;
+        this.currentUserService = currentUserService;
+        this.richTextSanitizerService = richTextSanitizerService;
     }
 
     public async Task Handle(UpdateDeckByDeckIdCommand request, CancellationToken cancellationToken)
@@ -97,14 +106,44 @@ public class UpdateDeckByDeckIdCommandHandler : IRequestHandler<UpdateDeckByDeck
         {
             if (flashCardDto.Id.HasValue && flashcardsById.TryGetValue(flashCardDto.Id.Value, out var existingCard))
             {
-                existingCard.Question = flashCardDto.Question;
-                existingCard.Answer = flashCardDto.Answer;
+                existingCard.Question = richTextSanitizerService.SanitizeFlashCardHtml(flashCardDto.Question);
+                existingCard.Answer = richTextSanitizerService.SanitizeFlashCardHtml(flashCardDto.Answer);
+
+                if (!richTextSanitizerService.HasMeaningfulContent(existingCard.Question))
+                {
+                    throw new ValidationException(
+                    "Flashcard question cannot be empty or contain only invalid content.");
+                    
+                }
+
+                if (!richTextSanitizerService.HasMeaningfulContent(existingCard.Answer))
+                {
+                    throw new ValidationException(
+                    "Flashcard answer cannot be empty or contain only invalid content.");
+                }
+
                 incomingIds.Add(existingCard.Id);
                 continue;
             }
 
             var newFlashCard = mapper.Map<FlashCard>(flashCardDto);
             newFlashCard.DeckId = existingDeck.Id;
+            newFlashCard.Question = richTextSanitizerService.SanitizeFlashCardHtml(newFlashCard.Question);
+            newFlashCard.Answer = richTextSanitizerService.SanitizeFlashCardHtml(newFlashCard.Answer);
+
+            // Validate after sanitisation
+            if (!richTextSanitizerService.HasMeaningfulContent(newFlashCard.Question))
+            {
+                throw new ValidationException(
+                "Flashcard question cannot be empty or contain only invalid content.");
+            }
+
+            if (!richTextSanitizerService.HasMeaningfulContent(newFlashCard.Answer))
+            {
+                throw new ValidationException(
+                "Flashcard answer cannot be empty or contain only invalid content.");
+            }
+            
             existingDeck.Flashcards.Add(newFlashCard);
             incomingIds.Add(newFlashCard.Id);
         }

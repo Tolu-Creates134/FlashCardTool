@@ -23,6 +23,7 @@
     <Folder Include="Common/Auth/" />
     <Folder Include="Common/Enums/" />
     <Folder Include="PractiseSessions/" />
+    <Folder Include="Interfaces/" />
   </ItemGroup>
 
 </Project>

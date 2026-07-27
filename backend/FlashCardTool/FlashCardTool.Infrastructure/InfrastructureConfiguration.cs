@@ -1,4 +1,5 @@
 using FlashCardTool.Application.AiFlashCards;
+using FlashCardTool.Application.Common.Interfaces;
 using FlashCardTool.Domain.Interfaces;
 using FlashCardTool.Infrastructure.Ai;
 using FlashCardTool.Infrastructure.Auth;
@@ -37,6 +38,7 @@ public static class InfrastructureConfiguration
         services.AddScoped<IContentExtractor, TextContentExtractor>();
         services.AddScoped<IContentExtractor, PdfContentExtractor>();
         services.AddScoped<IContentExtractor, ImageContentExtractor>();
+        services.AddScoped<IRichTextSanitizerService, RichTextSanitizerService>();
 
         services.AddHttpClient<IImageTextExtractionService, OpenAiImageTextExtractionService>();
         services.AddHttpClient<IAiFlashcardGenerationService, OpenAiFlashcardGenerationService>();

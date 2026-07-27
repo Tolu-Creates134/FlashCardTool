@@ -3,10 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDeckQuery } from '../../hooks/queries/useDeckQuery';
 import { useFlashcardsQuery } from '../../hooks/queries/useFlashcardsQuery';
 import { useCreatePractiseSessionMutation } from '../../hooks/mutations/useCreatePractiseSessionMutation';
+import RichTextContent from '../../components/ui/RichTextContent';
 
 /**
  * Practise Deck component
- * @returns 
+ * @returns
  */
 const PractiseDeck = () => {
   const { deckId } = useParams();
@@ -39,13 +40,12 @@ const PractiseDeck = () => {
   const loading = deckLoading || flashcardsLoading;
 
   const error =
-  deckQueryError?.message ||
-  flashcardsQueryError?.message ||
-  createPractiseSessionMutation.error?.message ||
-  (deckError || flashcardsError
-    ? 'Unable to load deck for practice. Please try again.'
-    : ''
-  );
+    deckQueryError?.message ||
+    flashcardsQueryError?.message ||
+    createPractiseSessionMutation.error?.message ||
+    (deckError || flashcardsError
+      ? 'Unable to load deck for practice. Please try again.'
+      : '');
 
   const currentCard = flashcards[currentIndex];
   const currentCardId = currentCard?.id ?? `card-${currentIndex}`;
@@ -71,7 +71,8 @@ const PractiseDeck = () => {
       : 0;
 
     const payload = {
-      CorrectCount: sessionResponses.filter((response) => response.correct).length,
+      CorrectCount: sessionResponses.filter((response) => response.correct)
+        .length,
       TotalCount: totalCards,
       CompletionTime: Math.round(completionMs / 1000),
       ResponseJson: JSON.stringify(sessionResponses),
@@ -103,7 +104,7 @@ const PractiseDeck = () => {
         setIsFinished(true);
         persistPracticeSession(updated);
       }
-      
+
       return updated;
     });
   };
@@ -260,7 +261,10 @@ const PractiseDeck = () => {
                 <h2 className='text-lg font-semibold text-gray-800 mb-2'>
                   Question
                 </h2>
-                <p className='text-gray-700'>{currentCard.question}</p>
+                <RichTextContent
+                  html={currentCard.question}
+                  className='text-gray-700'
+                />
               </div>
 
               {showAnswer ? (
@@ -268,7 +272,10 @@ const PractiseDeck = () => {
                   <h3 className='text-md font-semibold text-gray-800 mb-2'>
                     Answer
                   </h3>
-                  <p className='text-gray-700'>{currentCard.answer}</p>
+                  <RichTextContent
+                    html={currentCard.answer}
+                    className='text-gray-700'
+                  />
                 </div>
               ) : (
                 <button
@@ -300,9 +307,7 @@ const PractiseDeck = () => {
                   {hasAnsweredCurrent && (
                     <button
                       className={`flex-1 px-4 py-2 rounded text-white ${
-                        currentResponse?.correct
-                          ? 'bg-green-600'
-                          : 'bg-red-600'
+                        currentResponse?.correct ? 'bg-green-600' : 'bg-red-600'
                       }`}
                       disabled
                     >
@@ -328,7 +333,9 @@ const PractiseDeck = () => {
                       ? 'bg-indigo-600 text-white border border-indigo-600 hover:bg-indigo-700'
                       : 'border border-gray-300 text-gray-700 hover:bg-gray-100'
                   }`}
-                  onClick={currentIndex === totalCards - 1 ? handleFinish : handleNext}
+                  onClick={
+                    currentIndex === totalCards - 1 ? handleFinish : handleNext
+                  }
                 >
                   {currentIndex === totalCards - 1 ? 'Finish' : 'Next'}
                 </button>
