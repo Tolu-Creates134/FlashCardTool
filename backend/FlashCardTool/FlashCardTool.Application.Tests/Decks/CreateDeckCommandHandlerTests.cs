@@ -140,10 +140,12 @@ public class CreateDeckCommandHandlerTests
         unitOfWorkMock
             .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
-
         richTextSanitizerServiceMock
             .Setup(x => x.SanitizeFlashCardHtml(It.IsAny<string>()))
             .Returns((string html) => html);
+        richTextSanitizerServiceMock
+            .Setup(x => x.HasMeaningfulContent(It.IsAny<string>()))
+            .Returns(true);
 
         var command = new CreateDeckCommand(BuildDeckDto(categoryId));
 
