@@ -1,4 +1,5 @@
 using System;
+using FlashCardTool.Domain.Core;
 using FlashCardTool.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -64,5 +65,22 @@ public class DataHubContext(DbContextOptions<DataHubContext> options) : DbContex
                 Email = "admin@test.com",
             }
         );
+    }
+
+    public override Task<int> SaveChangesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+
+        foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+        {
+            if (entry.State == EntityState.Added ||
+                entry.State == EntityState.Modified)
+            {
+                entry.Property(d => d.Timestamp).CurrentValue = now;
+            }
+        }
+
+        return base.SaveChangesAsync(cancellationToken);
     }
 }

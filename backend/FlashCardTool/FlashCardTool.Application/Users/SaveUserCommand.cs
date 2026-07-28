@@ -44,7 +44,6 @@ public class SaveUserCommandHandler : IRequestHandler<SaveUserCommand, SaveUserC
         {
             existingUser.RefreshToken = JwtHelper.GenerateRefreshToken();
             existingUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(30);
-            existingUser._Timestamp = DateTime.UtcNow;
 
             await UnitOfWork.Repository<User>().UpdateAsync(existingUser, cancellationToken);
             await UnitOfWork.SaveChangesAsync(cancellationToken);
@@ -55,7 +54,6 @@ public class SaveUserCommandHandler : IRequestHandler<SaveUserCommand, SaveUserC
         var newUser = Mapper.Map<User>(request);
         newUser.RefreshToken = JwtHelper.GenerateRefreshToken();
         newUser.RefreshTokenExpiry = DateTime.UtcNow.AddDays(30);
-        newUser._Timestamp = DateTime.UtcNow;
 
         await UnitOfWork.Repository<User>().AddAsync(newUser, cancellationToken);
         await UnitOfWork.SaveChangesAsync(cancellationToken);

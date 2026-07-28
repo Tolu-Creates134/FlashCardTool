@@ -54,7 +54,6 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
 
         user!.RefreshToken = newRefreshToken;
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(30);
-        user._Timestamp = DateTime.UtcNow;
 
         await unitOfWork.Repository<User>().UpdateAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
