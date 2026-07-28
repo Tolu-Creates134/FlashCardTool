@@ -13,6 +13,14 @@ const Signup = () => {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
+  const showSignupError = (message) => {
+    window.dispatchEvent(
+      new CustomEvent('api-error', {
+        detail: { message, status: 400 },
+      })
+    );
+  };
+
   const handleSuccess = async (credentialResponse) => {
     const googleIdToken = credentialResponse.credential;
 
@@ -29,7 +37,7 @@ const Signup = () => {
 
       navigate('/home');
     } catch (error) {
-      console.error('Signup failed', error);
+      showSignupError('Signup failed. Please try again.');
     }
   };
 
@@ -60,7 +68,7 @@ const Signup = () => {
           <div className="mt-8 flex justify-center">
             <GoogleLogin
               onSuccess={handleSuccess}
-              onError={(error) => console.log(error)}
+              onError={() => showSignupError('Google sign-up failed. Please try again.')}
               auto_select={true}
               size="large"
               shape="rectangular"

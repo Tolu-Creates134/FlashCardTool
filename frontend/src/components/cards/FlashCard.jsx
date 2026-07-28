@@ -18,7 +18,10 @@ const FlashCard = ({ flashcard, index }) => {
           className='text-gray-800 mb-3'
         />
         <p className='text-sm font-semibold text-gray-700 mb-1'>Answer</p>
-        <RichTextContent html={flashcard.answer} className='text-gray-800' />
+        <RichTextContent 
+          html={flashcard.answer} 
+          className='text-gray-800' 
+        />
       </div>
     </div>
   );

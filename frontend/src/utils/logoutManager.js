@@ -21,8 +21,7 @@ export const triggerLogout = () => {
   if (logoutHandler) {
     try {
       logoutHandler();
-    } catch (error) {
-      console.error('Logout handler failed, falling back to hard redirect.', error);
+    } catch {
     }
   }
 

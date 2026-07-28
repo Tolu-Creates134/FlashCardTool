@@ -42,8 +42,7 @@ export const AuthProvider = ({ children }) => {
     const logout = useCallback(async () => {
         try {
             await logoutUser();
-        } catch (error) {
-            console.error("Logout request failed", error)
+        } catch {
         } finally {
             setUser(null);
             navigate('/');
