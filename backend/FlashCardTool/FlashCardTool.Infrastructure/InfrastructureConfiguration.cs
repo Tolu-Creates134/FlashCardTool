@@ -34,7 +34,6 @@ public static class InfrastructureConfiguration
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IContentExtractionService, ContentExtractionService>();
-        services.AddScoped<IContentExtractionService, ContentExtractionService>();
         services.AddScoped<IContentExtractor, TextContentExtractor>();
         services.AddScoped<IContentExtractor, PdfContentExtractor>();
         services.AddScoped<IContentExtractor, ImageContentExtractor>();

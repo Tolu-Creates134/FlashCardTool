@@ -45,15 +45,10 @@ const ViewDeck = () => {
   );
 
   const handleDelete = async () => {
-    console.log('[DELETE] handleDelete called, deckId:', deckId);
-    console.log('[DELETE] isPending:', deleteDeckMutation.isPending);
-
     if (!deckId || deleteDeckMutation.isPending){
-      console.log('[DELETE] Blocked by guard');
       return;
     }
-
-    console.log('[DELETE] Firing mutate');
+    
     deleteDeckMutation.mutate();
   }
 
@@ -114,7 +109,6 @@ const ViewDeck = () => {
         confirmText="Delete Deck"
         onCancel={() => setShowDeleteModal(false)}
         onConfirm={() => {
-          console.log('[MODAL] onConfirm fired');
           setShowDeleteModal(false);
           handleDelete();
         }}

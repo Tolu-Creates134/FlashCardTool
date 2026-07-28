@@ -71,7 +71,7 @@ const Login = () => {
           <div className="mt-8 flex justify-center">
             <GoogleLogin
               onSuccess={handleSuccess}
-              onError={(error) => console.log(error)}
+              onError={() => showLoginError('Google sign-in failed. Please try again.')}
               auto_select={true}
               size="large"
               shape="rectangular"

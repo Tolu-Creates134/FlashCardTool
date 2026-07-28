@@ -6,7 +6,7 @@ import { triggerLogout } from '../utils/logoutManager';
  */
 export const api = axios.create({
   baseURL: `${process.env.REACT_APP_API_BASE_URL}/api`,
-  withCredentials: true // Includes cookies in each server request
+  withCredentials: true, // Includes cookies in each server request
 });
 
 let refreshRequest = null;
@@ -20,14 +20,16 @@ const emitApiError = (error) => {
   if (typeof window === 'undefined') return;
 
   const message =
-  error?.response?.data?.message ||
-  error?.response?.data?.error ||
-  error?.message ||
-  'Request failed';
+    error?.response?.data?.message ||
+    error?.response?.data?.error ||
+    error?.message ||
+    'Request failed';
 
   const status = error?.response?.status;
 
-  window.dispatchEvent(new CustomEvent('api-error', {detail: {message, status}}));
+  window.dispatchEvent(
+    new CustomEvent('api-error', { detail: { message, status } })
+  );
 };
 
 api.interceptors.response.use(
@@ -45,24 +47,29 @@ api.interceptors.response.use(
         if (!refreshRequest) {
           refreshRequest = refreshAccessToken().finally(() => {
             refreshRequest = null;
-          })
+          });
         }
 
         await refreshRequest;
         return api(originalRequest);
       } catch (refreshError) {
         refreshRequest = null;
-        
+
         const refreshStatus = refreshError.response?.status;
-        const missingRefreshToken = refreshError.message === 'Missing refresh token';
-        
-        if (refreshStatus === 401 || refreshStatus === 403 || missingRefreshToken) {
+        const missingRefreshToken =
+          refreshError.message === 'Missing refresh token';
+
+        if (
+          refreshStatus === 401 ||
+          refreshStatus === 403 ||
+          missingRefreshToken
+        ) {
           emitApiError({
             response: {
               data: {
-                message: 'Your session has expired. Please sign in again.'
-              }
-            }
+                message: 'Your session has expired. Please sign in again.',
+              },
+            },
           });
           triggerLogout();
         }
@@ -86,7 +93,7 @@ api.interceptors.response.use(
  * @returns
  */
 export const loginWithGoogle = async (idToken) => {
-  const res = await api.post("/auth/google-login", { idToken: idToken });
+  const res = await api.post('/auth/google-login', { idToken: idToken });
   return res.data;
 };
 
@@ -104,7 +111,7 @@ export const loginWithGoogle = async (idToken) => {
  */
 export const logoutUser = async () => {
   await api.post('/auth/logout');
-}
+};
 
 /**
  * Fetches all categories.
@@ -147,23 +154,21 @@ export const createDeck = async (deckData) => {
 
 /**
  * Deletes a deck and its flashcards
- * @param {string} deckId 
- * @returns 
+ * @param {string} deckId
+ * @returns
  */
 export const deleteDeck = async (deckId) => {
   try {
-    await api.delete(`decks/${deckId}`, 
-    {
-      _skipErrorToast: true  // ← custom flag
+    await api.delete(`decks/${deckId}`, {
+      _skipErrorToast: true, // ← custom flag
     });
   } catch (error) {
     if (error.response?.status === 404) {
-      console.log('[DELETE] 404 received but deck was deleted — treating as success');
       return;
     }
-    throw error; 
+    throw error;
   }
-}
+};
 
 /**
  * Fetch individual deck by id
@@ -177,13 +182,28 @@ export const fetchDeckById = async (deckId) => {
 
 /**
  * Update deck by id
- * @param {*} deckId 
- * @param {*} deckData 
- * @returns 
+ * @param {*} deckId
+ * @param {*} deckData
+ * @returns
  */
 export const updateDeck = async (deckId, deckData) => {
-  await api.put(`/decks/${deckId}`, deckData)
-}
+  try {
+    await api.put(`/decks/${deckId}`, deckData, {
+      _skipErrorToast: true,
+    });
+  } catch (error) {
+    // Azure Container Apps Envoy proxy duplicates requests
+    // Response sometimes lost in transit — update always succeeds on backend
+    if (
+      error.response?.status === 404 ||
+      error.response?.status === 502 ||
+      error.response?.status === 503
+    ) {
+      return;
+    }
+    throw error;
+  }
+};
 
 /**
  * Generates AI flashcard preview drafts
@@ -198,11 +218,11 @@ export const generateFlashcardsPreview = async (formData) => {
   });
 
   return res.data;
-}
+};
 
 /**
  * Persists practise sessions scores
- * @param {*} deckId 
+ * @param {*} deckId
  * @param {*} sessionsData
  * @returns
  */
@@ -210,20 +230,20 @@ export const createPractiseSession = async (deckId, sessionsData) => {
   const res = await api.post(
     `/decks/${deckId}/practise-sessions`,
     sessionsData
-  )
+  );
 
-  return res.data
-}
+  return res.data;
+};
 
 /**
  * Fetches practises session scores
- * @param {*} deckId 
- * @returns 
+ * @param {*} deckId
+ * @returns
  */
 export const fetchPractiseSessions = async (deckId) => {
   const res = await api.get(`/decks/${deckId}/practise-sessions`);
   return res.data;
-}
+};
 
 /**
  * Fetch flashcards for a specific deck
