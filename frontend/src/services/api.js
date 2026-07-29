@@ -186,23 +186,46 @@ export const fetchDeckById = async (deckId) => {
  * @param {*} deckData
  * @returns
  */
+// export const updateDeck = async (deckId, deckData) => {
+//   try {
+//     await api.put(`/decks/${deckId}`, deckData, {
+//       _skipErrorToast: true,
+//     });
+//   } catch (error) {
+//     // Azure Container Apps Envoy proxy duplicates requests
+//     // Response sometimes lost in transit — update always succeeds on backend
+//     if (
+//       error.response?.status === 404 ||
+//       error.response?.status === 502 ||
+//       error.response?.status === 503
+//     ) {
+//       return;
+//     }
+//     throw error;
+//   }
+// };
 export const updateDeck = async (deckId, deckData) => {
-  try {
-    await api.put(`/decks/${deckId}`, deckData, {
-      _skipErrorToast: true,
-    });
-  } catch (error) {
-    // Azure Container Apps Envoy proxy duplicates requests
-    // Response sometimes lost in transit — update always succeeds on backend
-    if (
-      error.response?.status === 404 ||
-      error.response?.status === 502 ||
-      error.response?.status === 503
-    ) {
-      return;
+    try {
+        await api.put(`/decks/${deckId}`, deckData, {
+            _skipErrorToast: true,
+        });
+        console.log('[UPDATE API] Success');
+    } catch (error) {
+        console.log('[UPDATE API] Error caught:', {
+            status: error.response?.status,
+            skipFlag: error.config?._skipErrorToast
+        });
+
+        if (
+            error.response?.status === 404 ||
+            error.response?.status === 502 ||
+            error.response?.status === 503
+        ) {
+            console.log('[UPDATE API] Infrastructure error — returning silently');
+            return;
+        }
+        throw error;
     }
-    throw error;
-  }
 };
 
 /**
