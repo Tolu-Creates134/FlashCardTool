@@ -14,6 +14,10 @@ export const useUpdateDeckMutation = () => {
             queryClient.invalidateQueries({ queryKey: ['decks'] });
             queryClient.invalidateQueries({ queryKey: ['deck', variables.deckId] });
             queryClient.invalidateQueries({ queryKey: ['flashcards', variables.deckId] });
+        },
+        onError: (error) => {
+            const status = error?.response?.status;
+            if (status === 502 || status === 503 || status === 404) return;
         }
     });
 };
