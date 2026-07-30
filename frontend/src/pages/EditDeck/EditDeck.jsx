@@ -190,41 +190,19 @@ const EditDeck = () => {
       })),
     };
 
-    // try {
-    //   await updateDeckMutation.mutateAsync({
-    //     deckId,
-    //     deckData: payload,
-    //   });
-    //   navigate(`/decks/${deckId}`);
-    // } catch (err) {
-    //   // Treat infrastructure errors as success
-    //   // Backend always completes the update correctly
-    //   const status = err?.response?.status;
-    //   if (status === 502 || status === 503 || status === 404) {
-    //     navigate(`/decks/${deckId}`); // ← navigate anyway
-    //     return;
-    //   }
-
-    //   const message =
-    //   err?.response?.data?.message ||
-    //   err?.message ||
-    //   'Unable to save deck. Please try again.';
-    //   setSaveError(message);
-    // }
-
     try {
       await updateDeckMutation.mutateAsync({
         deckId,
         deckData: payload,
       });
-      console.log('[SAVE] mutateAsync succeeded — navigating');
+      // console.log('[SAVE] mutateAsync succeeded — navigating');
       navigate(`/decks/${deckId}`);
     } catch (err) {
-      console.log('[SAVE] catch fired:', {
-        status: err?.response?.status,
-        message: err?.message,
-        responseData: err?.response?.data
-      });
+      // console.log('[SAVE] catch fired:', {
+      //   status: err?.response?.status,
+      //   message: err?.message,
+      //   responseData: err?.response?.data
+      // });
 
       const status = err?.response?.status;
       const isNetworkError = err?.message === 'Network Error';
@@ -235,7 +213,7 @@ const EditDeck = () => {
       isNetworkError;
       
       if (isInfrastructureError) {
-        console.log('[SAVE] Infrastructure/network error — navigating anyway');
+        // console.log('[SAVE] Infrastructure/network error — navigating anyway');
         navigate(`/decks/${deckId}`);
         return;
       }

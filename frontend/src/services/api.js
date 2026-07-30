@@ -206,11 +206,13 @@ export const fetchDeckById = async (deckId) => {
 // };
 export const updateDeck = async (deckId, deckData) => {
   try {
-    await api.put(`/decks/${deckId}`, deckData);
-    console.log('[UPDATE API] Success');
+    await api.put(`/decks/${deckId}`, deckData, {
+      _skipErrorToast: true
+    });
+    // console.log('[UPDATE API] Success');
   } catch (error) {
     const status = error.response?.status;
-    console.log('[UPDATE API] Error caught:', { status, message: error.message });
+    // console.log('[UPDATE API] Error caught:', { status, message: error.message });
 
     // Handle both HTTP errors and network level errors
     const isInfrastructureError = 
@@ -220,7 +222,7 @@ export const updateDeck = async (deckId, deckData) => {
     status === undefined;
 
     if (isInfrastructureError) {
-      console.log('[UPDATE API] Infrastructure error — returning silently');
+      //console.log('[UPDATE API] Infrastructure error — returning silently');
       return;
     }
     throw error;
