@@ -227,8 +227,15 @@ const EditDeck = () => {
       });
 
       const status = err?.response?.status;
-      if (status === 502 || status === 503 || status === 404) {
-        console.log('[SAVE] Infrastructure error — navigating anyway');
+      const isNetworkError = err?.message === 'Network Error';
+      const isInfrastructureError = 
+      status === 502 || 
+      status === 503 || 
+      status === 404 ||
+      isNetworkError;
+      
+      if (isInfrastructureError) {
+        console.log('[SAVE] Infrastructure/network error — navigating anyway');
         navigate(`/decks/${deckId}`);
         return;
       }
@@ -237,7 +244,7 @@ const EditDeck = () => {
       err?.response?.data?.message ||
       err?.message ||
       'Unable to save deck. Please try again.';
-      
+
       setSaveError(message);
     }
   };
