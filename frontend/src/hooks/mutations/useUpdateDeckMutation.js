@@ -17,7 +17,12 @@ export const useUpdateDeckMutation = () => {
         },
         onError: (error) => {
             const status = error?.response?.status;
-            if (status === 502 || status === 503 || status === 404) return;
+            const isNetworkError = error?.message === 'Network Error';
+            
+            if (status === 502 || 
+            status === 503 || 
+            status === 404 || 
+            isNetworkError) return; // ← ignore all infrastructure errors
         }
-    });
+    }); 
 };

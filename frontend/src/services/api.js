@@ -205,27 +205,26 @@ export const fetchDeckById = async (deckId) => {
 //   }
 // };
 export const updateDeck = async (deckId, deckData) => {
-    try {
-        await api.put(`/decks/${deckId}`, deckData, {
-            _skipErrorToast: true,
-        });
-        console.log('[UPDATE API] Success');
-    } catch (error) {
-        console.log('[UPDATE API] Error caught:', {
-            status: error.response?.status,
-            skipFlag: error.config?._skipErrorToast
-        });
+  try {
+    await api.put(`/decks/${deckId}`, deckData);
+    console.log('[UPDATE API] Success');
+  } catch (error) {
+    const status = error.response?.status;
+    console.log('[UPDATE API] Error caught:', { status, message: error.message });
 
-        if (
-            error.response?.status === 404 ||
-            error.response?.status === 502 ||
-            error.response?.status === 503
-        ) {
-            console.log('[UPDATE API] Infrastructure error — returning silently');
-            return;
-        }
-        throw error;
+    // Handle both HTTP errors and network level errors
+    const isInfrastructureError = 
+    status === 404 ||
+    status === 502 ||
+    status === 503 ||
+    status === undefined;
+
+    if (isInfrastructureError) {
+      console.log('[UPDATE API] Infrastructure error — returning silently');
+      return;
     }
+    throw error;
+  }
 };
 
 /**
