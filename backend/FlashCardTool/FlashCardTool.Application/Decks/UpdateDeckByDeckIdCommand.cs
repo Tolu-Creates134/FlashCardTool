@@ -68,6 +68,16 @@ public class UpdateDeckByDeckIdCommandHandler : IRequestHandler<UpdateDeckByDeck
             throw new ForbiddenOperationException("Cannot update a deck that does not belong to the current user.");
         }
 
+        if (string.IsNullOrWhiteSpace(request.Deck.Name))
+        {
+            throw new ValidationException("Deck name is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Deck.Description))
+        {
+            throw new ValidationException("Deck description is required.");
+        }
+
         // Step 3 — load target category
         var targetCategory = await categoryRepository.FirstOrDefaultAsync(
             c => c.Id == request.Deck.CategoryId,

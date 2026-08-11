@@ -113,6 +113,15 @@ const EditDeck = () => {
     setFlashcards((prev) => prev.filter((card) => card._localId !== localId));
   };
 
+  const handleConfirmDeleteFlashcard = () => {
+    if (!flashcardToDelete) return;
+
+    handleRemoveFlashcard(flashcardToDelete);
+    setFlashcardToDelete(null);
+    setFlashcardError('');
+    setSaveError('');
+  };
+
   const handleApproveAiCards = (approvedCards) => {
     setFlashcards((prev) => [
       ...prev,
@@ -155,15 +164,27 @@ const EditDeck = () => {
     [updateDeckMutation.isPending]
   );
 
+  const flashcardPendingDelete = flashcards.find(
+    (card) => card._localId === flashcardToDelete
+  );
+
+  const flashcardPendingDeleteIndex = flashcardPendingDelete
+    ? flashcards.findIndex((card) => card._localId === flashcardToDelete) + 1
+    : null;
+
   const handleSave = async () => {
     if (!deckName.trim()) {
       setSaveError('Please provide a deck name before saving.');
       return;
     }
 
+    if (!deckDescription.trim()) {
+      setSaveError('Please provide a deck description before saving.');
+      return;
+    }
+
     const validFlashcards = flashcards.filter(
-      (card) =>
-        hasRichTextContent(card.question) && hasRichTextContent(card.answer)
+      (card) => hasRichTextContent(card.question) && hasRichTextContent(card.answer)
     );
 
     if (validFlashcards.length === 0) {
@@ -206,12 +227,9 @@ const EditDeck = () => {
 
       const status = err?.response?.status;
       const isNetworkError = err?.message === 'Network Error';
-      const isInfrastructureError = 
-      status === 502 || 
-      status === 503 || 
-      status === 404 ||
-      isNetworkError;
-      
+      const isInfrastructureError =
+        status === 502 || status === 503 || status === 404 || isNetworkError;
+
       if (isInfrastructureError) {
         // console.log('[SAVE] Infrastructure/network error — navigating anyway');
         navigate(`/decks/${deckId}`);
@@ -251,18 +269,6 @@ const EditDeck = () => {
 
   return (
     <div className='max-w-4xl mx-auto'>
-      <ConfirmActionModal
-        isOpen={Boolean(flashcardToDelete)}
-        title='Delete this flashcard?'
-        message='Are you sure you want to remove this flashcard from the deck?'
-        confirmText='Delete Flashcard'
-        onCancel={() => setFlashcardToDelete(null)}
-        onConfirm={() => {
-          handleRemoveFlashcard(flashcardToDelete);
-          setFlashcardToDelete(null);
-        }}
-      />
-
       <button
         className='mt-4 flex items-center text-indigo-600 font-medium hover:text-indigo-700'
         onClick={() => navigate(`/decks/${deckId}`)}
@@ -281,9 +287,10 @@ const EditDeck = () => {
 
         <div className='mb-4'>
           <label className='block text-sm font-medium text-gray-700 mb-1'>
-            Deck Name
+            Deck Name *
           </label>
-          <input
+          <textarea
+            required
             type='text'
             value={deckName}
             onChange={(e) => {
@@ -297,11 +304,15 @@ const EditDeck = () => {
 
         <div className='mb-4'>
           <label className='block text-sm font-medium text-gray-700 mb-1'>
-            Description
+            Description *
           </label>
           <textarea
+            required
             value={deckDescription}
-            onChange={(e) => setDeckDescription(e.target.value)}
+            onChange={(e) => {
+              setDeckDescription(e.target.value);
+              if (saveError) setSaveError('');
+            }}
             className='w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500'
             placeholder='What is this deck about?'
             rows={3}
@@ -487,6 +498,20 @@ const EditDeck = () => {
       {saveError && (
         <p className='text-sm text-red-600 text-right mt-2'>{saveError}</p>
       )}
+
+      <ConfirmActionModal
+        isOpen={Boolean(flashcardToDelete)}
+        title='Delete this flashcard?'
+        message={[
+          flashcardPendingDeleteIndex
+            ? `Flashcard ${flashcardPendingDeleteIndex} will be removed from this deck.`
+            : 'This flashcard will be removed from this deck.',
+          'This action cannot be undone.',
+        ]}
+        confirmText='Delete Flashcard'
+        onConfirm={handleConfirmDeleteFlashcard}
+        onCancel={() => setFlashcardToDelete(null)}
+      />
     </div>
   );
 };

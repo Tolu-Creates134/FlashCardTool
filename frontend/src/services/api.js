@@ -171,6 +171,15 @@ export const deleteDeck = async (deckId) => {
 };
 
 /**
+ * Deletes a category and all associated decks and flashcards 
+ * @param {*} categoryId
+ * @returns
+ */
+export const deleteCategory = async (categoryId) => {
+  await api.delete(`/categories/${categoryId}`);
+}
+
+/**
  * Fetch individual deck by id
  * @param {string} deckId
  * @returns
@@ -186,24 +195,6 @@ export const fetchDeckById = async (deckId) => {
  * @param {*} deckData
  * @returns
  */
-// export const updateDeck = async (deckId, deckData) => {
-//   try {
-//     await api.put(`/decks/${deckId}`, deckData, {
-//       _skipErrorToast: true,
-//     });
-//   } catch (error) {
-//     // Azure Container Apps Envoy proxy duplicates requests
-//     // Response sometimes lost in transit — update always succeeds on backend
-//     if (
-//       error.response?.status === 404 ||
-//       error.response?.status === 502 ||
-//       error.response?.status === 503
-//     ) {
-//       return;
-//     }
-//     throw error;
-//   }
-// };
 export const updateDeck = async (deckId, deckData) => {
   try {
     await api.put(`/decks/${deckId}`, deckData, {

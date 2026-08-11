@@ -10,8 +10,11 @@ const ConfirmActionModal = ({
   isOpen,
   title,
   message,
+  content = null,
   confirmText = 'Delete',
   cancelText = 'Cancel',
+  isConfirmDisabled = false,
+  isCancelDisabled = false,
   onConfirm,
   onCancel,
 }) => {
@@ -42,12 +45,16 @@ const ConfirmActionModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/40 px-4 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/40 px-4 backdrop-blur-sm"
+      onClick={onCancel}
+    >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-action-title"
         aria-describedby="confirm-action-message"
+        onClick={(event) => event.stopPropagation()}
         className="w-full max-w-xl rounded-3xl border border-indigo-100 bg-white p-8 shadow-2xl shadow-slate-300/40 animate-[fadeIn_.18s_ease-out]"
       >
         <div className="flex flex-col items-center text-center">
@@ -59,7 +66,11 @@ const ConfirmActionModal = ({
             <h3 id="confirm-action-title" className="text-xl font-semibold text-slate-900">
               {title}
             </h3>
-            {messages.length === 1 ? (
+            {content ? (
+              <div id="confirm-action-message" className="mt-5">
+                {content}
+              </div>
+            ) : messages.length === 1 ? (
               <p id="confirm-action-message" className="mt-5 text-sm leading-6 text-slate-600">
                 {messages[0]}
               </p>
@@ -81,14 +92,16 @@ const ConfirmActionModal = ({
             ref={cancelButtonRef}
             type="button"
             onClick={onCancel}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+            disabled={isCancelDisabled}
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {cancelText}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700"
+            disabled={isConfirmDisabled}
+            className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {confirmText}
           </button>
