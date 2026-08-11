@@ -40,6 +40,22 @@ public static class CategoryEndpoints
         .Produces<List<CategoryDto>>(StatusCodes.Status200OK);
     }
 
+    public static void DeleteCategory(this RouteGroupBuilder group)
+    {
+        group.MapDelete("/{categoryId:guid}", async (
+            Guid categoryId,
+            IMediator mediator,
+            CancellationToken cancellationToken
+        ) =>
+        {
+            await mediator.Send(new DeleteCategoryCommand(categoryId), cancellationToken);
+            return Results.NoContent();
+        })
+        .WithName("DeleteCategory")
+        .WithDescription("Deletes entire category with decks and flashcards included")
+        .Produces(StatusCodes.Status200OK);
+    }
+
     public static void DefineEndpoints(WebApplication app)
     {
         var categories = app
@@ -49,5 +65,6 @@ public static class CategoryEndpoints
 
         CreateCategory(categories);
         ListCategories(categories);
+        DeleteCategory(categories);
     }
 }

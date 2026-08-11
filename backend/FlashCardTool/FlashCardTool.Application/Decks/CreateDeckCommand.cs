@@ -62,6 +62,16 @@ public class CreateDeckCommandHandler: IRequestHandler<CreateDeckCommand, Create
             throw new ForbiddenOperationException("Cannot create a deck in a category that does not belong to the current user.");
         }
 
+        if (string.IsNullOrWhiteSpace(request.Deck.Name))
+        {
+            throw new ValidationException("Deck name is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Deck.Description))
+        {
+            throw new ValidationException("Deck description is required.");
+        }
+
         var deck = mapper.Map<Deck>(request.Deck);
         deck.CategoryId = category.Id;
 

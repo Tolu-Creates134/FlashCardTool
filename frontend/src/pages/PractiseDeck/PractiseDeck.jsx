@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useDeckQuery } from '../../hooks/queries/useDeckQuery';
 import { useFlashcardsQuery } from '../../hooks/queries/useFlashcardsQuery';
 import { useCreatePractiseSessionMutation } from '../../hooks/mutations/useCreatePractiseSessionMutation';
@@ -61,14 +62,17 @@ const PractiseDeck = () => {
   );
 
   const totalCards = flashcards.length;
+  const progressPercentage = totalCards > 0
+    ? ((currentIndex + 1) / totalCards) * 100
+    : 0;
 
   const persistPracticeSession = async (sessionResponses) => {
     if (hasSavedSessionRef.current) return;
     hasSavedSessionRef.current = true;
 
     const completionMs = sessionStartRef.current
-      ? Date.now() - sessionStartRef.current
-      : 0;
+    ? Date.now() - sessionStartRef.current
+    : 0;
 
     const payload = {
       CorrectCount: sessionResponses.filter((response) => response.correct)
@@ -89,7 +93,11 @@ const PractiseDeck = () => {
   };
 
   const handleReveal = () => {
-    setShowAnswer(true);
+    if (hasAnsweredCurrent) {
+      return;
+    }
+
+    setShowAnswer((current) => !current);
   };
 
   const handleAnswer = (isCorrect) => {
@@ -197,28 +205,42 @@ const PractiseDeck = () => {
   }
 
   const renderSummary = () => (
-    <div className='bg-white p-6 rounded-lg shadow-md mt-6'>
-      <h2 className='text-xl font-semibold text-gray-800 mb-4'>
-        Practice Summary
+    <div className='mx-auto mt-6 w-full max-w-2xl rounded-3xl bg-white px-8 py-10 text-center shadow-lg shadow-slate-200/80'>
+      <h2 className='text-4xl font-bold tracking-tight text-slate-900'>
+        Practice Complete!
       </h2>
-      <p className='text-gray-700 mb-2'>
-        Score: {correctCount} / {totalCards}
-      </p>
-      <p className='text-gray-700 mb-4'>
-        Accuracy: {Math.round((correctCount / totalCards) * 100)}%
-      </p>
-      <div className='flex space-x-3'>
+      <div className='mt-8'>
+        <p className='text-7xl font-bold tracking-tight text-indigo-600'>
+          {Math.round((correctCount / totalCards) * 100)}%
+        </p>
+        <p className='mt-3 text-lg font-medium text-slate-500'>Your score</p>
+      </div>
+
+      <div className='mt-10 grid gap-4 sm:grid-cols-2'>
+        <div className='rounded-2xl bg-emerald-50 px-6 py-5'>
+          <p className='text-4xl font-bold text-emerald-600'>{correctCount}</p>
+          <p className='mt-2 text-lg font-medium text-emerald-700'>Correct</p>
+        </div>
+        <div className='rounded-2xl bg-rose-50 px-6 py-5'>
+          <p className='text-4xl font-bold text-rose-600'>
+            {totalCards - correctCount}
+          </p>
+          <p className='mt-2 text-lg font-medium text-rose-700'>Incorrect</p>
+        </div>
+      </div>
+
+      <div className='mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row'>
         <button
-          className='px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700'
+          className='rounded-xl bg-slate-200 px-6 py-3 font-medium text-slate-700 transition-colors hover:bg-slate-300'
+          onClick={() => navigate(`/decks/${deckId}`)}
+        >
+          Exit
+        </button>
+        <button
+          className='rounded-xl bg-indigo-600 px-6 py-3 font-medium text-white transition-colors hover:bg-indigo-700'
           onClick={handleRestart}
         >
           Practise Again
-        </button>
-        <button
-          className='px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-100'
-          onClick={() => navigate(`/decks/${deckId}`)}
-        >
-          Back to Deck
         </button>
       </div>
     </div>
@@ -226,118 +248,114 @@ const PractiseDeck = () => {
 
   return (
     <div className='max-w-4xl mx-auto'>
-      <button
-        className='mt-4 flex items-center text-indigo-600 font-medium hover:text-indigo-700'
-        onClick={() => navigate(`/decks/${deckId}`)}
-      >
-        <span className='mr-2'>{'←'}</span>
-        Exit Practise
-      </button>
-
-      <div className='p-6 mb-6'>
-        <h1 className='text-2xl font-bold text-gray-800 mb-2'>{deck.name}</h1>
-        <p className='text-gray-600'>{deck.description}</p>
-      </div>
-
-      <div className='bg-white p-6 rounded-lg shadow-md min-h-[26rem] flex flex-col'>
-        <div className='flex items-center justify-between text-sm text-gray-500'>
-          <p className='text-sm text-gray-500'>
-            Card {currentIndex + 1} of {totalCards}
-          </p>
-          {!isFinished && (
-            <p className='text-sm text-gray-500'>
-              Correct so far: {correctCount}
-              {hasAnsweredCurrent && currentResponse?.correct && (
-                <span className='ml-2 text-green-600 font-semibold'>+1</span>
-              )}
-            </p>
-          )}
+      {!isFinished && (
+        <div className='mb-4 px-6'>
+          <div className='flex items-center justify-between text-lg text-slate-600'>
+            <button
+              className='flex items-center text-indigo-600 font-medium hover:text-indigo-700'
+              onClick={() => navigate(`/decks/${deckId}`)}
+            >
+              <span className='mr-2'>{'←'}</span>
+              Exit Practice
+            </button>
+            <p>Card {currentIndex + 1} of {totalCards}</p>
+          </div>
+          <div className='mt-4 h-2.5 overflow-hidden rounded-full bg-slate-200'>
+            <div
+              className='h-full rounded-full bg-indigo-600 transition-[width] duration-300 ease-out'
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
         </div>
+      )}
 
-        <div className='flex-1 flex flex-col items-center text-center'>
+      <div className='flex flex-col items-center text-center'>
+        <div className='flex-1 flex w-full flex-col items-center text-center'>
           {!isFinished && currentCard && (
             <>
-              <div className='mb-4 max-w-2xl'>
-                <h2 className='text-lg font-semibold text-gray-800 mb-2'>
-                  Question
-                </h2>
-                <RichTextContent
-                  html={currentCard.question}
-                  className='text-gray-700'
-                />
+              <button
+                type='button'
+                onClick={handleReveal}
+                disabled={hasAnsweredCurrent}
+                className={`mb-5 flex min-h-[22rem] w-full max-w-4xl flex-col rounded-[2rem] border border-slate-200 bg-white px-8 py-7 text-left shadow-lg shadow-slate-200/70 transition-all ${
+                  hasAnsweredCurrent
+                    ? 'cursor-default'
+                    : 'cursor-pointer hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-200/90'
+                }`}
+              >
+                <div className='text-lg font-medium text-slate-500'>
+                  {showAnswer ? 'Answer' : 'Question'}
+                </div>
+
+                <div className='flex flex-1 items-center justify-center py-6 text-center'>
+                  <div className='max-w-2xl'>
+                    <RichTextContent
+                      html={showAnswer ? currentCard.answer : currentCard.question}
+                      className='text-2xl leading-10 text-slate-900'
+                    />
+                  </div>
+                </div>
+
+                <p className='text-center text-lg text-slate-500'>
+                  {showAnswer ? 'Click to see question' : 'Click to see answer'}
+                </p>
+              </button>
+
+              <div className='flex min-h-[4rem] flex-col items-center justify-center gap-4 sm:flex-row'>
+                {showAnswer && !hasAnsweredCurrent && (
+                  <>
+                    <button
+                      className='rounded-xl bg-rose-100 px-6 py-3 font-medium text-rose-700 transition-colors hover:bg-rose-200'
+                      onClick={() => handleAnswer(false)}
+                    >
+                      <span className='mr-2'>×</span>
+                      I got it wrong
+                    </button>
+                    <button
+                      className='rounded-xl bg-emerald-100 px-6 py-3 font-medium text-emerald-700 transition-colors hover:bg-emerald-200'
+                      onClick={() => handleAnswer(true)}
+                    >
+                      <span className='mr-2'>✓</span>
+                      I got it right
+                    </button>
+                  </>
+                )}
+                {hasAnsweredCurrent && (
+                  <button
+                    className={`rounded-xl px-6 py-3 font-medium ${
+                      currentResponse?.correct
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-rose-100 text-rose-700'
+                    }`}
+                    disabled
+                  >
+                    {currentResponse?.correct ? '✓ Marked correct' : '× Marked incorrect'}
+                  </button>
+                )}
               </div>
 
-              {showAnswer ? (
-                <div className='mb-6 max-w-2xl'>
-                  <h3 className='text-md font-semibold text-gray-800 mb-2'>
-                    Answer
-                  </h3>
-                  <RichTextContent
-                    html={currentCard.answer}
-                    className='text-gray-700'
-                  />
-                </div>
-              ) : (
+              <div className='mt-6 flex w-full max-w-4xl items-center justify-between'>
                 <button
-                  className='px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 mb-6'
-                  onClick={handleReveal}
-                >
-                  Reveal Answer
-                </button>
-              )}
-
-              {showAnswer && (
-                <div className='flex flex-col sm:flex-row gap-4'>
-                  {!hasAnsweredCurrent && (
-                    <>
-                      <button
-                        className='flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700'
-                        onClick={() => handleAnswer(true)}
-                      >
-                        I got it correct
-                      </button>
-                      <button
-                        className='flex-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700'
-                        onClick={() => handleAnswer(false)}
-                      >
-                        I got it incorrect
-                      </button>
-                    </>
-                  )}
-                  {hasAnsweredCurrent && (
-                    <button
-                      className={`flex-1 px-4 py-2 rounded text-white ${
-                        currentResponse?.correct ? 'bg-green-600' : 'bg-red-600'
-                      }`}
-                      disabled
-                    >
-                      {currentResponse?.correct
-                        ? 'Marked correct'
-                        : 'Marked incorrect'}
-                    </button>
-                  )}
-                </div>
-              )}
-
-              <div className='mt-8 flex w-full max-w-2xl justify-between'>
-                <button
-                  className='px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed'
+                  className='inline-flex items-center gap-2 rounded-xl bg-slate-200 px-4 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-300 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400'
                   onClick={handlePrevious}
                   disabled={currentIndex === 0}
                 >
+                  <ArrowLeft size={16} />
                   Previous
                 </button>
                 <button
-                  className={`px-3 py-1.5 text-sm rounded disabled:opacity-60 disabled:cursor-not-allowed ${
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed ${
                     hasAnsweredCurrent
-                      ? 'bg-indigo-600 text-white border border-indigo-600 hover:bg-indigo-700'
-                      : 'border border-gray-300 text-gray-700 hover:bg-gray-100'
+                      ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                      : 'bg-slate-200 text-slate-400'
                   }`}
                   onClick={
                     currentIndex === totalCards - 1 ? handleFinish : handleNext
                   }
+                  disabled={!hasAnsweredCurrent}
                 >
                   {currentIndex === totalCards - 1 ? 'Finish' : 'Next'}
+                  <ArrowRight size={16} />
                 </button>
               </div>
             </>

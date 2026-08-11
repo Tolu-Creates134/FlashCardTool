@@ -161,9 +161,13 @@ const EditDeck = () => {
       return;
     }
 
+    if (!deckDescription.trim()) {
+      setSaveError('Please provide a deck description before saving.');
+      return;
+    }
+
     const validFlashcards = flashcards.filter(
-      (card) =>
-        hasRichTextContent(card.question) && hasRichTextContent(card.answer)
+      (card) => hasRichTextContent(card.question) && hasRichTextContent(card.answer)
     );
 
     if (validFlashcards.length === 0) {
@@ -206,12 +210,9 @@ const EditDeck = () => {
 
       const status = err?.response?.status;
       const isNetworkError = err?.message === 'Network Error';
-      const isInfrastructureError = 
-      status === 502 || 
-      status === 503 || 
-      status === 404 ||
-      isNetworkError;
-      
+      const isInfrastructureError =
+        status === 502 || status === 503 || status === 404 || isNetworkError;
+
       if (isInfrastructureError) {
         // console.log('[SAVE] Infrastructure/network error — navigating anyway');
         navigate(`/decks/${deckId}`);
@@ -251,18 +252,6 @@ const EditDeck = () => {
 
   return (
     <div className='max-w-4xl mx-auto'>
-      <ConfirmActionModal
-        isOpen={Boolean(flashcardToDelete)}
-        title='Delete this flashcard?'
-        message='Are you sure you want to remove this flashcard from the deck?'
-        confirmText='Delete Flashcard'
-        onCancel={() => setFlashcardToDelete(null)}
-        onConfirm={() => {
-          handleRemoveFlashcard(flashcardToDelete);
-          setFlashcardToDelete(null);
-        }}
-      />
-
       <button
         className='mt-4 flex items-center text-indigo-600 font-medium hover:text-indigo-700'
         onClick={() => navigate(`/decks/${deckId}`)}
@@ -281,9 +270,10 @@ const EditDeck = () => {
 
         <div className='mb-4'>
           <label className='block text-sm font-medium text-gray-700 mb-1'>
-            Deck Name
+            Deck Name *
           </label>
-          <input
+          <textarea
+            required
             type='text'
             value={deckName}
             onChange={(e) => {
@@ -297,9 +287,10 @@ const EditDeck = () => {
 
         <div className='mb-4'>
           <label className='block text-sm font-medium text-gray-700 mb-1'>
-            Description
+            Description *
           </label>
           <textarea
+            required
             value={deckDescription}
             onChange={(e) => setDeckDescription(e.target.value)}
             className='w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500'

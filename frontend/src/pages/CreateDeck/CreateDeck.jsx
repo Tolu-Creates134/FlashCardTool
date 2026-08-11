@@ -85,6 +85,11 @@ const CreateDeck = ({
       return;
     }
 
+    if (!deckDescription.trim()) {
+      setSaveError('Please provide a deck description before saving.');
+      return;
+    }
+
     if (!selectedCategoryId) {
       setSaveError('Please provide a category name before saving');
       return;
@@ -282,7 +287,7 @@ const CreateDeck = ({
         {/* Deck name */}
         <div className='mb-4'>
           <label className='block text-sm font-medium text-gray-700 mb-1'>
-            Deck Name
+            Deck Name *
           </label>
           <input
             type='text'
@@ -299,7 +304,7 @@ const CreateDeck = ({
         {/* Description */}
         <div className='mb-4'>
           <label className='block text-sm font-medium text-gray-700 mb-1'>
-            Deck Description
+            Deck Description *
           </label>
           <textarea
             value={deckDescription}
