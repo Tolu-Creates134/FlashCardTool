@@ -113,6 +113,15 @@ const EditDeck = () => {
     setFlashcards((prev) => prev.filter((card) => card._localId !== localId));
   };
 
+  const handleConfirmDeleteFlashcard = () => {
+    if (!flashcardToDelete) return;
+
+    handleRemoveFlashcard(flashcardToDelete);
+    setFlashcardToDelete(null);
+    setFlashcardError('');
+    setSaveError('');
+  };
+
   const handleApproveAiCards = (approvedCards) => {
     setFlashcards((prev) => [
       ...prev,
@@ -154,6 +163,14 @@ const EditDeck = () => {
     () => !updateDeckMutation.isPending,
     [updateDeckMutation.isPending]
   );
+
+  const flashcardPendingDelete = flashcards.find(
+    (card) => card._localId === flashcardToDelete
+  );
+
+  const flashcardPendingDeleteIndex = flashcardPendingDelete
+    ? flashcards.findIndex((card) => card._localId === flashcardToDelete) + 1
+    : null;
 
   const handleSave = async () => {
     if (!deckName.trim()) {
@@ -292,7 +309,10 @@ const EditDeck = () => {
           <textarea
             required
             value={deckDescription}
-            onChange={(e) => setDeckDescription(e.target.value)}
+            onChange={(e) => {
+              setDeckDescription(e.target.value);
+              if (saveError) setSaveError('');
+            }}
             className='w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500'
             placeholder='What is this deck about?'
             rows={3}
@@ -478,6 +498,20 @@ const EditDeck = () => {
       {saveError && (
         <p className='text-sm text-red-600 text-right mt-2'>{saveError}</p>
       )}
+
+      <ConfirmActionModal
+        isOpen={Boolean(flashcardToDelete)}
+        title='Delete this flashcard?'
+        message={[
+          flashcardPendingDeleteIndex
+            ? `Flashcard ${flashcardPendingDeleteIndex} will be removed from this deck.`
+            : 'This flashcard will be removed from this deck.',
+          'This action cannot be undone.',
+        ]}
+        confirmText='Delete Flashcard'
+        onConfirm={handleConfirmDeleteFlashcard}
+        onCancel={() => setFlashcardToDelete(null)}
+      />
     </div>
   );
 };
