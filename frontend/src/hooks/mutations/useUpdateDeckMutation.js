@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateDeck } from "../../services/api";
+import { isInfrastructureError } from "../../utils/infraErrorHandler";
 
 /**
  * Mutation hook for updating an existing deck and its flashcards
@@ -16,13 +17,10 @@ export const useUpdateDeckMutation = () => {
             queryClient.invalidateQueries({ queryKey: ['flashcards', variables.deckId] });
         },
         onError: (error) => {
-            const status = error?.response?.status;
-            const isNetworkError = error?.message === 'Network Error';
-            
-            if (status === 502 || 
-            status === 503 || 
-            status === 404 || 
-            isNetworkError) return; // ← ignore all infrastructure errors
+            if (isInfrastructureError(error)) {
+                return;
+            }
+            throw error;
         }
     }); 
 };

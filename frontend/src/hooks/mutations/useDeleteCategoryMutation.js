@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { deleteCategory } from "../../services/api"
 import { useNavigate } from "react-router-dom";
+import { isInfrastructureError } from "../../utils/infraErrorHandler";
 
 /**
  * Delete category and related decks/flashcards mutation
@@ -18,6 +19,12 @@ export const useDeleteCategoryMutation = () => {
             queryClient.invalidateQueries({ queryKey: ['categories'] });
             queryClient.invalidateQueries({ queryKey: ['decks'] });
             navigate('/home');
+        },
+        onError: (error) => {
+            if (isInfrastructureError(error)) {
+                return;
+            }
+            throw error;
         }
     })
 }

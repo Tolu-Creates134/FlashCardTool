@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteDeck } from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import { isInfrastructureError } from "../../utils/infraErrorHandler";
 
 /**
  * Deletes a deck using deckId
@@ -25,7 +26,10 @@ export const useDeleteDeckMutation = (deckId) => {
             }, 0);
         },
         onError: (error) => {
-            if (error.response?.status === 404) return; // already handled in api.js
+            if (isInfrastructureError(error)) {
+                return;
+            }
+            throw error;
         }
     });
 }

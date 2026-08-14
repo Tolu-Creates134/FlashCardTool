@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { triggerLogout } from '../utils/logoutManager';
+import { isInfrastructureError } from '../utils/infraErrorHandler';
 
 /**
  * Create axios instance
@@ -163,7 +164,7 @@ export const deleteDeck = async (deckId) => {
       _skipErrorToast: true, // ← custom flag
     });
   } catch (error) {
-    if (error.response?.status === 404) {
+    if (isInfrastructureError(error)) {
       return;
     }
     throw error;
@@ -176,7 +177,14 @@ export const deleteDeck = async (deckId) => {
  * @returns
  */
 export const deleteCategory = async (categoryId) => {
-  await api.delete(`/categories/${categoryId}`);
+  try {
+    await api.delete(`/categories/${categoryId}`);
+  } catch (error) {
+    if (isInfrastructureError(error)) {
+      return;
+    }
+    throw error;
+  }
 }
 
 /**
@@ -202,18 +210,7 @@ export const updateDeck = async (deckId, deckData) => {
     });
     // console.log('[UPDATE API] Success');
   } catch (error) {
-    const status = error.response?.status;
-    // console.log('[UPDATE API] Error caught:', { status, message: error.message });
-
-    // Handle both HTTP errors and network level errors
-    const isInfrastructureError = 
-    status === 404 ||
-    status === 502 ||
-    status === 503 ||
-    status === undefined;
-
-    if (isInfrastructureError) {
-      //console.log('[UPDATE API] Infrastructure error — returning silently');
+    if (isInfrastructureError(error)) {
       return;
     }
     throw error;
