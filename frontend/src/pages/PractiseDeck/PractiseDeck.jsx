@@ -5,6 +5,7 @@ import { useDeckQuery } from '../../hooks/queries/useDeckQuery';
 import { useFlashcardsQuery } from '../../hooks/queries/useFlashcardsQuery';
 import { useCreatePractiseSessionMutation } from '../../hooks/mutations/useCreatePractiseSessionMutation';
 import RichTextContent from '../../components/ui/RichTextContent';
+import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
 
 /**
  * Practise Deck component
@@ -21,6 +22,7 @@ const PractiseDeck = () => {
   const [showAnswer, setShowAnswer] = useState(false);
   const [responses, setResponses] = useState([]);
   const [isFinished, setIsFinished] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
 
   const {
     data: deck = null,
@@ -41,12 +43,13 @@ const PractiseDeck = () => {
   const loading = deckLoading || flashcardsLoading;
 
   const error =
-    deckQueryError?.message ||
-    flashcardsQueryError?.message ||
-    createPractiseSessionMutation.error?.message ||
-    (deckError || flashcardsError
-      ? 'Unable to load deck for practice. Please try again.'
-      : '');
+  deckQueryError?.message ||
+  flashcardsQueryError?.message ||
+  createPractiseSessionMutation.error?.message ||
+  (deckError || flashcardsError
+    ? 'Unable to load deck for practice. Please try again.'
+    : ''
+  );
 
   const currentCard = flashcards[currentIndex];
   const currentCardId = currentCard?.id ?? `card-${currentIndex}`;
@@ -65,6 +68,15 @@ const PractiseDeck = () => {
   const progressPercentage = totalCards > 0
     ? ((currentIndex + 1) / totalCards) * 100
     : 0;
+  const shouldBlockPracticeExit = !loading && !isFinished && totalCards > 0;
+  const completionSeconds = sessionStartRef.current
+    ? Math.max(0, Math.round((Date.now() - sessionStartRef.current) / 1000))
+    : 0;
+  const completionMinutes = Math.floor(completionSeconds / 60);
+  const remainingSeconds = completionSeconds % 60;
+  const formattedCompletionTime = `${completionMinutes}:${String(
+    remainingSeconds
+  ).padStart(2, '0')}`;
 
   const persistPracticeSession = async (sessionResponses) => {
     if (hasSavedSessionRef.current) return;
@@ -154,11 +166,39 @@ const PractiseDeck = () => {
     persistPracticeSession(responses);
   };
 
+  const handleExitPractiseMode = () => {
+    navigate(`/decks/${deckId}`)
+  }
+
   useEffect(() => {
     if (!loading && deck && sessionStartRef.current === null) {
       sessionStartRef.current = Date.now();
     }
   }, [loading, deck]);
+
+  useEffect(() => {
+    if (!shouldBlockPracticeExit) {
+      return undefined;
+    }
+
+    const historyState = {
+      flashLearnPracticeExitGuard: true,
+      deckId,
+    };
+
+    window.history.pushState(historyState, '', window.location.href);
+
+    const handlePopState = () => {
+      setShowExitModal(true);
+      window.history.pushState(historyState, '', window.location.href);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [deckId, shouldBlockPracticeExit]);
 
   if (loading) {
     return (
@@ -214,6 +254,9 @@ const PractiseDeck = () => {
           {Math.round((correctCount / totalCards) * 100)}%
         </p>
         <p className='mt-3 text-lg font-medium text-slate-500'>Your score</p>
+        <p className='mt-4 text-sm font-medium text-slate-500'>
+          Time taken: <span className='text-slate-700'>{formattedCompletionTime}</span>
+        </p>
       </div>
 
       <div className='mt-10 grid gap-4 sm:grid-cols-2'>
@@ -253,7 +296,7 @@ const PractiseDeck = () => {
           <div className='flex items-center justify-between text-lg text-slate-600'>
             <button
               className='flex items-center text-indigo-600 font-medium hover:text-indigo-700'
-              onClick={() => navigate(`/decks/${deckId}`)}
+              onClick={() => setShowExitModal(true)}
             >
               <span className='mr-2'>{'←'}</span>
               Exit Practice
@@ -346,7 +389,7 @@ const PractiseDeck = () => {
                 <button
                   className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed ${
                     hasAnsweredCurrent
-                      ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                      ? 'bg-indigo-600 text-white hover:bg-indigo-700'
                       : 'bg-slate-200 text-slate-400'
                   }`}
                   onClick={
@@ -364,6 +407,15 @@ const PractiseDeck = () => {
           {isFinished && renderSummary()}
         </div>
       </div>
+
+      <ConfirmActionModal
+        isOpen={showExitModal}
+        title={`Are you sure you want to exit practise mode for "${deck.name}"?`}
+        message="Your progress will be lost and your session will not be saved. You can restart this deck at any time."
+        confirmText="Exit Practise Mode"
+        onConfirm={handleExitPractiseMode}
+        onCancel={() => setShowExitModal(false)}
+      />
     </div>
   );
 };
