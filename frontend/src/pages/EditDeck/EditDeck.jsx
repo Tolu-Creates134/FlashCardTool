@@ -11,6 +11,7 @@ import { useCreateCategoryMutation } from '../../hooks/mutations/useCreateCatego
 import { useUpdateDeckMutation } from '../../hooks/mutations/useUpdateDeckMutation';
 import RichTextEditor from '../../components/ui/RichTextEditor';
 import { hasRichTextContent } from '../../utils/hasRichTextContent';
+import { isInfrastructureError } from '../../utils/infraErrorHandler';
 
 /**
  * Edit deck component
@@ -20,17 +21,23 @@ const EditDeck = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
 
+  const DRAFT_CATEGORY_PREFIX = 'draft-category-';
+
   const [deckName, setDeckName] = useState('');
   const [deckDescription, setDeckDescription] = useState('');
+  
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [draftCategories, setDraftCategories] = useState([]);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+
   const [flashcards, setFlashcards] = useState([]); // [{id?, question, answer, _localId}]
   const [flashcardError, setFlashcardError] = useState('');
+  const [flashcardToDelete, setFlashcardToDelete] = useState(null);
+
   const [saveError, setSaveError] = useState('');
   const [newQuestion, setNewQuestion] = useState('');
   const [newAnswer, setNewAnswer] = useState('');
-  const [flashcardToDelete, setFlashcardToDelete] = useState(null);
   const [hasHydratedForm, setHasHydratedForm] = useState(false);
 
   // stable local ids for rendering new cards without server ids
@@ -63,13 +70,16 @@ const EditDeck = () => {
 
   const loading = deckLoading || flashcardsLoading || categoriesLoading;
 
+  const allCategories = [...draftCategories, ...categories];
+
   const error =
-    deckQueryError?.message ||
-    flashcardsQueryError?.message ||
-    categoriesQueryError?.message ||
-    (deckError || flashcardsError || categoriesError
-      ? 'Unable to load deck. Please try again.'
-      : '');
+  deckQueryError?.message ||
+  flashcardsQueryError?.message ||
+  categoriesQueryError?.message ||
+  (deckError || flashcardsError || categoriesError
+    ? 'Unable to load deck. Please try again.'
+    : ''
+  );
 
   useEffect(() => {
     if (!deck || hasHydratedForm) return;
@@ -136,32 +146,51 @@ const EditDeck = () => {
     setSaveError('');
   };
 
-  const handleCreateCategory = async () => {
+  const handleCreateCategory = () => {
     const name = newCategoryName.trim();
     if (!name) {
       return;
     }
 
-    try {
-      const createdCategory = await createCategoryMutation.mutateAsync({
-        name,
-      });
-      setSelectedCategoryId(createdCategory.id);
-      setSaveError('');
+    const existingPersistedCategory = categories.find(
+      (category) => category.name.trim().toLowerCase() === name.toLowerCase()
+    );
+
+    if(existingPersistedCategory){
+      setSelectedCategoryId(existingPersistedCategory.id)
       setNewCategoryName('');
       setShowNewCategoryInput(false);
-    } catch (error) {
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Unable to create category. Please try again.';
-      setSaveError(message);
+      setSaveError('')
+      return;
     }
+
+    const existingDraftCategory = draftCategories.find(
+      (category) => category.name.trim().toLowerCase() === name.toLowerCase()
+    );
+    
+    if (existingDraftCategory) {
+      setSelectedCategoryId(existingDraftCategory.id);
+      setNewCategoryName('');
+      setShowNewCategoryInput(false);
+      setSaveError('');
+      return;
+    }
+    
+    const draftCategory = {
+      id: `${DRAFT_CATEGORY_PREFIX}${generateUniqueId()}`,
+      name,
+    };
+
+    setDraftCategories((prev) => [draftCategory, ...prev]);
+    setSelectedCategoryId(draftCategory.id);
+    setNewCategoryName('');
+    setShowNewCategoryInput(false);
+    setSaveError('');
   };
 
   const canSave = useMemo(
-    () => !updateDeckMutation.isPending,
-    [updateDeckMutation.isPending]
+    () => !updateDeckMutation.isPending && !createCategoryMutation.isPending,
+    [updateDeckMutation.isPending, createCategoryMutation.isPending]
   );
 
   const flashcardPendingDelete = flashcards.find(
@@ -169,8 +198,8 @@ const EditDeck = () => {
   );
 
   const flashcardPendingDeleteIndex = flashcardPendingDelete
-    ? flashcards.findIndex((card) => card._localId === flashcardToDelete) + 1
-    : null;
+  ? flashcards.findIndex((card) => card._localId === flashcardToDelete) + 1
+  : null;
 
   const handleSave = async () => {
     if (!deckName.trim()) {
@@ -200,10 +229,37 @@ const EditDeck = () => {
     if (!canSave) return;
     setSaveError('');
 
+    let resolvedCategoryId = selectedCategoryId;
+
+    if (selectedCategoryId.startsWith(DRAFT_CATEGORY_PREFIX)) {
+      const selectedDraftCategory = draftCategories.find(
+        (category) => category.id === selectedCategoryId
+      );
+
+      if (!selectedDraftCategory) {
+        setSaveError('Please select or create a category before saving.');
+        return;
+      }
+
+      try {
+        const createdCategory = await createCategoryMutation.mutateAsync({
+          name: selectedDraftCategory.name,
+        });
+        resolvedCategoryId = createdCategory.id;
+      } catch (error) {
+        const message =
+          error?.response?.data?.message ||
+          error?.message ||
+          'Unable to create category. Please try again.';
+        setSaveError(message);
+        return;
+      }
+    }
+
     const payload = {
       name: deckName.trim(),
       description: deckDescription.trim(),
-      categoryId: selectedCategoryId,
+      categoryId: resolvedCategoryId,
       flashCards: validFlashcards.map(({ id, question, answer }) => ({
         id,
         question,
@@ -216,22 +272,9 @@ const EditDeck = () => {
         deckId,
         deckData: payload,
       });
-      // console.log('[SAVE] mutateAsync succeeded — navigating');
       navigate(`/decks/${deckId}`);
     } catch (err) {
-      // console.log('[SAVE] catch fired:', {
-      //   status: err?.response?.status,
-      //   message: err?.message,
-      //   responseData: err?.response?.data
-      // });
-
-      const status = err?.response?.status;
-      const isNetworkError = err?.message === 'Network Error';
-      const isInfrastructureError =
-        status === 502 || status === 503 || status === 404 || isNetworkError;
-
-      if (isInfrastructureError) {
-        // console.log('[SAVE] Infrastructure/network error — navigating anyway');
+      if (isInfrastructureError(err)) {
         navigate(`/decks/${deckId}`);
         return;
       }
@@ -336,14 +379,9 @@ const EditDeck = () => {
               <button
                 type='button'
                 onClick={handleCreateCategory}
-                disabled={createCategoryMutation.isPending}
-                className={`px-4 py-2 rounded-md text-white ${
-                  createCategoryMutation.isPending
-                    ? 'bg-indigo-400 cursor-not-allowed'
-                    : 'bg-indigo-600 hover:bg-indigo-700'
-                }`}
+                className='px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700'
               >
-                {createCategoryMutation.isPending ? 'Adding...' : 'Add'}
+                Add
               </button>
               <button
                 type='button'
@@ -369,7 +407,7 @@ const EditDeck = () => {
                 <option value='' disabled>
                   Select a category
                 </option>
-                {categories.map((category) => (
+                {allCategories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>

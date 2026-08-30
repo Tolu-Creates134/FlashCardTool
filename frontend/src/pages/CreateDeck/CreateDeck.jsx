@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { PlusIcon } from 'lucide-react';
 import { generateUniqueId } from '../../utils/helpers';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -22,10 +22,13 @@ const CreateDeck = ({
   onCreateCategory = () => {},
 }) => {
   const { categoryId } = useParams();
+  
+  const DRAFT_CATEGORY_PREFIX = 'draft-category-'
 
   const [deckName, setDeckName] = useState('');
   const [deckDescription, setDeckDescription] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [draftCategories, setDraftCategories] = useState([]);
 
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
@@ -50,33 +53,54 @@ const CreateDeck = ({
 
   const createDeckMutation = useCreateDeckMutation();
 
-  const categories =
-    fetchedCategories.length > 0 ? fetchedCategories : initialCategories;
+  const persistedCategories = fetchedCategories.length > 0 ? fetchedCategories : initialCategories;
+
+  const categories = useMemo(() => {
+    return [...draftCategories, ...persistedCategories]
+  }, [draftCategories, persistedCategories])
 
   const error =
-    categoriesQueryError?.message ||
-    (categoriesError ? 'Unable to load categories. Please try again.' : '');
+  categoriesQueryError?.message ||
+  (categoriesError ? 'Unable to load categories. Please try again.' : '');
 
-  const handleCreateCategory = async () => {
+  const handleCreateCategory = () => {
     const name = newCategoryName.trim();
     if (!name) return;
 
-    try {
-      const createdCategory = await createCategoryMutation.mutateAsync({
-        name,
-      });
-      setSelectedCategoryId(createdCategory.id);
-      setSaveError('');
+    const existingPersistedCategory = persistedCategories.find(
+      (category) => category.name.trim().toLowerCase() === name.toLowerCase()
+    );
+
+    if (existingPersistedCategory) {
+      setSelectedCategoryId(existingPersistedCategory.id);
       setNewCategoryName('');
       setShowNewCategoryInput(false);
-      onCreateCategory(createdCategory);
-    } catch (error) {
-      const message =
-        error.response?.data?.message ||
-        error.message ||
-        'Unable to create category. Please try again.';
-      setSaveError(message);
+      setSaveError('')
+      return;
     }
+
+    const existingDraftCategory = draftCategories.find(
+      (category) => category.name.trim().toLowerCase() === name.toLowerCase()
+    );
+
+    if (existingDraftCategory) {
+      setSelectedCategoryId(existingDraftCategory.id);
+      setNewCategoryName('');
+      setShowNewCategoryInput(false);
+      setSaveError('');
+      return;
+    }
+
+    const draftCategory = {
+      id: `${DRAFT_CATEGORY_PREFIX}${generateUniqueId()}`,
+      name,
+    };
+
+    setDraftCategories((prev) => [draftCategory, ...prev]);
+    setSelectedCategoryId(draftCategory.id);
+    setNewCategoryName('');
+    setShowNewCategoryInput(false);
+    setSaveError('');
   };
 
   const handleSaveDeck = async () => {
@@ -105,17 +129,44 @@ const CreateDeck = ({
       return;
     }
 
+    let resolvedCategoryId = selectedCategoryId;
+
+    if (selectedCategoryId.startsWith(DRAFT_CATEGORY_PREFIX)){
+      const selectedDraftCategory = draftCategories.find(
+        (category) => category.id === selectedCategoryId
+      );
+
+      if (!selectedDraftCategory) {
+        setSaveError('Please select or create a category before saving')
+        return;
+      }
+
+      try {
+        const createdCategory = await createCategoryMutation.mutateAsync({
+          name: selectedDraftCategory.name
+        })
+
+        resolvedCategoryId = createdCategory.id;
+        onCreateCategory(createdCategory)
+      } catch (error) {
+        const message = 
+        error.response?.data?.message || 
+        error.message ||
+        'Unable to create category. Please try again.';
+        setSaveError(message);
+        return;
+      }
+    }
+
     const payload = {
       name: deckName.trim(),
       description: deckDescription.trim(),
-      categoryId: selectedCategoryId,
+      categoryId: resolvedCategoryId,
       flashCards: validFlashcards.map(({ question, answer }) => ({
         question,
         answer,
       })),
     };
-
-    setSaveError('');
 
     try {
       const createdDeck = await createDeckMutation.mutateAsync(payload);
@@ -237,13 +288,15 @@ const CreateDeck = ({
               />
               <button
                 onClick={handleCreateCategory}
-                disabled={createCategoryMutation.isPending}
-                className={`px-4 py-2 rounded-md text-white ${createCategoryMutation.isPending ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                className='px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700'
               >
-                {createCategoryMutation.isPending ? 'Adding...' : 'Add'}
+                Add
               </button>
               <button
-                onClick={() => setShowNewCategoryInput(false)}
+                onClick={() => {
+                  setShowNewCategoryInput(false);
+                  setNewCategoryName('');
+                }}
                 className='px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400'
               >
                 Cancel
@@ -308,7 +361,10 @@ const CreateDeck = ({
           </label>
           <textarea
             value={deckDescription}
-            onChange={(e) => setDeckDescription(e.target.value)}
+            onChange={(e) => {
+              setDeckDescription(e.target.value);
+              if (saveError) setSaveError('');
+            }}
             className='w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500'
             placeholder='What is this deck about?'
             rows={3}
@@ -400,14 +456,16 @@ const CreateDeck = ({
         </button>
         <button
           onClick={handleSaveDeck}
-          disabled={createDeckMutation.isPending}
+          disabled={createDeckMutation.isPending || createCategoryMutation.isPending}
           className={`px-6 py-2 rounded-md ${
-            createDeckMutation.isPending
+            createDeckMutation.isPending || createCategoryMutation.isPending
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-indigo-600 text-white hover:bg-indigo-700'
           }`}
         >
-          {createDeckMutation.isPending ? 'Saving...' : 'Save Deck'}
+          {createDeckMutation.isPending || createCategoryMutation.isPending
+            ? 'Saving...'
+            : 'Save Deck'}
         </button>
       </div>
       {saveError && (
