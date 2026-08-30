@@ -6,6 +6,7 @@ import { useFlashcardsQuery } from '../../hooks/queries/useFlashcardsQuery';
 import { useCreatePractiseSessionMutation } from '../../hooks/mutations/useCreatePractiseSessionMutation';
 import RichTextContent from '../../components/ui/RichTextContent';
 import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
+import { getPracticeContentClassName } from '../../utils/getPracticeContentClassName';
 
 /**
  * Practise Deck component
@@ -316,7 +317,7 @@ const PractiseDeck = () => {
         <div className='flex-1 flex w-full flex-col items-center text-center'>
           {!isFinished && currentCard && (
             <>
-              <button
+	              <button
                 type='button'
                 onClick={handleReveal}
                 disabled={hasAnsweredCurrent}
@@ -330,14 +331,23 @@ const PractiseDeck = () => {
                   {showAnswer ? 'Answer' : 'Question'}
                 </div>
 
-                <div className='flex flex-1 items-center justify-center py-6 text-center'>
-                  <div className='max-w-2xl'>
-                    <RichTextContent
-                      html={showAnswer ? currentCard.answer : currentCard.question}
-                      className='text-2xl leading-10 text-slate-900'
-                    />
-                  </div>
-                </div>
+	                <div
+                    className={`flex flex-1 py-6 ${
+                      showAnswer
+                        ? 'items-start justify-start text-left'
+                        : 'items-center justify-center text-center'
+                    }`}
+                  >
+	                  <div className={`w-full ${showAnswer ? 'max-w-3xl' : 'max-w-2xl'}`}>
+	                    <RichTextContent
+	                      html={showAnswer ? currentCard.answer : currentCard.question}
+	                      className={getPracticeContentClassName(
+                          showAnswer ? currentCard.answer : currentCard.question,
+                          showAnswer
+                        )}
+	                    />
+	                  </div>
+	                </div>
 
                 <p className='text-center text-lg text-slate-500'>
                   {showAnswer ? 'Click to see question' : 'Click to see answer'}
