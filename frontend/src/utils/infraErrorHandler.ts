@@ -1,3 +1,5 @@
+import { AxiosError } from 'axios';
+
 /**
  * Determines if an error is caused by Azure Container Apps
  * Envoy proxy infrastructure duplication rather than a genuine failure.
@@ -5,7 +7,7 @@
  * @param {Error} error - The axios error object
  * @returns {boolean}
  */
-export const isInfrastructureError = (error) => {
+export const isInfrastructureError = (error : AxiosError) : boolean => {
     const status = error?.response?.status;
     return (
         status === 404 ||

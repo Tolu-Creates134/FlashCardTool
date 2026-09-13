@@ -5,25 +5,25 @@
  * @param {boolean} isAnswerSide
  * @returns {string}
  */
-export const getPracticeContentClassName = (html, isAnswerSide) => {
-  const plainText = (html || '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+export const getPracticeContentClassName = (html : string, isAnswerSide : boolean) : string => {
+  const plainText : string = (html || '')
+  .replace(/<[^>]+>/g, ' ')
+  .replace(/&nbsp;/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
 
-  const textLength = plainText.length;
-  const listItemCount = (html?.match(/<li\b/gi) || []).length;
-  const paragraphCount = (
+  const textLength : number = plainText.length;
+  const listItemCount : number = (html?.match(/<li\b/gi) || []).length;
+  const paragraphCount : number = (
     html?.match(/<(p|h1|h2|h3|h4|h5|h6|pre|blockquote)\b/gi) || []
   ).length;
-  const hasCodeBlock = /<pre\b|<code\b/i.test(html || '');
-  const isDenseContent =
+  const hasCodeBlock : boolean = /<pre\b|<code\b/i.test(html || '');
+  const isDenseContent : boolean =
     textLength > 220 ||
     listItemCount >= 3 ||
     paragraphCount >= 4 ||
     hasCodeBlock;
-  const isVeryDenseContent =
+  const isVeryDenseContent : boolean =
     textLength > 420 ||
     listItemCount >= 5 ||
     paragraphCount >= 6;
