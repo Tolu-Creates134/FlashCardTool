@@ -7,7 +7,7 @@ import { AxiosError } from 'axios';
  * @param {Error} error - The axios error object
  * @returns {boolean}
  */
-export const isInfrastructureError = (error : AxiosError) : boolean => {
+export const isInfrastructureError = (error: AxiosError): boolean => {
     const status = error?.response?.status;
     return (
         status === 404 ||
