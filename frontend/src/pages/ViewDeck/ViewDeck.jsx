@@ -32,7 +32,7 @@ const ViewDeck = () => {
   } = useFlashcardsQuery(deckId)
 
   const { data: decks = [] } = useDecksQuery();
-  const deleteDeckMutation = useDeleteDeckMutation(deckId);
+  const deleteDeckMutation = useDeleteDeckMutation();
   
   const loading = flashcardsLoading || deckLoading;
 
@@ -49,7 +49,7 @@ const ViewDeck = () => {
       return;
     }
     
-    deleteDeckMutation.mutate();
+    deleteDeckMutation.mutate({deckId});
   }
 
   if (loading) {
