@@ -37,7 +37,7 @@ public static class CategoryEndpoints
         })
         .WithName("ListCategories")
         .WithDescription("Returns all categories")
-        .Produces<List<CategoryDto>>(StatusCodes.Status200OK);
+        .Produces<ListAllCategoriesResponse>(StatusCodes.Status200OK);
     }
 
     public static void DeleteCategory(this RouteGroupBuilder group)

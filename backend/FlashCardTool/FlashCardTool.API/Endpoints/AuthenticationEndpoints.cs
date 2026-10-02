@@ -1,3 +1,4 @@
+using FlashCardTool.API.Models;
 using FlashCardTool.Application.Common.Auth;
 using FlashCardTool.Application.Models;
 using FlashCardTool.Application.Users;
@@ -78,16 +79,15 @@ public static class AuthenticationEndpoints
                 BuildRefreshTokenCookieOptions()
             );
 
-            return Results.Ok(new
-            {
+            return Results.Ok(new GoogleLoginResponse(
                 accessToken,
                 refreshToken,
-                email = payload.Email
-            });
+                payload.Email
+            ));
         })
         .WithName("GoogleLogin")
         .WithDescription("Handles Google login and issues access/refresh tokens")
-        .Produces(StatusCodes.Status200OK)
+        .Produces<GoogleLoginResponse>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
     }
 
