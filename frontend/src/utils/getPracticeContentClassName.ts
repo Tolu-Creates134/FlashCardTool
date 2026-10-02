@@ -1,11 +1,4 @@
-/**
- * Returns responsive typography classes for practice card content based on
- * how dense the rendered rich text is.
- * @param {string} html
- * @param {boolean} isAnswerSide
- * @returns {string}
- */
-export const getPracticeContentClassName = (html : string, isAnswerSide : boolean) : string => {
+const getPracticeContentDensity = (html: string): 'short' | 'dense' | 'veryDense' => {
   const plainText : string = (html || '')
   .replace(/<[^>]+>/g, ' ')
   .replace(/&nbsp;/g, ' ')
@@ -28,23 +21,43 @@ export const getPracticeContentClassName = (html : string, isAnswerSide : boolea
     listItemCount >= 5 ||
     paragraphCount >= 6;
 
+  return isVeryDenseContent ? 'veryDense' : isDenseContent ? 'dense' : 'short';
+};
+
+/**
+ * Determines whether an answer needs the top-left reading layout.
+ * @param {string} html - The answer's rich text.
+ * @returns {boolean} Whether the answer is dense or contains code.
+ */
+export const shouldLeftAlignPracticeAnswer = (html: string): boolean =>
+  getPracticeContentDensity(html) !== 'short';
+
+/**
+ * Returns responsive typography classes for practice card content.
+ * @param {string} html - The card's rich text.
+ * @param {boolean} isAnswerSide - Whether the answer is showing.
+ * @returns {string} Typography and alignment classes.
+ */
+export const getPracticeContentClassName = (html: string, isAnswerSide: boolean): string => {
+  const density = getPracticeContentDensity(html);
+
   if (isAnswerSide) {
-    if (isVeryDenseContent) {
+    if (density === 'veryDense') {
       return 'w-full text-left text-base leading-8 text-slate-900';
     }
 
-    if (isDenseContent) {
+    if (density === 'dense') {
       return 'w-full text-left text-lg leading-8 text-slate-900';
     }
 
-    return 'w-full text-left text-xl leading-9 text-slate-900';
+    return 'w-full text-center text-xl leading-9 text-slate-900';
   }
 
-  if (isVeryDenseContent) {
+  if (density === 'veryDense') {
     return 'text-lg leading-8 text-slate-900';
   }
 
-  if (isDenseContent) {
+  if (density === 'dense') {
     return 'text-xl leading-9 text-slate-900';
   }
 

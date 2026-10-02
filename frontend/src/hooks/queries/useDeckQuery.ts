@@ -7,7 +7,7 @@ import { DeckDto, GetDeckByIdResponse } from "../../types";
  * @param {*} deckId 
  * @returns {GetDeckByIdResponse}
  */
-export const useDeckQuery = (deckId: string): UseQueryResult<DeckDto | null, Error> => {
+export const useDeckQuery = (deckId: string | undefined): UseQueryResult<DeckDto | null, Error> => {
     return useQuery<GetDeckByIdResponse, Error, DeckDto | null>({
         queryKey: ['deck', deckId],
         queryFn: async (): Promise<GetDeckByIdResponse> => {

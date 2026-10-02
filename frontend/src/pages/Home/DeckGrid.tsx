@@ -2,12 +2,22 @@ import React from 'react'
 import { PlusIcon } from "lucide-react";
 import DeckCard from '../../components/cards/DeckCard';
 
+import type { CategoryDto, DeckSummaryDto } from '../../types';
+
+export interface DeckGridProps {
+  decks: DeckSummaryDto[];
+  categories: CategoryDto[];
+  onSelectDeck: (deckId: string | undefined) => void;
+  onCreateDeck: (categoryId?: string) => void;
+  existingCategoryId?: string;
+}
+
 /**
  * Handles rendering a grid of decks
  * @param {*} param0 
  * @returns 
  */
-const DeckGrid = ({decks, categories, onSelectDeck, onCreateDeck, existingCategoryId }) => {
+const DeckGrid = ({decks, categories, onSelectDeck, onCreateDeck, existingCategoryId }: DeckGridProps) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {decks.map((deck) => {

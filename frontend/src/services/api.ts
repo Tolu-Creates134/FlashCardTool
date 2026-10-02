@@ -137,7 +137,7 @@ export const fetchCategories = async (): Promise<ListAllCategoriesResponse>  => 
  * @returns {Promise<CreateCategoryResponse>}
  */
 export const createCategory = async (categoryData: CreateCategoryCommand): Promise<CreateCategoryResponse> => {
-  const res = await api.post<CreateCategoryResponse>('/categories', { category: categoryData });
+  const res = await api.post<CreateCategoryResponse>('/categories', categoryData);
   return res.data;
 };
 
@@ -156,8 +156,7 @@ export const fetchDecks = async (): Promise<ListAllDecksResponse> => {
  * @returns {Promise<CreateDeckResponse>}
  */
 export const createDeck = async (deckData: CreateDeckCommand): Promise<CreateDeckResponse> => {
-  const payload = { deck: deckData };
-  const res = await api.post<CreateDeckResponse>('/decks', payload);
+  const res = await api.post<CreateDeckResponse>('/decks', deckData);
   return res.data;
 };
 

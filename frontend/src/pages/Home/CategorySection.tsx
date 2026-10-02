@@ -1,13 +1,19 @@
 import React from 'react'
 import { FolderIcon, Trash2 } from "lucide-react";
-import DeckGrid from './DeckGrid';
+import DeckGrid, { type DeckGridProps } from './DeckGrid';
+import type { CategoryDto } from '../../types';
+
+interface CategorySectionProps extends Omit<DeckGridProps, 'existingCategoryId'> {
+  category: CategoryDto;
+  onDeleteCategory: (category: CategoryDto) => void;
+}
 
 /**
  * Handles grouping decks by category
  * @param {*} param0 
  * @returns 
  */
-const CategorySection = ({ category, decks, categories, onCreateDeck, onSelectDeck, onDeleteCategory }) => {
+const CategorySection = ({ category, decks, categories, onCreateDeck, onSelectDeck, onDeleteCategory }: CategorySectionProps) => {
 
   const deckCount = decks.length
 

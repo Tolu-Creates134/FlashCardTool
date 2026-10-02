@@ -13,6 +13,31 @@ import RichTextEditor from '../../components/ui/RichTextEditor';
 import { hasRichTextContent } from '../../utils/hasRichTextContent';
 import { isInfrastructureError } from '../../utils/infraErrorHandler';
 
+import { isAxiosError } from 'axios';
+import type { FlashCardDto, GeneratedFlashCardDto } from '../../types';
+import { getErrorMessage } from '../../utils/getErrorMessage';
+
+interface DraftCategory {
+  id: string;
+  name: string;
+}
+
+interface EditableFlashcard {
+  id?: string | null;
+  question: string;
+  answer: string;
+  _localId: string;
+}
+
+// Normalize optional API fields for controlled rich text inputs.
+const withLocalIds = (cards: (FlashCardDto & { _localId?: string })[]): EditableFlashcard[] =>
+  cards.map((card) => ({
+    ...card,
+    question: card.question ?? '',
+    answer: card.answer ?? '',
+    _localId: card._localId || generateUniqueId(),
+  }));
+
 /**
  * Edit deck component
  * @returns
@@ -27,22 +52,19 @@ const EditDeck = () => {
   const [deckDescription, setDeckDescription] = useState('');
   
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
-  const [draftCategories, setDraftCategories] = useState([]);
+  const [draftCategories, setDraftCategories] = useState<DraftCategory[]>([]);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
 
-  const [flashcards, setFlashcards] = useState([]); // [{id?, question, answer, _localId}]
+  const [flashcards, setFlashcards] = useState<EditableFlashcard[]>([]); // [{id?, question, answer, _localId}]
   const [flashcardError, setFlashcardError] = useState('');
-  const [flashcardToDelete, setFlashcardToDelete] = useState(null);
+  const [flashcardToDelete, setFlashcardToDelete] = useState<string | null>(null);
 
   const [saveError, setSaveError] = useState('');
   const [newQuestion, setNewQuestion] = useState('');
   const [newAnswer, setNewAnswer] = useState('');
   const [hasHydratedForm, setHasHydratedForm] = useState(false);
 
-  // stable local ids for rendering new cards without server ids
-  const withLocalIds = (cards) =>
-    cards.map((c) => ({ ...c, _localId: c._localId || generateUniqueId() }));
 
   const {
     data: deck = null,
@@ -111,7 +133,7 @@ const EditDeck = () => {
     setNewAnswer('');
   };
 
-  const handleUpdateFlashcard = (localId, key, value) => {
+  const handleUpdateFlashcard = (localId: string, key: 'question' | 'answer', value: string) => {
     setFlashcards((prev) =>
       prev.map((card) =>
         card._localId === localId ? { ...card, [key]: value } : card
@@ -119,7 +141,7 @@ const EditDeck = () => {
     );
   };
 
-  const handleRemoveFlashcard = (localId) => {
+  const handleRemoveFlashcard = (localId: string) => {
     setFlashcards((prev) => prev.filter((card) => card._localId !== localId));
   };
 
@@ -132,13 +154,13 @@ const EditDeck = () => {
     setSaveError('');
   };
 
-  const handleApproveAiCards = (approvedCards) => {
+  const handleApproveAiCards = (approvedCards: GeneratedFlashCardDto[]) => {
     setFlashcards((prev) => [
       ...prev,
       ...approvedCards.map((card) => ({
         id: undefined,
-        question: card.question,
-        answer: card.answer,
+        question: card.question ?? '',
+        answer: card.answer ?? '',
         _localId: generateUniqueId(),
       })),
     ]);
@@ -153,11 +175,11 @@ const EditDeck = () => {
     }
 
     const existingPersistedCategory = categories.find(
-      (category) => category.name.trim().toLowerCase() === name.toLowerCase()
+      (category) => (category.name ?? '').trim().toLowerCase() === name.toLowerCase()
     );
 
     if(existingPersistedCategory){
-      setSelectedCategoryId(existingPersistedCategory.id)
+      setSelectedCategoryId(existingPersistedCategory.id ?? '')
       setNewCategoryName('');
       setShowNewCategoryInput(false);
       setSaveError('')
@@ -165,7 +187,7 @@ const EditDeck = () => {
     }
 
     const existingDraftCategory = draftCategories.find(
-      (category) => category.name.trim().toLowerCase() === name.toLowerCase()
+      (category) => (category.name ?? '').trim().toLowerCase() === name.toLowerCase()
     );
     
     if (existingDraftCategory) {
@@ -202,6 +224,10 @@ const EditDeck = () => {
   : null;
 
   const handleSave = async () => {
+    if (!deckId) {
+      setSaveError('A deck ID is required.');
+      return;
+    }
     if (!deckName.trim()) {
       setSaveError('Please provide a deck name before saving.');
       return;
@@ -242,15 +268,15 @@ const EditDeck = () => {
       }
 
       try {
-        const createdCategory = await createCategoryMutation.mutateAsync({
-          name: selectedDraftCategory.name,
+        const { category: createdCategory } = await createCategoryMutation.mutateAsync({
+          category: { name: selectedDraftCategory.name },
         });
+        if (!createdCategory?.id) {
+          throw new Error('The created category did not include an ID.');
+        }
         resolvedCategoryId = createdCategory.id;
       } catch (error) {
-        const message =
-          error?.response?.data?.message ||
-          error?.message ||
-          'Unable to create category. Please try again.';
+        const message = getErrorMessage(error, 'Unable to create category. Please try again.');
         setSaveError(message);
         return;
       }
@@ -274,15 +300,12 @@ const EditDeck = () => {
       });
       navigate(`/decks/${deckId}`);
     } catch (err) {
-      if (isInfrastructureError(err)) {
+      if (isAxiosError(err) && isInfrastructureError(err)) {
         navigate(`/decks/${deckId}`);
         return;
       }
 
-      const message =
-      err?.response?.data?.message ||
-      err?.message ||
-      'Unable to save deck. Please try again.';
+      const message = getErrorMessage(err, 'Unable to save deck. Please try again.');
 
       setSaveError(message);
     }
@@ -334,7 +357,6 @@ const EditDeck = () => {
           </label>
           <textarea
             required
-            type='text'
             value={deckName}
             onChange={(e) => {
               setDeckName(e.target.value);
@@ -455,7 +477,7 @@ const EditDeck = () => {
                   </p>
                   <RichTextEditor
                     value={card.question}
-                    onChange={(html) =>
+                    onChange={(html: string) =>
                       handleUpdateFlashcard(card._localId, 'question', html)
                     }
                     placeholder='Question'
@@ -465,7 +487,7 @@ const EditDeck = () => {
                   </p>
                   <RichTextEditor
                     value={card.answer}
-                    onChange={(html) =>
+                    onChange={(html: string) =>
                       handleUpdateFlashcard(card._localId, 'answer', html)
                     }
                     placeholder='Answer'

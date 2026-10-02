@@ -25,15 +25,18 @@ const ViewDeck = () => {
   } = useDeckQuery(deckId);
 
   const {
-    data: flashcards = [],
+    data: flashcardsData,
     isLoading: flashcardsLoading,
     isError: flashcardsError,
     error: flashcardsQueryError,
   } = useFlashcardsQuery(deckId)
 
-  const { data: decks = [] } = useDecksQuery();
+  const { data: decksData } = useDecksQuery();
   const deleteDeckMutation = useDeleteDeckMutation();
   
+  const decks = decksData ?? [];
+  const flashcards = flashcardsData ?? [];
+
   const loading = flashcardsLoading || deckLoading;
 
   const error = 

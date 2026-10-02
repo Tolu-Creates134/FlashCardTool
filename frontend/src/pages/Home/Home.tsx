@@ -8,13 +8,15 @@ import { useDecksQuery } from '../../hooks/queries/useDecksQuery';
 import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
 import { useDeleteCategoryMutation } from '../../hooks/mutations/useDeleteCategoryMutation';
 
+import type { CategoryDto } from '../../types';
+
 /**
  * Displays the home page content after user logs
  * @returns 
  */
 const Home = () => {
   const [activeTab, setActiveTab] = useState('categories');
-  const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<CategoryDto | null>(null);
   const navigate = useNavigate();
 
   const {
@@ -24,25 +26,28 @@ const Home = () => {
   } = useCategoriesQuery();
 
   const {
-    data: decks = [],
+    data: decksData,
     isLoading: decksLoading,
     isError: decksError
   } = useDecksQuery()
 
   const deleteCategoryMutation = useDeleteCategoryMutation()
 
+  const decks = useMemo(() => decksData ?? [], [decksData]);
+
   const loading = categoriesLoading || decksLoading;
   const error = categoriesError || decksError;
 
-  const handleCreateDeck =  (categoryId) => {
+  const handleCreateDeck =  (categoryId?: string) => {
     navigate(categoryId ? `/create-deck/${categoryId}` : '/create-deck');
   };
 
-  const handleSelectDeck = async (deckId) => {
+  const handleSelectDeck = (deckId: string | undefined) => {
+    if (!deckId) return;
     navigate(`/decks/${deckId}`);
   };
 
-  const handleRequestDeleteCategory = (category) => {
+  const handleRequestDeleteCategory = (category: CategoryDto) => {
     setCategoryToDelete(category);
   }
 
@@ -52,7 +57,7 @@ const Home = () => {
   }
 
   const handleConfirmDeleteCategory = () => {
-    if (!categoryToDelete || deleteCategoryMutation.isPending) return;
+    if (!categoryToDelete?.id || deleteCategoryMutation.isPending) return;
 
     deleteCategoryMutation.mutate(
       { 

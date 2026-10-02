@@ -6,7 +6,14 @@ import { useFlashcardsQuery } from '../../hooks/queries/useFlashcardsQuery';
 import { useCreatePractiseSessionMutation } from '../../hooks/mutations/useCreatePractiseSessionMutation';
 import RichTextContent from '../../components/ui/RichTextContent';
 import ConfirmActionModal from '../../components/ui/ConfirmActionModal';
-import { getPracticeContentClassName } from '../../utils/getPracticeContentClassName';
+import { getPracticeContentClassName, shouldLeftAlignPracticeAnswer } from '../../utils/getPracticeContentClassName';
+
+import type { CreatePractiseSessionRequest } from '../../types';
+
+interface PracticeResponse {
+  cardId: string;
+  correct: boolean;
+}
 
 /**
  * Practise Deck component
@@ -16,12 +23,12 @@ const PractiseDeck = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
 
-  const sessionStartRef = useRef(null);
+  const sessionStartRef = useRef<number | null>(null);
   const hasSavedSessionRef = useRef(false);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
-  const [responses, setResponses] = useState([]);
+  const [responses, setResponses] = useState<PracticeResponse[]>([]);
   const [isFinished, setIsFinished] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
 
@@ -33,13 +40,15 @@ const PractiseDeck = () => {
   } = useDeckQuery(deckId);
 
   const {
-    data: flashcards = [],
+    data: flashcardsData,
     isLoading: flashcardsLoading,
     isError: flashcardsError,
     error: flashcardsQueryError,
   } = useFlashcardsQuery(deckId);
 
   const createPractiseSessionMutation = useCreatePractiseSessionMutation();
+
+  const flashcards = flashcardsData ?? [];
 
   const loading = deckLoading || flashcardsLoading;
 
@@ -53,6 +62,7 @@ const PractiseDeck = () => {
   );
 
   const currentCard = flashcards[currentIndex];
+  const alignAnswerToStart = showAnswer && shouldLeftAlignPracticeAnswer(currentCard?.answer ?? '');
   const currentCardId = currentCard?.id ?? `card-${currentIndex}`;
   const currentResponse = useMemo(
     () => responses.find((response) => response.cardId === currentCardId),
@@ -79,20 +89,20 @@ const PractiseDeck = () => {
     remainingSeconds
   ).padStart(2, '0')}`;
 
-  const persistPracticeSession = async (sessionResponses) => {
-    if (hasSavedSessionRef.current) return;
+  const persistPracticeSession = async (sessionResponses: PracticeResponse[]) => {
+    if (!deckId || hasSavedSessionRef.current) return;
     hasSavedSessionRef.current = true;
 
     const completionMs = sessionStartRef.current
     ? Date.now() - sessionStartRef.current
     : 0;
 
-    const payload = {
-      CorrectCount: sessionResponses.filter((response) => response.correct)
+    const payload: CreatePractiseSessionRequest = {
+      correctCount: sessionResponses.filter((response) => response.correct)
         .length,
-      TotalCount: totalCards,
-      CompletionTime: Math.round(completionMs / 1000),
-      ResponseJson: JSON.stringify(sessionResponses),
+      totalCount: totalCards,
+      completionTime: Math.round(completionMs / 1000),
+      responseJson: JSON.stringify(sessionResponses),
     };
 
     try {
@@ -113,7 +123,7 @@ const PractiseDeck = () => {
     setShowAnswer((current) => !current);
   };
 
-  const handleAnswer = (isCorrect) => {
+  const handleAnswer = (isCorrect: boolean) => {
     const response = {
       cardId: currentCard?.id ?? `card-${currentIndex}`,
       correct: isCorrect,
@@ -333,7 +343,7 @@ const PractiseDeck = () => {
 
 	                <div
                     className={`flex flex-1 py-6 ${
-                      showAnswer
+                      alignAnswerToStart
                         ? 'items-start justify-start text-left'
                         : 'items-center justify-center text-center'
                     }`}
@@ -342,7 +352,7 @@ const PractiseDeck = () => {
 	                    <RichTextContent
 	                      html={showAnswer ? currentCard.answer : currentCard.question}
 	                      className={getPracticeContentClassName(
-                          showAnswer ? currentCard.answer : currentCard.question,
+                          (showAnswer ? currentCard.answer : currentCard.question) ?? '',
                           showAnswer
                         )}
 	                    />

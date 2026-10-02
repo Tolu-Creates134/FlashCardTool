@@ -1,47 +1,48 @@
-import React, { useContext } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
-import { useNavigate } from 'react-router-dom';
-import { loginWithGoogle } from '../../services/api';
-import { AuthContext } from '../../context/Authcontext';
+import React from 'react';
+import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 import { BookOpen } from 'lucide-react';
-import { fetchCurrentUser } from "../../services/api"
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/Authcontext';
+import { fetchCurrentUser, loginWithGoogle } from '../../services/api';
 
 /**
- * Login component
- * @returns 
+ * Signup page component
+ * @returns
  */
-const Login = () => {
+const Signup = () => {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext)
+  const { login } = useAuth();
 
-  const showLoginError = (message) => {
+  const showSignupError = (message: string) => {
     window.dispatchEvent(
       new CustomEvent('api-error', {
-        detail: {message, status: 400}
+        detail: { message, status: 400 },
       })
     );
   };
 
-  const handleSuccess = async (credentialResponse) => {
+  const handleSuccess = async (credentialResponse: CredentialResponse) => {
     const googleIdToken = credentialResponse.credential;
 
+    if (!googleIdToken) {
+      showSignupError('Google sign-in did not return a credential. Please try again.');
+      return;
+    }
+
     try {
-      // Send ID token to backend
-      await loginWithGoogle(googleIdToken)
+      await loginWithGoogle(googleIdToken);
 
       const me = await fetchCurrentUser();
 
       login({
         id: me?.id,
         email: me?.email,
-        name: me?.name || me?.fullName || "",
+        name: me?.name || '',
       });
 
       navigate('/home');
     } catch (error) {
-      showLoginError(
-        'Login failed. Please try again.'
-      )
+      showSignupError('Signup failed. Please try again.');
     }
   };
 
@@ -53,25 +54,26 @@ const Login = () => {
             <BookOpen size={26} />
           </div>
         </div>
+
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
-          Welcome to FlashLearn
+          Create your FlashLearn account
         </h1>
         <p className="mt-3 text-lg text-gray-500">
-          Your AI-Powered Study Companion
+          Start building AI-powered flashcard decks in minutes.
         </p>
 
         <div className="mt-10 bg-white rounded-2xl shadow-lg px-6 py-8 sm:px-10">
           <h2 className="text-2xl font-semibold text-gray-900">
-            Sign in to your account
+            Sign up with Google
           </h2>
           <p className="mt-2 text-gray-500">
-            Continue with Google to access your decks.
+            Use your Google account to get started and save your decks.
           </p>
 
           <div className="mt-8 flex justify-center">
             <GoogleLogin
               onSuccess={handleSuccess}
-              onError={() => showLoginError('Google sign-in failed. Please try again.')}
+              onError={() => showSignupError('Google sign-up failed. Please try again.')}
               auto_select={true}
               size="large"
               shape="rectangular"
@@ -82,14 +84,14 @@ const Login = () => {
 
         <button
           type="button"
-          onClick={() => navigate('/signup')}
+          onClick={() => navigate('/login')}
           className="mt-8 text-indigo-600 font-medium"
         >
-          Don&apos;t have an account? Create one
+          Already have an account? Log in
         </button>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Signup;

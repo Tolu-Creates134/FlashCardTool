@@ -13,7 +13,7 @@ const Scores = () => {
   const { deckId } = useParams();
 
   const {
-    data: practiseSessions = [],
+    data: practiseSessionsData,
     isLoading: sessionsLoading,
     isError: sessionsError,
     error: sessionsQueryError
@@ -25,6 +25,8 @@ const Scores = () => {
     isError: deckError,
     error: deckQueryError
   } = useDeckQuery(deckId)
+
+  const practiseSessions = useMemo(() => practiseSessionsData ?? [], [practiseSessionsData]);
 
   const loading = deckLoading || sessionsLoading
 

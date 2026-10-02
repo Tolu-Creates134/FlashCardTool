@@ -7,10 +7,13 @@ import { ListPractiseSessionsByDeckIdQueryResponse, PractiseSessionDto } from ".
  * @param {string} deckId - The ID of the deck
  * @returns {UseQueryResult} React Query result containing session scores
  */
-export const usePractiseSessionsQuery = (deckId: string): UseQueryResult<PractiseSessionDto[] | null, Error> => {
+export const usePractiseSessionsQuery = (deckId: string | undefined): UseQueryResult<PractiseSessionDto[] | null, Error> => {
     return useQuery<ListPractiseSessionsByDeckIdQueryResponse, Error, PractiseSessionDto[] | null>({
         queryKey: ['practiseSessions', deckId],
-        queryFn: async (): Promise<ListPractiseSessionsByDeckIdQueryResponse> => await fetchPractiseSessions(deckId),
+        queryFn: async (): Promise<ListPractiseSessionsByDeckIdQueryResponse> => {
+            if (!deckId) throw new Error('A deck ID is required');
+            return fetchPractiseSessions(deckId);
+        },
         select: (data: ListPractiseSessionsByDeckIdQueryResponse) => data.sessions ?? [],
         enabled: Boolean(deckId)
     });

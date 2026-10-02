@@ -11,6 +11,26 @@ import RichTextEditor from '../../components/ui/RichTextEditor';
 import { hasRichTextContent } from '../../utils/hasRichTextContent';
 import RichTextContent from '../../components/ui/RichTextContent';
 
+import type { CategoryDto, CreateDeckResponse, GeneratedFlashCardDto } from '../../types';
+import { getErrorMessage } from '../../utils/getErrorMessage';
+
+interface DraftCategory {
+  id: string;
+  name: string;
+}
+
+interface DraftFlashcard {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+interface CreateDeckProps {
+  onSave?: (deck: CreateDeckResponse) => void;
+  categories?: CategoryDto[];
+  onCreateCategory?: (category: CategoryDto) => void;
+}
+
 /**
  * Create deck component
  * @param {*} param0
@@ -20,7 +40,7 @@ const CreateDeck = ({
   onSave = () => {},
   categories: initialCategories = [],
   onCreateCategory = () => {},
-}) => {
+}: CreateDeckProps) => {
   const { categoryId } = useParams();
   
   const DRAFT_CATEGORY_PREFIX = 'draft-category-'
@@ -28,17 +48,17 @@ const CreateDeck = ({
   const [deckName, setDeckName] = useState('');
   const [deckDescription, setDeckDescription] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
-  const [draftCategories, setDraftCategories] = useState([]);
+  const [draftCategories, setDraftCategories] = useState<DraftCategory[]>([]);
 
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
 
-  const [flashcards, setFlashcards] = useState([]);
+  const [flashcards, setFlashcards] = useState<DraftFlashcard[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState('');
   const [currentAnswer, setCurrentAnswer] = useState('');
   const [flashcardError, setFlashcardError] = useState('');
   const [saveError, setSaveError] = useState('');
-  const [flashcardToDelete, setFlashcardToDelete] = useState(null);
+  const [flashcardToDelete, setFlashcardToDelete] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
@@ -68,11 +88,11 @@ const CreateDeck = ({
     if (!name) return;
 
     const existingPersistedCategory = persistedCategories.find(
-      (category) => category.name.trim().toLowerCase() === name.toLowerCase()
+      (category) => (category.name ?? '').trim().toLowerCase() === name.toLowerCase()
     );
 
     if (existingPersistedCategory) {
-      setSelectedCategoryId(existingPersistedCategory.id);
+      setSelectedCategoryId(existingPersistedCategory.id ?? '');
       setNewCategoryName('');
       setShowNewCategoryInput(false);
       setSaveError('')
@@ -80,7 +100,7 @@ const CreateDeck = ({
     }
 
     const existingDraftCategory = draftCategories.find(
-      (category) => category.name.trim().toLowerCase() === name.toLowerCase()
+      (category) => (category.name ?? '').trim().toLowerCase() === name.toLowerCase()
     );
 
     if (existingDraftCategory) {
@@ -142,17 +162,17 @@ const CreateDeck = ({
       }
 
       try {
-        const createdCategory = await createCategoryMutation.mutateAsync({
-          name: selectedDraftCategory.name
-        })
+        const { category: createdCategory } = await createCategoryMutation.mutateAsync({
+          category: { name: selectedDraftCategory.name },
+        });
+        if (!createdCategory?.id) {
+          throw new Error('The created category did not include an ID.');
+        }
 
         resolvedCategoryId = createdCategory.id;
         onCreateCategory(createdCategory)
       } catch (error) {
-        const message = 
-        error.response?.data?.message || 
-        error.message ||
-        'Unable to create category. Please try again.';
+        const message = getErrorMessage(error, 'Unable to create category. Please try again.');
         setSaveError(message);
         return;
       }
@@ -169,13 +189,11 @@ const CreateDeck = ({
     };
 
     try {
-      const createdDeck = await createDeckMutation.mutateAsync(payload);
+      const createdDeck = await createDeckMutation.mutateAsync({ deck: payload });
       onSave(createdDeck);
       navigate('/home');
     } catch (error) {
-      const message =
-        error.response?.data?.message ||
-        'Unable to save deck. Please try again.';
+      const message = getErrorMessage(error, 'Unable to save deck. Please try again.');
 
       setSaveError(message);
     }
@@ -198,17 +216,17 @@ const CreateDeck = ({
     setFlashcardError('');
   };
 
-  const handleRemoveFlashcard = (id) => {
+  const handleRemoveFlashcard = (id: string) => {
     setFlashcards((prev) => prev.filter((card) => card.id !== id));
   };
 
-  const handleApproveAiCards = (approvedCards) => {
+  const handleApproveAiCards = (approvedCards: GeneratedFlashCardDto[]) => {
     setFlashcards((prev) => [
       ...prev,
       ...approvedCards.map((card) => ({
         id: generateUniqueId(),
-        question: card.question,
-        answer: card.answer,
+        question: card.question ?? '',
+        answer: card.answer ?? '',
       })),
     ]);
     setFlashcardError('');
@@ -223,7 +241,7 @@ const CreateDeck = ({
     );
 
     setSelectedCategoryId(
-      hasRequestedCategory ? categoryId : categories[0]?.id || ''
+      hasRequestedCategory ? categoryId ?? '' : categories[0]?.id || ''
     );
   }, [categories, categoryId, selectedCategoryId]);
 
@@ -258,7 +276,7 @@ const CreateDeck = ({
         confirmText='Delete Flashcard'
         onCancel={() => setFlashcardToDelete(null)}
         onConfirm={() => {
-          handleRemoveFlashcard(flashcardToDelete);
+          if (flashcardToDelete) handleRemoveFlashcard(flashcardToDelete);
           setFlashcardToDelete(null);
         }}
       />
