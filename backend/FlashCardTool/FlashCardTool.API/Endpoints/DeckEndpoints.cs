@@ -117,7 +117,7 @@ public static class DeckEndpoints
         })
         .WithName("CreatePractiseSession")
         .WithDescription("Creates a practise session for the current user")
-        .Produces<PractiseSessionDto>(StatusCodes.Status201Created)
+        .Produces<CreatePractiseSessionResponse>(StatusCodes.Status201Created)
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .ProducesProblem(StatusCodes.Status404NotFound);
     }
