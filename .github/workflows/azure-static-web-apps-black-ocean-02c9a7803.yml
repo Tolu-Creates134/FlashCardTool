@@ -20,21 +20,6 @@ jobs:
           submodules: true
           lfs: false
 
-      # ── Frontend ──────────────────────────────────────────
-      - name: Build And Deploy
-        id: builddeploy
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_OCEAN_02C9A7803 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "./frontend"
-          api_location: ""
-          output_location: "build"
-        env:
-          REACT_APP_API_BASE_URL: ${{ secrets.REACT_APP_API_BASE_URL }}
-          REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
-
       # ── Backend: Setup & Test ──────────────────────────────
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -103,6 +88,33 @@ jobs:
             --name flashcards-api \
             --resource-group flashcardsapp-rg \
             --image flashcardsappacr.azurecr.io/flashcards-api:${{ github.sha }}
+
+      # ── Frontend ──────────────────────────────────────────
+      - name: Install Frontend Dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Generate TypeScript Types
+        run: npx openapi-typescript@6.7.6 https://api.flash-learn.online/swagger/v1/swagger.json --output src/types/api.generated.ts && node scripts/generateTypesIndex.js
+        working-directory: ./frontend
+
+      - name: TypeScript Type Check
+        run: npx tsc --noEmit
+        working-directory: ./frontend
+      
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_OCEAN_02C9A7803 }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "./frontend"
+          api_location: ""
+          output_location: "build"
+        env:
+          REACT_APP_API_BASE_URL: ${{ secrets.REACT_APP_API_BASE_URL }}
+          REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
