@@ -16,8 +16,11 @@ const queryClient = new QueryClient({
   }
 });
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('The root element is missing.');
+const root = ReactDOM.createRoot(rootElement);
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+if (!clientId) throw new Error('REACT_APP_GOOGLE_CLIENT_ID is required.');
 
 root.render(
   <React.StrictMode>

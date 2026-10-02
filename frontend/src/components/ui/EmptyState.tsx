@@ -1,12 +1,16 @@
 import React from 'react'
 import { BookOpenIcon, PlusIcon } from "lucide-react";
 
+interface EmptyStateProps {
+  onCreateDeck: () => void;
+}
+
 /**
  * Empty state component for when deck does not exist
  * @param {*} param0 
  * @returns 
  */
-const EmptyState = ({ onCreateDeck }) => {
+const EmptyState = ({ onCreateDeck }: EmptyStateProps) => {
   return (
     <div className="flex flex-col items-center justify-center py-12">
         <BookOpenIcon size={64} className="text-indigo-300 mb-4" />
@@ -17,7 +21,7 @@ const EmptyState = ({ onCreateDeck }) => {
             Create your first deck to start learning with AI-generated flashcards.
         </p>
         <button
-            onClick={onCreateDeck}
+            onClick={() => onCreateDeck()}
             className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 flex items-center"
         >
             <PlusIcon size={18} className="mr-2" />

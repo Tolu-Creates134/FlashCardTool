@@ -1,5 +1,5 @@
 import './App.css';
-import { useContext } from 'react';
+import type { ReactNode } from 'react';
 import Login from './pages/Login/Login';
 import Home from './pages/Home/Home';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
@@ -9,13 +9,13 @@ import ViewDeck from './pages/ViewDeck/ViewDeck';
 import PractiseDeck from './pages/PractiseDeck/PractiseDeck';
 import EditDeck from './pages/EditDeck/EditDeck';
 import Scores from './pages/Scores/Scores';
-import LandingPage from './pages/LandingPage.tsx';
+import LandingPage from './pages/LandingPage';
 import Signup from './pages/Signup/Signup';
-import { AuthContext } from './context/Authcontext';
+import { useAuth } from './context/Authcontext';
 import GlobalErrorToastr from './components/ui/GlobalErrorToastr';
 
-const AuthGate = ({ children }) => {
-  const { authReady } = useContext(AuthContext);
+const AuthGate = ({ children }: { children: ReactNode }) => {
+  const { authReady } = useAuth();
 
   if (!authReady) {
     return (
@@ -25,11 +25,11 @@ const AuthGate = ({ children }) => {
     );
   }
 
-  return children;
+  return <>{children}</>;
 };
 
 const ProtectedRoute = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -39,7 +39,7 @@ const ProtectedRoute = () => {
 };
 
 const PublicOnlyRoute = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
 
   if (user) {
     return <Navigate to="/home" replace />;

@@ -31,8 +31,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "generate:types": "wait-on http://localhost:5133/swagger/v1/swagger.json && openapi-typescript http://localhost:5133/swagger/v1/swagger.json --output src/types/api.generated.ts && node scripts/generateTypesIndex.js",
-    "prestart": "wait-on --timeout 30000 http://localhost:5133/swagger/v1/swagger.json && openapi-typescript http://localhost:5133/swagger/v1/swagger.json --output src/types/api.generated.ts && node scripts/generateTypesIndex.js || echo 'Backend not available — skipping type generation'",
+    "generate:types": "wait-on http://localhost:5133/swagger/v1/swagger.json && openapi-typescript http://localhost:5133/swagger/v1/swagger.json --output src/types/api.generated.ts && npm run generate:types:index",
+    "prestart": "wait-on --timeout 30000 http://localhost:5133/swagger/v1/swagger.json && openapi-typescript http://localhost:5133/swagger/v1/swagger.json --output src/types/api.generated.ts && npm run generate:types:index || echo 'Backend not available — skipping type generation'",
+    "generate:types:index": "tsc -p scripts/tsconfig.json && node .generated-scripts/generateTypesIndex.js",
+    "typecheck": "tsc --noEmit && tsc -p scripts/tsconfig.json --noEmit",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

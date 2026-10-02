@@ -1,12 +1,12 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef, type TextareaHTMLAttributes } from 'react';
 
 /**
  * Textarea that grows to fit its content.
  * @param {*} props
  * @returns
  */
-const AutoResizeTextarea = ({ value, className = '', style, ...props }) => {
-  const textareaRef = useRef(null);
+const AutoResizeTextarea = ({ value, className = '', style, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) => {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useLayoutEffect(() => {
     const textarea = textareaRef.current;

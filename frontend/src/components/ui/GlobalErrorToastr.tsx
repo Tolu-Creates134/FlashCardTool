@@ -6,14 +6,16 @@ import ErrorToastr from './ErrorToastr';
  * @returns
  */
 const GlobalErrorToastr = () => {
-    const [apiError, setApiError] = useState(null);
+    const [apiError, setApiError] = useState<{ id: number; message: string } | null>(null);
 
     useEffect(() => {
-        const handleApiError = (event) => {
-            const detail = event?.detail || {};
+        const handleApiError = (event: Event) => {
+            const detail: unknown = event instanceof CustomEvent ? event.detail : undefined;
+            const message = detail && typeof detail === 'object' && 'message' in detail
+              && typeof detail.message === 'string' ? detail.message : '';
             setApiError({
                 id: Date.now(),
-                message: detail.message || 'Request failed'
+                message: message || 'Request failed'
             })
         }
 

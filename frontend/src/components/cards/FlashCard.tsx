@@ -2,12 +2,19 @@ import React from 'react';
 import { CircleHelp, MessageSquareQuote } from 'lucide-react';
 import RichTextContent from '../ui/RichTextContent';
 
+import type { FlashCardDto } from '../../types';
+
+interface FlashCardProps {
+  flashcard: FlashCardDto;
+  index: number;
+}
+
 /**
  * Single flashcard component
  * @param {*} param0
  * @returns
  */
-const FlashCard = ({ flashcard, index }) => {
+const FlashCard = ({ flashcard, index }: FlashCardProps) => {
   return (
     <div
       key={flashcard.id || index}

@@ -1,6 +1,19 @@
 import React, { useEffect, useRef } from 'react';
 import { AlertTriangle } from 'lucide-react';
 
+interface ConfirmActionModalProps {
+  isOpen: boolean;
+  title: string;
+  message?: React.ReactNode;
+  content?: React.ReactNode;
+  confirmText?: string;
+  cancelText?: string;
+  isConfirmDisabled?: boolean;
+  isCancelDisabled?: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
 /**
  * Reusable confirmation modal for destructive actions
  * @param {*} param0
@@ -17,8 +30,8 @@ const ConfirmActionModal = ({
   isCancelDisabled = false,
   onConfirm,
   onCancel,
-}) => {
-  const cancelButtonRef = useRef(null);
+}: ConfirmActionModalProps) => {
+  const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
   const messages = Array.isArray(message) ? message : [message];
 
   useEffect(() => {
@@ -26,7 +39,7 @@ const ConfirmActionModal = ({
 
     cancelButtonRef.current?.focus();
 
-    const handleKeyDown = (event) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onCancel();
       }

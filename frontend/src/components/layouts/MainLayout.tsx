@@ -6,8 +6,7 @@ import {
   BookOpen as BookOpenIcon,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../../context/Authcontext";
+import { useAuth } from "../../context/Authcontext";
 import { Outlet } from "react-router-dom";
 
 /**
@@ -17,7 +16,7 @@ import { Outlet } from "react-router-dom";
 const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout, user } = useContext(AuthContext);
+  const { logout, user } = useAuth();
 
 
   const currentPage =

@@ -1,12 +1,20 @@
 import React, {useEffect} from 'react'
 import { BookOpenIcon } from "lucide-react";
 
+import type { DeckSummaryDto } from '../../types';
+
+interface DeckCardProps {
+  deck: DeckSummaryDto;
+  categoryName?: string | null;
+  onSelect: (deckId: string | undefined) => void;
+}
+
 /**
  * Handles rendering a single deck (name, description, category)
  * @param {*} param0 
  * @returns 
  */
-const DeckCard = ({ deck, categoryName, onSelect }) => {
+const DeckCard = ({ deck, categoryName, onSelect }: DeckCardProps) => {
 
   useEffect(() => {
   }, [])

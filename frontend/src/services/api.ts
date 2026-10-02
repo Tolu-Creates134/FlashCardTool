@@ -11,7 +11,6 @@ CreateDeckResponse,
 CreatePractiseSessionRequest, 
 CreatePractiseSessionResponse, 
 DeckDto, 
-GenerateFlashcardsRequest, 
 GenerateFlashcardsResponse, 
 GetCurrentUserQueryResponse, 
 GetDeckByIdResponse, 
@@ -227,10 +226,10 @@ export const updateDeck = async (deckId: string, deckData: DeckDto): Promise<voi
 
 /**
  * Generates AI flashcard preview drafts
- * @param {GenerateFlashcardsRequest} formData
+ * @param {FormData} formData
  * @returns {Promise<GenerateFlashcardsResponse>}
  */
-export const generateFlashcardsPreview = async (formData: GenerateFlashcardsRequest): Promise<GenerateFlashcardsResponse> => {
+export const generateFlashcardsPreview = async (formData: FormData): Promise<GenerateFlashcardsResponse> => {
   const res = await api.post('/decks/ai/generate-preview', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',

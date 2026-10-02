@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Sparkles, Trash2, Upload } from 'lucide-react';
 import { generateFlashcardsPreview } from '../../services/api';
 import { generateUniqueId } from '../../utils/helpers';
@@ -7,7 +7,32 @@ import ConfirmActionModal from './ConfirmActionModal';
 import RichTextEditor from './RichTextEditor';
 import { hasRichTextContent } from '../../utils/hasRichTextContent';
 
-const normalizeGeneratedCards = (responseData) => {
+import type { GeneratedFlashCardDto, GenerateFlashcardsResponse } from '../../types';
+
+interface ReviewCard {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+interface AiFlashcardGeneratorProps {
+  onApprove: (cards: GeneratedFlashCardDto[]) => void;
+  existingCount?: number;
+}
+
+// Preserve compatibility with older responses that used PascalCase fields.
+type CompatibleGeneratedCard = GeneratedFlashCardDto & {
+  Question?: string | null;
+  Answer?: string | null;
+};
+type CompatibleGenerationResponse = Omit<GenerateFlashcardsResponse, 'flashCards'> & {
+  flashCards?: CompatibleGeneratedCard[] | null;
+  FlashCards?: CompatibleGeneratedCard[] | null;
+  Warnings?: string[] | null;
+  SourceSummary?: string | null;
+};
+
+const normalizeGeneratedCards = (responseData: CompatibleGenerationResponse): ReviewCard[] => {
   const cards = responseData?.flashCards || responseData?.FlashCards || [];
 
   return cards
@@ -24,23 +49,23 @@ const normalizeGeneratedCards = (responseData) => {
  * @param {*} param0
  * @returns
  */
-const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
+const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }: AiFlashcardGeneratorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [sourceText, setSourceText] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [instructions, setInstructions] = useState('');
   const [targetCardCount, setTargetCardCount] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [generationComplete, setGenerationComplete] = useState(false);
   const [generationMessage, setGenerationMessage] = useState('Generating your flashcards...');
-  const [generatedCards, setGeneratedCards] = useState([]);
-  const [warnings, setWarnings] = useState([]);
+  const [generatedCards, setGeneratedCards] = useState<ReviewCard[]>([]);
+  const [warnings, setWarnings] = useState<string[]>([]);
   const [sourceSummary, setSourceSummary] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [cardToDelete, setCardToDelete] = useState(null);
-  const progressIntervalRef = useRef(null);
+  const [cardToDelete, setCardToDelete] = useState<string | null>(null);
+  const progressIntervalRef = useRef<number | null>(null);
   const [isDiscardDraftModalOpen, setIsDiscardDraftModalOpen] = useState(false);
 
   const hasDraft = generatedCards.length > 0;
@@ -69,7 +94,7 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
     setIsOpen((prev) => !prev);
   };
 
-  const handleFileChange = (event) => {
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
     setSelectedFile(file);
   };
@@ -134,7 +159,7 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
     setNotice('');
 
     try {
-      const response = await generateFlashcardsPreview(formData);
+      const response: CompatibleGenerationResponse = await generateFlashcardsPreview(formData);
       const nextCards = normalizeGeneratedCards(response);
 
       if (nextCards.length === 0) {
@@ -168,13 +193,13 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
     setIsGenerating(false);
   };
 
-  const handleCardChange = (id, key, value) => {
+  const handleCardChange = (id: string, key: 'question' | 'answer', value: string) => {
     setGeneratedCards((prev) =>
       prev.map((card) => (card.id === id ? { ...card, [key]: value } : card))
     );
   };
 
-  const handleRemoveCard = (id) => {
+  const handleRemoveCard = (id: string) => {
     setGeneratedCards((prev) => prev.filter((card) => card.id !== id));
   };
 
@@ -225,7 +250,7 @@ const AiFlashcardGenerator = ({ onApprove, existingCount = 0 }) => {
         confirmText="Delete Card"
         onCancel={() => setCardToDelete(null)}
         onConfirm={() => {
-          handleRemoveCard(cardToDelete);
+          if (cardToDelete) handleRemoveCard(cardToDelete);
           setCardToDelete(null);
         }}
       />

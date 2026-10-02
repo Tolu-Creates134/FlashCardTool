@@ -1,6 +1,13 @@
 import React from 'react';
 import { CheckCircle2, Sparkles } from 'lucide-react';
 
+interface AIProgressBarProps {
+  isVisible: boolean;
+  progress?: number;
+  message?: string;
+  isComplete?: boolean;
+}
+
 /**
  * Reusable centered progress overlay for long-running AI operations
  * @param {*} param0
@@ -11,7 +18,7 @@ const AIProgressBar = ({
   progress = 0,
   message = 'Generating your flashcards...',
   isComplete = false,
-}) => {
+}: AIProgressBarProps) => {
   if (!isVisible) return null;
 
   return (

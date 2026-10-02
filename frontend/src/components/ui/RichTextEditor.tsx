@@ -30,6 +30,13 @@ lowlight.register({
   csharp
 });
 
+interface RichTextEditorProps {
+  value: string;
+  onChange: (html: string) => void;
+  placeholder?: string;
+  minHeightClass?: string;
+}
+
 /**
  * Rich Text Editor Component
  * @param root0
@@ -39,7 +46,7 @@ lowlight.register({
  * @param root0.minHeightClass
  * @returns 
  */
-const RichTextEditor = ({value, onChange, placeholder = '', minHeightClass = 'min-h-[120px]'}) => {
+const RichTextEditor = ({value, onChange, placeholder = '', minHeightClass = 'min-h-[120px]' }: RichTextEditorProps) => {
     const extensions = useMemo(() => [
         StarterKit.configure({
             codeBlock: false,
@@ -73,7 +80,7 @@ const RichTextEditor = ({value, onChange, placeholder = '', minHeightClass = 'mi
         const nextHtml = value || '<p></p>';
 
         if (currentHtml !== nextHtml) {
-            editor.commands.setContent(nextHtml, false)
+            editor.commands.setContent(nextHtml, { emitUpdate: false })
         }
 
     }, [editor, value])

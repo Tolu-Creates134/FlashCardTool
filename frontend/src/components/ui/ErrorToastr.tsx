@@ -2,12 +2,19 @@ import React, { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react';
 
+interface ErrorToastrProps {
+  message: string;
+  onClose: () => void;
+  duration?: number;
+  id?: number;
+}
+
 /**
  * Error message component for failed API requests
  * @param {*} param0 
  * @returns 
  */
-const ErrorToastr = ({ message, onClose, duration = 5000, id}) => {
+const ErrorToastr = ({ message, onClose, duration = 5000 }: ErrorToastrProps) => {
     useEffect(() => {
         const timer = setTimeout(onClose, duration);
         return () => clearTimeout(timer);
