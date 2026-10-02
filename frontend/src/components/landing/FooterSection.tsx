@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import { BookOpenIcon } from 'lucide-react';
 
 /**
  * Footer section for the public landing page
- * @returns
+ * @returns {JSX.Element}
  */
-const FooterSection = () => {
+const FooterSection = (): JSX.Element => {
   return (
     <footer className="border-t border-slate-200 bg-slate-50 py-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

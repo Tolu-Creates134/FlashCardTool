@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import { FolderIcon, PlayIcon, TrendingUpIcon, ZapIcon } from 'lucide-react';
 
 const features = [
@@ -34,9 +34,9 @@ const features = [
 
 /**
  * Product feature grid for the public landing page
- * @returns
+ * @returns {JSX.Element}
  */
-const FeaturesSection = () => {
+const FeaturesSection = (): JSX.Element => {
   return (
     <section className="bg-slate-50 py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

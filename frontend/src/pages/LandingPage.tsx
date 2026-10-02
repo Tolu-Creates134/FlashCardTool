@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { type JSX, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CTASection from '../components/landing/CTASection';
 import FeaturesSection from '../components/landing/FeaturesSection';
@@ -9,13 +9,13 @@ import LearningScienceSection from '../components/landing/LearningScienceSection
 
 /**
  * Public landing page shown before authentication
- * @returns
+ * @returns {JSX.Element}
  */
-const LandingPage = () => {
+const LandingPage = (): JSX.Element => {
   const navigate = useNavigate();
-  const howItWorksRef = useRef(null);
+  const howItWorksRef = useRef<HTMLElement | null>(null);
 
-  const scrollToHowItWorks = () => {
+  const scrollToHowItWorks = (): void => {
     howItWorksRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 

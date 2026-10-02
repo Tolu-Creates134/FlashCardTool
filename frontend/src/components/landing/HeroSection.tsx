@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import { ArrowRightIcon, BookOpenIcon, SparklesIcon } from 'lucide-react';
+
+interface HeroSectionProps {
+  onLogin: () => void;
+  onSignup: () => void;
+  onScrollToHowItWorks: () => void;
+}
 
 /**
  * Marketing hero section for the public landing page
- * @param {*} param0
- * @returns
+ * @param {HeroSectionProps} props - Navigation and scroll callbacks.
+ * @returns {JSX.Element}
  */
-const HeroSection = ({ onLogin, onSignup, onScrollToHowItWorks }) => {
+const HeroSection = ({ onLogin, onSignup, onScrollToHowItWorks }: HeroSectionProps): JSX.Element => {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-indigo-50 via-white to-slate-50 pb-24">
       <div className="absolute inset-0 pointer-events-none">

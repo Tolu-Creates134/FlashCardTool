@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import { ArrowRightIcon } from 'lucide-react';
+
+interface CTASectionProps {
+  onSignup: () => void;
+}
 
 /**
  * Final call-to-action section for the landing page
- * @param {*} param0
- * @returns
+ * @param {CTASectionProps} props - Signup callback.
+ * @returns {JSX.Element}
  */
-const CTASection = ({ onSignup }) => {
+const CTASection = ({ onSignup }: CTASectionProps): JSX.Element => {
   return (
     <section className="bg-white py-24">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">

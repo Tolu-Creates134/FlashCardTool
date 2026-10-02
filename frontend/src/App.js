@@ -9,7 +9,7 @@ import ViewDeck from './pages/ViewDeck/ViewDeck';
 import PractiseDeck from './pages/PractiseDeck/PractiseDeck';
 import EditDeck from './pages/EditDeck/EditDeck';
 import Scores from './pages/Scores/Scores';
-import LandingPage from './pages/LandingPage';
+import LandingPage from './pages/LandingPage.tsx';
 import Signup from './pages/Signup/Signup';
 import { AuthContext } from './context/Authcontext';
 import GlobalErrorToastr from './components/ui/GlobalErrorToastr';

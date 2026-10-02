@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import { PlayIcon, SparklesIcon, UploadIcon } from 'lucide-react';
 
 const steps = [
@@ -60,11 +60,11 @@ const steps = [
 
 /**
  * Three-step explainer section for the landing page
- * @param {*} props
- * @param {*} ref
- * @returns
+ * @param {object} props - No additional props are required.
+ * @param {React.ForwardedRef<HTMLElement>} ref - The section's DOM ref.
+ * @returns {JSX.Element}
  */
-const HowItWorksSection = React.forwardRef((props, ref) => {
+const HowItWorksSection = React.forwardRef<HTMLElement>(function HowItWorksSection(props, ref): JSX.Element {
   return (
     <section ref={ref} className="bg-white py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

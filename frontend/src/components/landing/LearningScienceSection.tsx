@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import { BrainIcon, CheckIcon, ClockIcon } from 'lucide-react';
 
 const principles = [
@@ -27,9 +27,9 @@ const principles = [
 
 /**
  * Learning science section for the public landing page
- * @returns
+ * @returns {JSX.Element}
  */
-const LearningScienceSection = () => {
+const LearningScienceSection = (): JSX.Element => {
   return (
     <section className="relative overflow-hidden bg-slate-900 py-24 text-white">
       <div className="absolute inset-0 pointer-events-none">
