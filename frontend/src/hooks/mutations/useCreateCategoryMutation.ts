@@ -1,6 +1,6 @@
 import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { createCategory } from '../../services/api';
-import { CreateCategoryCommand, CreateCategoryResponse, ListAllCategoriesResponse } from '../../types';
+import { CategoryDto, CreateCategoryCommand, CreateCategoryResponse, ListAllCategoriesResponse } from '../../types';
 
 /**
  * Mutation hook for creating a new category
@@ -16,11 +16,11 @@ export const useCreateCategoryMutation = () : UseMutationResult<CreateCategoryRe
 
             if (!createdCategory) return;
 
-            queryClient.setQueryData<ListAllCategoriesResponse>(['categories'], (existing) => ({
+            queryClient.setQueryData<ListAllCategoriesResponse>(['categories'], (existing: ListAllCategoriesResponse | undefined) => ({
                 ...existing,
                 categories: [
                     createdCategory,
-                    ...(existing?.categories ?? []).filter((category) => category.id !== createdCategory.id),
+                    ...(existing?.categories ?? []).filter((category: CategoryDto) => category.id !== createdCategory.id),
                 ],
             }));
         },
