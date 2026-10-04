@@ -1,0 +1,100 @@
+import React from 'react';
+import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
+import { useNavigate } from 'react-router-dom';
+import { loginWithGoogle } from '../../services/api';
+import { useAuth } from '../../context/Authcontext';
+import { BookOpen } from 'lucide-react';
+import { fetchCurrentUser } from "../../services/api"
+
+/**
+ * Login component
+ * @returns 
+ */
+const Login = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth()
+
+  const showLoginError = (message: string) => {
+    window.dispatchEvent(
+      new CustomEvent('api-error', {
+        detail: {message, status: 400}
+      })
+    );
+  };
+
+  const handleSuccess = async (credentialResponse: CredentialResponse) => {
+    const googleIdToken = credentialResponse.credential;
+
+    if (!googleIdToken) {
+      showLoginError('Google sign-in did not return a credential. Please try again.');
+      return;
+    }
+
+    try {
+      // Send ID token to backend
+      await loginWithGoogle(googleIdToken)
+
+      const me = await fetchCurrentUser();
+
+      login({
+        id: me?.id,
+        email: me?.email,
+        name: me?.name || "",
+      });
+
+      navigate('/home');
+    } catch (error) {
+      showLoginError(
+        'Login failed. Please try again.'
+      )
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6 py-12">
+      <div className="w-full max-w-xl text-center">
+        <div className="flex items-center justify-center mb-4">
+          <div className="h-12 w-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+            <BookOpen size={26} />
+          </div>
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
+          Welcome to FlashLearn
+        </h1>
+        <p className="mt-3 text-lg text-gray-500">
+          Your AI-Powered Study Companion
+        </p>
+
+        <div className="mt-10 bg-white rounded-2xl shadow-lg px-6 py-8 sm:px-10">
+          <h2 className="text-2xl font-semibold text-gray-900">
+            Sign in to your account
+          </h2>
+          <p className="mt-2 text-gray-500">
+            Continue with Google to access your decks.
+          </p>
+
+          <div className="mt-8 flex justify-center">
+            <GoogleLogin
+              onSuccess={handleSuccess}
+              onError={() => showLoginError('Google sign-in failed. Please try again.')}
+              auto_select={true}
+              size="large"
+              shape="rectangular"
+              width={320}
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigate('/signup')}
+          className="mt-8 text-indigo-600 font-medium"
+        >
+          Don&apos;t have an account? Create one
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Login;

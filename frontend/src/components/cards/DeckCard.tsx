@@ -1,0 +1,46 @@
+import React, {useEffect} from 'react'
+import { BookOpenIcon } from "lucide-react";
+
+import type { DeckSummaryDto } from '../../types';
+
+interface DeckCardProps {
+  deck: DeckSummaryDto;
+  categoryName?: string | null;
+  onSelect: (deckId: string | undefined) => void;
+}
+
+/**
+ * Handles rendering a single deck (name, description, category)
+ * @param {*} param0 
+ * @returns 
+ */
+const DeckCard = ({ deck, categoryName, onSelect }: DeckCardProps) => {
+
+  useEffect(() => {
+  }, [])
+
+  return (
+    <div
+      className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer h-48 flex flex-col"
+      onClick={() => onSelect(deck.id)}
+    >
+      <div className="flex items-center mb-3">
+        <BookOpenIcon size={18} className="text-indigo-500 mr-2" />
+        <h3 className="font-semibold text-lg text-gray-800">{deck.name}</h3>
+      </div>
+
+      <p className="text-gray-600 mb-4 text-sm flex-grow">{deck.description}</p>
+
+      <div className="flex justify-between items-center mt-auto">
+        <span className="text-xs text-500 font-semibold">
+          {deck.flashCardCount || 0} cards
+        </span>
+        <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">
+          {categoryName || "Uncategorized"}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+export default DeckCard
