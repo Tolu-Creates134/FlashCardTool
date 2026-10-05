@@ -94,7 +94,7 @@ api.interceptors.response.use(
     }
 
     // Only emit error if not flagged to skip
-    if (!skipErrorToast) {
+    if (!skipErrorToast && !isAuthRoute) {
       emitApiError(error as unknown as EmitApiErrorInput);
     } else {
     }
