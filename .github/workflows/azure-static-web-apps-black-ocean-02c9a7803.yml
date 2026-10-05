@@ -97,7 +97,19 @@ jobs:
       - name: Generate TypeScript Types
         run: |
               npx openapi-typescript@6.7.6 https://api.flash-learn.online/swagger/v1/swagger.json --output src/types/api.generated.ts
-              node -e "const fs=require('fs');const g=fs.readFileSync('src/types/api.generated.ts','utf8');const m=(g.match(/(\w+):\s*\{/g)||[]).map(x=>x.replace(/:\s*\{/,'').trim()).filter(n=>n!=='schemas'&&n!=='components').filter((n,i,s)=>s.indexOf(n)===i).filter(n=>/^[A-Z][a-zA-Z]+$/.test(n));const c='// Auto generated\nimport type { components } from \'./api.generated\';\n\n'+m.map(n=>'export type '+n+' = components[\'schemas\'][\''+n+'\'];').join('\n');fs.writeFileSync('src/types/index.ts',c);console.log('Generated '+m.length+' types');"
+              node -e "
+                const fs = require('fs');
+                const generated = fs.readFileSync('src/types/api.generated.ts', 'utf8');
+                const schemasMatch = generated.match(/schemas:\s*\{([\s\S]*?)(?=\n {4}\};\n {2}\};)/);
+                if (!schemasMatch) { console.error('Could not find schemas'); process.exit(1); }
+                const names = [...schemasMatch[1].matchAll(/^ {4}(\w+):\s*\{/gm)]
+                  .map(m => m[1])
+                  .filter(n => /^[A-Z][a-zA-Z]+$/.test(n))
+                  .filter((n, i, s) => s.indexOf(n) === i);
+                const content = '// Auto generated\nimport type { components } from \'./api.generated\';\n\n' + names.map(n => 'export type ' + n + ' = components[\'schemas\'][\''+n+'\'];').join('\n');
+                fs.writeFileSync('src/types/index.ts', content);
+                console.log('Generated ' + names.length + ' types');
+              "
         working-directory: ./frontend
 
       - name: TypeScript Type Check
